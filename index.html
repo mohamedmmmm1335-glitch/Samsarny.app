@@ -21,34 +21,41 @@
   .logo span { color: var(--text); font-weight: 400; font-size: 0.9rem; display: block; line-height: 1; }
 
   .hero { position: relative; padding: 40px 24px; text-align: center; z-index: 1; }
-  .hero h1 { font-family: 'Tajawal', sans-serif; font-size: clamp(2rem, 5vw, 3rem); font-weight: 800; margin-bottom: 12px; }
-  .hero h1 .highlight { background: linear-gradient(135deg, var(--gold), var(--gold-light)); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; }
+  .hero h1 { font-family: 'Tajawal', sans-serif; font-size: clamp(2.2rem, 6vw, 3.5rem); font-weight: 900; line-height: 1.2; margin-bottom: 15px; }
+  .hero h1 .highlight { background: linear-gradient(135deg, var(--gold), var(--gold-light)); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; text-shadow: 0 10px 20px rgba(201,168,76,0.2); }
   
-  .search-bar { display: flex; gap: 10px; max-width: 640px; margin: 0 auto 16px; background: var(--dark2); border: 1.5px solid rgba(201,168,76,0.25); border-radius: 14px; padding: 12px 16px; align-items: center; }
+  .search-bar { display: flex; gap: 10px; max-width: 640px; margin: 0 auto 16px; background: var(--dark2); border: 1.5px solid rgba(201,168,76,0.25); border-radius: 14px; padding: 12px 16px; align-items: center; box-shadow: 0 10px 30px rgba(0,0,0,0.3); }
   .search-bar input { flex: 1; background: transparent; border: none; outline: none; color: var(--text); font-family: 'Cairo'; font-size: 1rem; }
   
   .filter-pills { display: flex; gap: 8px; justify-content: center; flex-wrap: wrap; margin-bottom: 40px; }
-  .pill { padding: 7px 16px; border-radius: 50px; border: 1.5px solid rgba(201,168,76,0.2); background: transparent; color: var(--text-muted); cursor: pointer; transition: 0.2s; }
-  .pill.active { background: rgba(201,168,76,0.15); border-color: var(--gold); color: var(--gold); }
+  .pill { padding: 8px 18px; border-radius: 50px; border: 1.5px solid rgba(201,168,76,0.2); background: transparent; color: var(--text-muted); cursor: pointer; transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1); font-weight: 600; }
+  .pill.active { background: var(--gold); border-color: var(--gold); color: #0f0f0f; transform: translateY(-2px); box-shadow: 0 5px 15px rgba(201,168,76,0.3); }
 
-  .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 20px; padding: 0 24px 60px; position: relative; z-index: 1; }
-  .card { position: relative; background: var(--card); border-radius: var(--radius); border: 1px solid rgba(255,255,255,0.06); overflow: hidden; transition: 0.25s; }
-  .card-img { width: 100%; height: 200px; object-fit: cover; background: #2a2a2a; border-bottom: 1px solid rgba(201,168,76,0.1); }
-  .card-body { padding: 18px; }
-  .price { font-family: 'Tajawal'; font-weight: 800; font-size: 1.3rem; color: var(--gold); margin-bottom: 5px; }
-  .call-btn { padding: 12px; border-radius: 10px; background: var(--gold); color: #0f0f0f; text-decoration: none; font-weight: 700; display: block; text-align: center; margin-top: 15px; }
-
-  /* زر الحذف */
-  .delete-btn { position: absolute; left: 10px; top: 10px; background: rgba(220, 53, 69, 0.9); color: white; border: none; border-radius: 8px; padding: 6px 12px; cursor: pointer; z-index: 10; font-family: 'Cairo'; font-weight: 600; font-size: 0.8rem; box-shadow: 0 4px 10px rgba(0,0,0,0.3); }
-
-  .fab { position: fixed; bottom: 30px; left: 24px; width: 60px; height: 60px; border-radius: 50%; background: var(--gold); border: none; font-size: 35px; display: none; align-items: center; justify-content: center; padding-bottom: 7px; cursor: pointer; z-index: 500; box-shadow: 0 8px 30px rgba(201,168,76,0.4); }
+  .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)); gap: 24px; padding: 0 24px 80px; position: relative; z-index: 1; }
+  .card { position: relative; background: var(--card); border-radius: var(--radius); border: 1px solid rgba(255,255,255,0.06); overflow: hidden; transition: transform 0.3s ease; box-shadow: 0 15px 35px rgba(0,0,0,0.2); }
+  .card:hover { transform: translateY(-8px); border-color: rgba(201,168,76,0.3); }
+  .card-img { width: 100%; height: 220px; object-fit: cover; background: #2a2a2a; border-bottom: 1px solid rgba(201,168,76,0.1); }
+  .card-body { padding: 20px; }
+  .price { font-family: 'Tajawal'; font-weight: 900; font-size: 1.4rem; color: var(--gold); margin-bottom: 8px; }
+  .card-title { font-size: 1.2rem; font-weight: 700; margin-bottom: 10px; color: #fff; }
+  .card-info { color: var(--text-muted); font-size: 0.9rem; display: flex; align-items: center; gap: 5px; }
   
-  .modal-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.95); z-index: 1000; display: none; align-items: center; justify-content: center; padding: 20px; overflow-y: auto; }
+  .call-btn { padding: 14px; border-radius: 12px; background: linear-gradient(135deg, var(--gold), var(--gold-light)); color: #0f0f0f; text-decoration: none; font-weight: 800; display: flex; align-items: center; justify-content: center; gap: 8px; margin-top: 20px; transition: 0.3s; }
+  .call-btn:active { transform: scale(0.96); }
+
+  .delete-btn { position: absolute; left: 12px; top: 12px; background: rgba(220, 53, 69, 0.95); color: white; border: none; border-radius: 10px; padding: 8px 14px; cursor: pointer; z-index: 10; font-family: 'Cairo'; font-weight: 700; font-size: 0.85rem; box-shadow: 0 5px 15px rgba(0,0,0,0.4); backdrop-filter: blur(4px); }
+
+  .fab { position: fixed; bottom: 35px; left: 25px; width: 65px; height: 65px; border-radius: 20px; background: var(--gold); border: none; font-size: 40px; display: none; align-items: center; justify-content: center; cursor: pointer; z-index: 500; box-shadow: 0 10px 30px rgba(201,168,76,0.5); transform: rotate(0deg); transition: 0.3s; }
+  .fab:hover { transform: rotate(90deg); scale: 1.1; }
+  
+  .modal-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.92); z-index: 1000; display: none; align-items: center; justify-content: center; padding: 20px; backdrop-filter: blur(8px); }
   .modal-overlay.open { display: flex; }
-  .modal { background: var(--dark2); border-radius: 20px; width: 100%; max-width: 450px; padding: 25px; border: 1px solid var(--gold); margin-top: auto; margin-bottom: auto; }
-  .form-control { width: 100%; background: var(--dark3); border: 1px solid #333; border-radius: 10px; padding: 12px; color: white; margin-bottom: 12px; font-family: 'Cairo'; }
-  .img-upload-box { background: var(--dark3); border: 2px dashed #444; border-radius: 12px; padding: 20px; text-align: center; cursor: pointer; margin-bottom: 15px; position: relative; }
-  #previewImg { width: 100%; max-height: 150px; object-fit: contain; border-radius: 8px; display: none; margin-top: 10px; }
+  .modal { background: var(--dark2); border-radius: 24px; width: 100%; max-width: 480px; padding: 30px; border: 1.5px solid rgba(201,168,76,0.3); max-height: 90vh; overflow-y: auto; }
+  .form-control { width: 100%; background: var(--dark3); border: 1.5px solid #333; border-radius: 12px; padding: 14px; color: white; margin-bottom: 15px; font-family: 'Cairo'; font-size: 1rem; outline: none; transition: 0.3s; }
+  .form-control:focus { border-color: var(--gold); background: #2a2a2a; }
+  .img-upload-box { background: var(--dark3); border: 2px dashed #444; border-radius: 16px; padding: 30px; text-align: center; cursor: pointer; margin-bottom: 20px; transition: 0.3s; }
+  .img-upload-box:hover { border-color: var(--gold); background: #2a2a2a; }
+  #previewImg { width: 100%; max-height: 200px; object-fit: cover; border-radius: 12px; display: none; margin-top: 15px; border: 1px solid var(--gold); }
 </style>
 </head>
 <body>
@@ -63,7 +70,7 @@
 <section class="hero">
   <h1>اوعى تدور على عقار<br> من غير <span class="highlight">سمسرني</span></h1>
   <div class="search-bar">
-    <input type="text" placeholder="ابحث بالعنوان أو المنطقة..." id="searchInput" oninput="applyFilters()">
+    <input type="text" placeholder="ابحث بالعنوان، السعر، أو المنطقة..." id="searchInput" oninput="applyFilters()">
   </div>
   <div class="filter-pills">
     <button class="pill active" onclick="setFilter('type', 'all', this)">الكل</button>
@@ -81,22 +88,22 @@
 
 <div class="modal-overlay" id="addModal">
   <div class="modal">
-    <h2 style="margin-bottom:20px; color:var(--gold)">إضافة عقار جديد</h2>
+    <h2 style="margin-bottom:25px; color:var(--gold); text-align:center;">إضافة عقار جديد ✨</h2>
     <div class="img-upload-box" onclick="document.getElementById('fileInput').click()">
-      <p id="uploadStatus">📸 اضغط هنا لتصوير العقار</p>
+      <p id="uploadStatus" style="color:var(--text-muted)">📸 اضغط هنا لاختيار صورة العقار</p>
       <input type="file" id="fileInput" hidden accept="image/*" onchange="handleImage(this)">
       <img id="previewImg">
     </div>
-    <input type="text" id="f_title" class="form-control" placeholder="عنوان الإعلان">
-    <div style="display:flex; gap:10px;">
+    <input type="text" id="f_title" class="form-control" placeholder="عنوان الإعلان (مثلاً: شقة لقطة)">
+    <div style="display:flex; gap:12px;">
       <select id="f_purpose" class="form-control"><option value="بيع">بيع</option><option value="إيجار">إيجار</option></select>
       <select id="f_type" class="form-control"><option value="شقة">شقة</option><option value="محل">محل</option><option value="أرض">أرض</option></select>
     </div>
-    <input type="number" id="f_price" class="form-control" placeholder="السعر">
-    <input type="text" id="f_area" class="form-control" placeholder="المنطقة">
-    <input type="tel" id="f_phone" class="form-control" placeholder="رقم التواصل">
-    <button class="call-btn" style="width: 100%; border: none; cursor:pointer;" onclick="saveToFirebase()">نشر الإعلان</button>
-    <button onclick="closeModal()" style="background:none; border:none; color:grey; width:100%; margin-top:15px; cursor:pointer;">إلغاء</button>
+    <input type="number" id="f_price" class="form-control" placeholder="السعر بالجنيه">
+    <input type="text" id="f_area" class="form-control" placeholder="المنطقة / العنوان بالتفصيل">
+    <input type="tel" id="f_phone" class="form-control" placeholder="رقم الموبايل للتواصل">
+    <button class="call-btn" style="width: 100%; border: none; cursor:pointer;" onclick="saveToFirebase()">🚀 انشر الإعلان الآن</button>
+    <button onclick="closeModal()" style="background:none; border:none; color:rgba(255,255,255,0.4); width:100%; margin-top:20px; cursor:pointer; font-family:'Cairo'">إلغاء الأمر</button>
   </div>
 </div>
 
@@ -112,11 +119,24 @@
   let currentFilters = { type: 'all', purpose: 'all' };
   let base64Image = "";
 
-  function adminAccess() {
-    if(prompt("كلمة السر للإدارة:") === "155361") {
-      document.getElementById('adminBtn').style.display = 'flex';
-      applyFilters(); // لتحديث العرض وإظهار أزرار الحذف فوراً
-      alert("مرحباً بك يا محمد في لوحة التحكم ✅");
+  // نظام أمان متقدم: التحقق من Firebase مباشرة
+  async function adminAccess() {
+    const input = prompt("أدخل كلمة السر السرية للدخول:");
+    if(!input) return;
+    
+    try {
+      const snap = await db.ref('admin_pass').get();
+      const securePass = String(snap.val());
+      
+      if(input === securePass) {
+        document.getElementById('adminBtn').style.display = 'flex';
+        applyFilters();
+        alert("أهلاً بك يا محمد! تم تفعيل وضع الإدارة 🔓");
+      } else {
+        alert("كلمة السر خطأ! حاول مرة أخرى ❌");
+      }
+    } catch (e) {
+      alert("عذراً، حدث خطأ في الاتصال بالأمان.");
     }
   }
 
@@ -128,7 +148,7 @@
         base64Image = e.target.result;
         document.getElementById('previewImg').src = base64Image;
         document.getElementById('previewImg').style.display = 'block';
-        document.getElementById('uploadStatus').innerText = "تم التقاط الصورة ✅";
+        document.getElementById('uploadStatus').innerText = "تم اختيار الصورة بنجاح ✅";
       };
       reader.readAsDataURL(file);
     }
@@ -138,6 +158,7 @@
   function closeModal() { document.getElementById('addModal').classList.remove('open'); }
 
   function saveToFirebase() {
+    const btn = event.target;
     const data = {
       title: document.getElementById('f_title').value,
       purpose: document.getElementById('f_purpose').value,
@@ -145,15 +166,30 @@
       price: document.getElementById('f_price').value,
       area: document.getElementById('f_area').value,
       phone: document.getElementById('f_phone').value,
-      img: base64Image
+      img: base64Image,
+      date: Date.now()
     };
-    if(!data.title || !data.price) return alert("برجاء ملء البيانات الأساسية");
-    db.ref('properties').push(data).then(() => { closeModal(); });
+    
+    if(!data.title || !data.price || !data.phone) return alert("يا محمد، كمل البيانات الناقصة الأول!");
+    
+    btn.innerText = "جاري النشر...";
+    btn.disabled = true;
+
+    db.ref('properties').push(data).then(() => {
+      closeModal();
+      alert("تم نشر العقار بنجاح! 🎊");
+      location.reload();
+    }).catch(() => {
+      alert("حصل مشكلة، جرب تاني.");
+      btn.disabled = false;
+    });
   }
 
   function deleteProperty(id) {
-    if(confirm("هل أنت متأكد من حذف هذا العقار؟")) {
-      db.ref('properties/' + id).remove();
+    if(confirm("هل أنت متأكد إنك عايز تحذف العقار ده نهائياً؟")) {
+      db.ref('properties/' + id).remove().then(() => {
+        alert("تم الحذف بنجاح ✅");
+      });
     }
   }
 
@@ -163,8 +199,12 @@
   });
 
   function setFilter(key, val, btn) {
-    if(key === 'type' && val === 'all') { currentFilters.type = 'all'; currentFilters.purpose = 'all'; }
-    else currentFilters[key] = val;
+    if(key === 'type' && val === 'all') { 
+      currentFilters.type = 'all'; 
+      currentFilters.purpose = 'all'; 
+    } else {
+      currentFilters[key] = val;
+    }
     document.querySelectorAll('.pill').forEach(p => p.classList.remove('active'));
     btn.classList.add('active');
     applyFilters();
@@ -176,7 +216,9 @@
     grid.innerHTML = "";
     const isAdmin = document.getElementById('adminBtn').style.display === 'flex';
 
-    for (let id in allData) {
+    const keys = Object.keys(allData).reverse(); // عرض الأحدث أولاً
+
+    keys.forEach(id => {
       const item = allData[id];
       const matchSearch = item.title.toLowerCase().includes(search) || item.area.toLowerCase().includes(search);
       const matchType = currentFilters.type === 'all' || item.type === currentFilters.type;
@@ -185,16 +227,21 @@
       if(matchSearch && matchType && matchPurpose) {
         grid.innerHTML += `
           <div class="card">
-            ${isAdmin ? `<button class="delete-btn" onclick="deleteProperty('${id}')">حذف 🗑️</button>` : ''}
-            ${item.img ? `<img src="${item.img}" class="card-img">` : `<div class="card-img" style="display:flex;align-items:center;justify-content:center">🏠 لا توجد صورة</div>`}
+            ${isAdmin ? `<button class="delete-btn" onclick="deleteProperty('${id}')">حذف الإعلان 🗑️</button>` : ''}
+            ${item.img ? `<img src="${item.img}" class="card-img" loading="lazy">` : `<div class="card-img" style="display:flex;align-items:center;justify-content:center;background:#1a1a1a;color:#444;font-size:3rem;">🏠</div>`}
             <div class="card-body">
               <div class="price">${Number(item.price).toLocaleString()} ج.م</div>
-              <h3 style="font-size:1.1rem; margin-bottom:8px;">${item.title}</h3>
-              <p style="color:var(--text-muted); font-size:0.85rem;">📍 ${item.area} | لل${item.purpose} (${item.type})</p>
-              <a href="tel:${item.phone}" class="call-btn">📞 اتصل الآن</a>
+              <h3 class="card-title">${item.title}</h3>
+              <div class="card-info">📍 ${item.area}</div>
+              <div class="card-info" style="margin-top:5px;">🏷️ لل${item.purpose} (${item.type})</div>
+              <a href="tel:${item.phone}" class="call-btn">📞 اتصل بصاحب العقار</a>
             </div>
           </div>`;
       }
+    });
+    
+    if(grid.innerHTML === "") {
+      grid.innerHTML = `<div style="grid-column:1/-1; text-align:center; padding:50px; color:var(--text-muted)">مفيش نتائج مطابقة لبحثك يا محمد.. جرب كلمة تانية 🔍</div>`;
     }
   }
 </script>
