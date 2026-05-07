@@ -34,8 +34,7 @@
   .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)); gap: 24px; padding: 0 24px 80px; position: relative; z-index: 1; }
   .card { position: relative; background: var(--card); border-radius: var(--radius); border: 1px solid rgba(255,255,255,0.06); overflow: hidden; transition: 0.3s; }
   
-  /* سلايدر الصور الجديد */
-  .image-slider { position: relative; width: 100%; height: 220px; display: flex; overflow-x: auto; scroll-snap-type: x mandatory; scrollbar-width: none; -ms-overflow-style: none; }
+  .image-slider { position: relative; width: 100%; height: 220px; display: flex; overflow-x: auto; scroll-snap-type: x mandatory; scrollbar-width: none; }
   .image-slider::-webkit-scrollbar { display: none; }
   .slider-img { flex: 0 0 100%; width: 100%; height: 100%; object-fit: cover; scroll-snap-align: start; }
   .slider-dots { position: absolute; bottom: 10px; left: 50%; transform: translateX(-50%); display: flex; gap: 5px; pointer-events: none; }
@@ -62,7 +61,7 @@
   .modal-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.92); z-index: 1000; display: none; align-items: center; justify-content: center; padding: 20px; backdrop-filter: blur(8px); }
   .modal-overlay.open { display: flex; }
   .modal { background: var(--dark2); border-radius: 24px; width: 100%; max-width: 480px; padding: 30px; border: 1.5px solid rgba(201,168,76,0.3); max-height: 90vh; overflow-y: auto; }
-  .form-control { width: 100%; background: var(--dark3); border: 1.5px solid #333; border-radius: 12px; padding: 14px; color: white; margin-bottom: 15px; font-family: 'Cairo'; font-size: 1rem; outline: none; }
+  .form-control { width: 100%; background: var(--dark3); border: 1.5px solid #333; border-radius: 12px; padding: 14px; color: white; margin-bottom: 15px; font-family: 'Cairo'; outline: none; }
   
   #previewContainer { display: flex; gap: 10px; overflow-x: auto; margin-top: 15px; padding-bottom: 10px; }
   .preview-thumb { width: 70px; height: 70px; object-fit: cover; border-radius: 10px; border: 1px solid var(--gold); flex-shrink: 0; }
@@ -110,12 +109,12 @@
       <select id="f_purpose" class="form-control"><option value="بيع">بيع</option><option value="إيجار">إيجار</option></select>
       <select id="f_type" class="form-control"><option value="شقة">شقة</option><option value="محل">محل</option><option value="أرض">أرض</option></select>
     </div>
-    <input type="number" id="f_price" class="form-control" placeholder="السعر بالجنيه">
-    <input type="text" id="f_area" class="form-control" placeholder="المنطقة أو الشارع">
-    <input type="text" id="f_landmark" class="form-control" placeholder="علامة مميزة (اختياري)">
+    <input type="number" id="f_price" class="form-control" placeholder="السعر">
+    <input type="text" id="f_area" class="form-control" placeholder="المنطقة">
+    <input type="text" id="f_landmark" class="form-control" placeholder="علامة مميزة">
     <input type="tel" id="f_phone" class="form-control" placeholder="رقم الموبايل">
-    <button class="btn btn-call" style="width: 100%;" id="publishBtn" onclick="saveToFirebase()">🚀 انشر الإعلان الآن</button>
-    <button onclick="closeModal()" style="background:none; border:none; color:gray; width:100%; margin-top:15px; cursor:pointer; font-family:'Cairo'">إلغاء</button>
+    <button class="btn btn-call" style="width: 100%;" id="publishBtn" onclick="saveToFirebase()">🚀 انشر الآن</button>
+    <button onclick="closeModal()" style="background:none; border:none; color:gray; width:100%; margin-top:15px; cursor:pointer;">إلغاء</button>
   </div>
 </div>
 
@@ -139,10 +138,10 @@
       if(input === String(snap.val())) {
         localStorage.setItem('samsarny_admin', 'true');
         localStorage.setItem('samsarny_key', input);
-        alert("أهلاً بك يا محمد! تم تفعيل وضع الإدارة ✅");
+        alert("أهلاً يا محمد! تم التفعيل ✅");
         location.reload();
-      } else { alert("كلمة السر خطأ! ❌"); }
-    } catch (e) { alert("خطأ في الاتصال."); }
+      } else { alert("خطأ! ❌"); }
+    } catch (e) { }
   }
 
   function handleMultipleImages(input) {
@@ -150,7 +149,6 @@
     const container = document.getElementById('previewContainer');
     container.innerHTML = "";
     imagesArray = [];
-
     files.forEach(file => {
       const reader = new FileReader();
       reader.onload = (e) => {
@@ -165,7 +163,6 @@
           canvas.getContext('2d').drawImage(img, 0, 0, width, height);
           const base64 = canvas.toDataURL('image/jpeg', 0.6);
           imagesArray.push(base64);
-          
           const thumb = document.createElement('img');
           thumb.src = base64; thumb.className = 'preview-thumb';
           container.appendChild(thumb);
@@ -180,8 +177,14 @@
 
   function saveToFirebase() {
     const btn = document.getElementById('publishBtn');
-    const savedKey = localStorage.getItem('samsarny_key');
+    let savedKey = localStorage.getItem('samsarny_key');
     
+    if(!savedKey) {
+        savedKey = prompt("أدخل كلمة السر للنشر:");
+        if(!savedKey) return;
+        localStorage.setItem('samsarny_key', savedKey);
+    }
+
     const data = {
       title: document.getElementById('f_title').value,
       purpose: document.getElementById('f_purpose').value,
@@ -195,24 +198,26 @@
       admin_pass: savedKey 
     };
 
-    if(!data.title || imagesArray.length === 0 || !data.phone) return alert("أكمل البيانات واختر صورة واحدة على الأقل!");
+    if(!data.title || imagesArray.length === 0 || !data.phone) return alert("أكمل البيانات!");
     btn.innerText = "جاري النشر..."; btn.disabled = true;
 
     db.ref('properties').push(data).then(() => location.reload())
-    .catch(() => { alert("خطأ في الأمان! أعد كتابة الباسورد من اللوجو."); btn.disabled = false; btn.innerText = "🚀 انشر الآن"; });
+    .catch(() => {
+        alert("خطأ في الأمان! أعد كتابة الباسورد.");
+        localStorage.removeItem('samsarny_key');
+        btn.disabled = false; btn.innerText = "🚀 انشر الآن";
+    });
   }
 
   function toggleSold(id, currentStatus) {
     const savedKey = localStorage.getItem('samsarny_key');
-    db.ref().update({ [`properties/${id}/sold`]: !currentStatus, admin_pass: savedKey })
-    .catch(() => alert("خطأ في الأمان!"));
+    db.ref().update({ [`properties/${id}/sold`]: !currentStatus, admin_pass: savedKey });
   }
 
   function deleteProperty(id) {
     const savedKey = localStorage.getItem('samsarny_key');
-    if(confirm("هل أنت متأكد من الحذف؟")) {
-      db.ref().update({ [`properties/${id}`]: null, admin_pass: savedKey })
-      .then(() => alert("تم الحذف ✅"));
+    if(confirm("حذف؟")) {
+      db.ref().update({ [`properties/${id}`]: null, admin_pass: savedKey });
     }
   }
 
@@ -248,7 +253,7 @@
           <div class="card">
             ${isAdmin ? `<div class="admin-actions"><button class="admin-btn" onclick="toggleSold('${id}', ${item.sold})">${item.sold ? 'متاح' : 'تم البيع'}</button><button class="admin-btn" style="background:#dc3545" onclick="deleteProperty('${id}')">حذف</button></div>` : ''}
             <div class="image-slider">
-              ${imgs.map(src => `<img src="${src}" class="slider-img" loading="lazy">`).join('')}
+              ${imgs.map(src => `<img src="${src}" class="slider-img">`).join('')}
               <div class="slider-dots">${imgs.map(() => `<div class="dot"></div>`).join('')}</div>
             </div>
             ${item.sold ? `<div class="status-badge status-sold">تم الحجز</div>` : `<div class="status-badge">متاح</div>`}
@@ -256,10 +261,9 @@
               <div class="price">${Number(item.price).toLocaleString()} ج.م</div>
               <h3 class="card-title">${item.title}</h3>
               <div class="card-info">📍 ${item.area}</div>
-              ${item.landmark ? `<div class="card-info" style="color:var(--gold-light)">🚩 ${item.landmark}</div>` : ''}
               <div class="actions">
                 <a href="tel:${item.phone}" class="btn btn-call">📞 اتصال</a>
-                <a href="https://wa.me/20${item.phone}?text=بخصوص إعلان ${item.title}" class="btn btn-wa">💬 واتساب</a>
+                <a href="https://wa.me/20${item.phone}" class="btn btn-wa">💬 واتساب</a>
               </div>
             </div>
           </div>`;
