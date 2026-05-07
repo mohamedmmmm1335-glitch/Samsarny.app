@@ -32,28 +32,21 @@
   .pill.active { background: rgba(201,168,76,0.15); border-color: var(--gold); color: var(--gold); }
 
   .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 20px; padding: 0 24px 60px; position: relative; z-index: 1; }
-  .card { background: var(--card); border-radius: var(--radius); border: 1px solid rgba(255,255,255,0.06); overflow: hidden; transition: 0.25s; }
+  .card { position: relative; background: var(--card); border-radius: var(--radius); border: 1px solid rgba(255,255,255,0.06); overflow: hidden; transition: 0.25s; }
   .card-img { width: 100%; height: 200px; object-fit: cover; background: #2a2a2a; border-bottom: 1px solid rgba(201,168,76,0.1); }
   .card-body { padding: 18px; }
   .price { font-family: 'Tajawal'; font-weight: 800; font-size: 1.3rem; color: var(--gold); margin-bottom: 5px; }
   .call-btn { padding: 12px; border-radius: 10px; background: var(--gold); color: #0f0f0f; text-decoration: none; font-weight: 700; display: block; text-align: center; margin-top: 15px; }
 
-  /* FAB - زر الإضافة */
-  .fab {
-    position: fixed; bottom: 30px; left: 24px;
-    width: 60px; height: 60px; border-radius: 50%;
-    background: var(--gold); border: none; font-size: 35px;
-    display: none; align-items: center; justify-content: center;
-    padding-bottom: 7px; cursor: pointer; z-index: 500;
-    box-shadow: 0 8px 30px rgba(201,168,76,0.4);
-  }
+  /* زر الحذف */
+  .delete-btn { position: absolute; left: 10px; top: 10px; background: rgba(220, 53, 69, 0.9); color: white; border: none; border-radius: 8px; padding: 6px 12px; cursor: pointer; z-index: 10; font-family: 'Cairo'; font-weight: 600; font-size: 0.8rem; box-shadow: 0 4px 10px rgba(0,0,0,0.3); }
+
+  .fab { position: fixed; bottom: 30px; left: 24px; width: 60px; height: 60px; border-radius: 50%; background: var(--gold); border: none; font-size: 35px; display: none; align-items: center; justify-content: center; padding-bottom: 7px; cursor: pointer; z-index: 500; box-shadow: 0 8px 30px rgba(201,168,76,0.4); }
   
-  /* Modal & Upload */
   .modal-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.95); z-index: 1000; display: none; align-items: center; justify-content: center; padding: 20px; overflow-y: auto; }
   .modal-overlay.open { display: flex; }
   .modal { background: var(--dark2); border-radius: 20px; width: 100%; max-width: 450px; padding: 25px; border: 1px solid var(--gold); margin-top: auto; margin-bottom: auto; }
   .form-control { width: 100%; background: var(--dark3); border: 1px solid #333; border-radius: 10px; padding: 12px; color: white; margin-bottom: 12px; font-family: 'Cairo'; }
-  
   .img-upload-box { background: var(--dark3); border: 2px dashed #444; border-radius: 12px; padding: 20px; text-align: center; cursor: pointer; margin-bottom: 15px; position: relative; }
   #previewImg { width: 100%; max-height: 150px; object-fit: contain; border-radius: 8px; display: none; margin-top: 10px; }
 </style>
@@ -72,7 +65,7 @@
   <div class="search-bar">
     <input type="text" placeholder="ابحث بالعنوان أو المنطقة..." id="searchInput" oninput="applyFilters()">
   </div>
-  <div class="filter-pills" id="filterContainer">
+  <div class="filter-pills">
     <button class="pill active" onclick="setFilter('type', 'all', this)">الكل</button>
     <button class="pill" onclick="setFilter('purpose', 'إيجار', this)">للإيجار</button>
     <button class="pill" onclick="setFilter('purpose', 'بيع', this)">للبيع</button>
@@ -89,22 +82,19 @@
 <div class="modal-overlay" id="addModal">
   <div class="modal">
     <h2 style="margin-bottom:20px; color:var(--gold)">إضافة عقار جديد</h2>
-    
     <div class="img-upload-box" onclick="document.getElementById('fileInput').click()">
       <p id="uploadStatus">📸 اضغط هنا لتصوير العقار</p>
       <input type="file" id="fileInput" hidden accept="image/*" onchange="handleImage(this)">
       <img id="previewImg">
     </div>
-
     <input type="text" id="f_title" class="form-control" placeholder="عنوان الإعلان">
     <div style="display:flex; gap:10px;">
       <select id="f_purpose" class="form-control"><option value="بيع">بيع</option><option value="إيجار">إيجار</option></select>
       <select id="f_type" class="form-control"><option value="شقة">شقة</option><option value="محل">محل</option><option value="أرض">أرض</option></select>
     </div>
-    <input type="number" id="f_price" class="form-control" placeholder="السعر بالجنيه">
+    <input type="number" id="f_price" class="form-control" placeholder="السعر">
     <input type="text" id="f_area" class="form-control" placeholder="المنطقة">
-    <input type="tel" id="f_phone" class="form-control" placeholder="رقم الموبايل">
-    
+    <input type="tel" id="f_phone" class="form-control" placeholder="رقم التواصل">
     <button class="call-btn" style="width: 100%; border: none; cursor:pointer;" onclick="saveToFirebase()">نشر الإعلان</button>
     <button onclick="closeModal()" style="background:none; border:none; color:grey; width:100%; margin-top:15px; cursor:pointer;">إلغاء</button>
   </div>
@@ -114,18 +104,18 @@
 <script src="https://www.gstatic.com/firebasejs/9.1.3/firebase-database-compat.js"></script>
 
 <script>
-  // رابط قاعدة البيانات الخاص بك
   const firebaseConfig = { databaseURL: "https://samsarny-5a5c2-default-rtdb.firebaseio.com/" };
   firebase.initializeApp(firebaseConfig);
   const db = firebase.database();
 
   let allData = {};
-  let currentFilters = { type: 'all', purpose: 'all', search: '' };
+  let currentFilters = { type: 'all', purpose: 'all' };
   let base64Image = "";
 
   function adminAccess() {
     if(prompt("كلمة السر للإدارة:") === "155361") {
       document.getElementById('adminBtn').style.display = 'flex';
+      applyFilters(); // لتحديث العرض وإظهار أزرار الحذف فوراً
       alert("مرحباً بك يا محمد في لوحة التحكم ✅");
     }
   }
@@ -158,10 +148,13 @@
       img: base64Image
     };
     if(!data.title || !data.price) return alert("برجاء ملء البيانات الأساسية");
-    db.ref('properties').push(data).then(() => {
-      closeModal();
-      location.reload();
-    });
+    db.ref('properties').push(data).then(() => { closeModal(); });
+  }
+
+  function deleteProperty(id) {
+    if(confirm("هل أنت متأكد من حذف هذا العقار؟")) {
+      db.ref('properties/' + id).remove();
+    }
   }
 
   db.ref('properties').on('value', (snap) => {
@@ -172,7 +165,6 @@
   function setFilter(key, val, btn) {
     if(key === 'type' && val === 'all') { currentFilters.type = 'all'; currentFilters.purpose = 'all'; }
     else currentFilters[key] = val;
-    
     document.querySelectorAll('.pill').forEach(p => p.classList.remove('active'));
     btn.classList.add('active');
     applyFilters();
@@ -182,7 +174,8 @@
     const search = document.getElementById('searchInput').value.toLowerCase();
     const grid = document.getElementById('grid');
     grid.innerHTML = "";
-    
+    const isAdmin = document.getElementById('adminBtn').style.display === 'flex';
+
     for (let id in allData) {
       const item = allData[id];
       const matchSearch = item.title.toLowerCase().includes(search) || item.area.toLowerCase().includes(search);
@@ -192,6 +185,7 @@
       if(matchSearch && matchType && matchPurpose) {
         grid.innerHTML += `
           <div class="card">
+            ${isAdmin ? `<button class="delete-btn" onclick="deleteProperty('${id}')">حذف 🗑️</button>` : ''}
             ${item.img ? `<img src="${item.img}" class="card-img">` : `<div class="card-img" style="display:flex;align-items:center;justify-content:center">🏠 لا توجد صورة</div>`}
             <div class="card-body">
               <div class="price">${Number(item.price).toLocaleString()} ج.م</div>
