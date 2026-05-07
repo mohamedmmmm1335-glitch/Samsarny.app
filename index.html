@@ -137,8 +137,11 @@
         document.getElementById('adminBtn').style.display = 'flex';
         localStorage.setItem('samsarny_admin', 'true');
         applyFilters();
+        alert("أهلاً بك يا محمد! تم تفعيل وضع الإدارة ✅");
+      } else {
+        alert("كلمة السر خطأ! ❌");
       }
-    } catch (e) {}
+    } catch (e) { alert("خطأ في الاتصال بالأمان."); }
   }
 
   function handleImage(input) {
@@ -159,6 +162,7 @@
           base64Image = canvas.toDataURL('image/jpeg', 0.6);
           document.getElementById('previewImg').src = base64Image;
           document.getElementById('previewImg').style.display = 'block';
+          document.getElementById('uploadStatus').innerText = "تم اختيار الصورة بنجاح ✅";
         };
       };
       reader.readAsDataURL(file);
@@ -170,6 +174,9 @@
 
   function saveToFirebase() {
     const btn = document.getElementById('publishBtn');
+    const inputPass = prompt("تأكيد الأمان: أدخل كلمة السر مرة أخرى للنشر:");
+    if(!inputPass) return;
+
     const data = {
       title: document.getElementById('f_title').value,
       purpose: document.getElementById('f_purpose').value,
@@ -178,19 +185,42 @@
       area: document.getElementById('f_area').value,
       landmark: document.getElementById('f_landmark').value,
       phone: document.getElementById('f_phone').value,
-      img: base64Image, sold: false, date: Date.now()
+      img: base64Image, sold: false, date: Date.now(),
+      admin_pass: inputPass // مطلوب للتحقق من الـ Rules
     };
+    
     if(!data.title || !data.price || !data.phone) return alert("أكمل البيانات!");
     btn.innerText = "جاري النشر..."; btn.disabled = true;
-    db.ref('properties').push(data).then(() => { closeModal(); location.reload(); });
+
+    db.ref('properties').push(data).then(() => { 
+      closeModal(); 
+      location.reload(); 
+    }).catch((err) => {
+      alert("فشل النشر: كلمة السر خطأ أو مشكلة في الأمان!");
+      btn.disabled = false;
+      btn.innerText = "🚀 انشر الإعلان الآن";
+    });
   }
 
   function toggleSold(id, currentStatus) {
-    db.ref('properties/' + id).update({ sold: !currentStatus });
+    const inputPass = prompt("أدخل كلمة السر لتغيير حالة العقار:");
+    if(!inputPass) return;
+    db.ref().update({
+      [`properties/${id}/sold`]: !currentStatus,
+      admin_pass: inputPass
+    }).catch(() => alert("عذراً، كلمة السر خطأ!"));
   }
 
   function deleteProperty(id) {
-    if(confirm("حذف؟")) db.ref('properties/' + id).remove();
+    const inputPass = prompt("أدخل كلمة السر لتأكيد الحذف النهائي:");
+    if(!inputPass) return;
+    if(confirm("هل أنت متأكد من الحذف؟")) {
+      db.ref().update({
+        [`properties/${id}`]: null,
+        admin_pass: inputPass
+      }).then(() => alert("تم الحذف ✅"))
+      .catch(() => alert("كلمة السر خطأ! لا تملك صلاحية الحذف."));
+    }
   }
 
   db.ref('properties').on('value', (snap) => {
@@ -234,7 +264,7 @@
               ${item.landmark ? `<div class="card-info" style="color:var(--gold-light)">🚩 ${item.landmark}</div>` : ''}
               <div class="actions">
                 <a href="tel:${item.phone}" class="btn btn-call">📞 اتصال</a>
-                <a href="https://wa.me/20${item.phone}?text=إعلان ${item.title}" class="btn btn-wa">💬 واتساب</a>
+                <a href="https://wa.me/20${item.phone}?text=بخصوص إعلان ${item.title}" class="btn btn-wa">💬 واتساب</a>
               </div>
             </div>
           </div>`;
