@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>سمسرني – النسخة العملاقة V22</title>
+<title>سمسرني – النسخة الخفيفة V23</title>
 <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;900&family=Tajawal:wght@400;500;700;800&display=swap" rel="stylesheet">
 <style>
   :root {
@@ -13,74 +13,58 @@
   }
   body.light-mode { --dark: #f5f5f5; --dark2: #ffffff; --dark3: #eeeeee; --card: #ffffff; --text: #1a1a1a; --text-muted: #666666; }
   * { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
-  body { font-family: 'Cairo', sans-serif; background: var(--dark); color: var(--text); min-height: 100vh; transition: 0.3s; overflow-x: hidden; }
+  body { font-family: 'Cairo', sans-serif; background: var(--dark); color: var(--text); min-height: 100vh; overflow-x: hidden; transition: 0.3s; }
   
-  /* Header & Logo */
-  header { position: sticky; top: 0; z-index: 100; background: var(--dark2); border-bottom: 1px solid rgba(201,168,76,0.2); padding: 12px 20px; display: flex; align-items: center; justify-content: space-between; }
-  .logo { display: flex; align-items: center; gap: 10px; font-weight: 900; color: var(--gold); cursor: pointer; font-size: 1.2rem; }
-  .logo-icon { width: 40px; height: 40px; background: linear-gradient(135deg, var(--gold), var(--gold-light)); border-radius: 10px; display: flex; align-items: center; justify-content: center; color: #000; font-size: 1.5rem; box-shadow: 0 4px 10px rgba(201,168,76,0.3); }
+  header { position: sticky; top: 0; z-index: 100; background: var(--dark2); border-bottom: 1px solid rgba(201,168,76,0.2); padding: 10px 20px; display: flex; align-items: center; justify-content: space-between; }
+  .logo { display: flex; align-items: center; gap: 10px; font-weight: 800; color: var(--gold); cursor: pointer; }
+  .logo-icon { width: 35px; height: 35px; background: linear-gradient(135deg, var(--gold), var(--gold-light)); border-radius: 8px; display: flex; align-items: center; justify-content: center; color: #0f0f0f; }
 
-  /* Hero & Filters */
-  .hero { padding: 40px 20px; text-align: center; background: radial-gradient(circle at top, rgba(201,168,76,0.05), transparent); }
-  .highlight { background: linear-gradient(135deg, var(--gold), var(--gold-light)); -webkit-background-clip: text; -webkit-text-fill-color: transparent; font-weight: 900; }
-  .search-bar { display: flex; gap: 10px; max-width: 600px; margin: 25px auto; background: var(--dark3); border: 1.5px solid rgba(201,168,76,0.2); border-radius: 15px; padding: 12px 20px; box-shadow: 0 10px 30px rgba(0,0,0,0.2); }
-  .search-bar input { flex: 1; background: transparent; border: none; outline: none; color: var(--text); font-family: 'Cairo'; font-size: 1rem; }
+  .hero { padding: 30px 20px; text-align: center; }
+  .highlight { background: linear-gradient(135deg, var(--gold), var(--gold-light)); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
   
-  .filter-pills { display: flex; gap: 10px; justify-content: center; flex-wrap: wrap; margin-bottom: 30px; }
-  .pill { padding: 8px 18px; border-radius: 50px; border: 1.5px solid rgba(201,168,76,0.15); background: var(--dark2); color: var(--text-muted); cursor: pointer; transition: 0.3s; font-size: 0.9rem; font-weight: 600; }
-  .pill.active { background: var(--gold); color: #000; border-color: var(--gold); box-shadow: 0 4px 12px rgba(201,168,76,0.3); }
+  .search-bar { display: flex; gap: 10px; max-width: 600px; margin: 0 auto 20px; background: var(--dark3); border: 1.5px solid rgba(201,168,76,0.25); border-radius: 14px; padding: 10px 15px; }
+  .search-bar input { flex: 1; background: transparent; border: none; outline: none; color: var(--text); font-family: 'Cairo'; }
+  
+  .filter-pills { display: flex; gap: 8px; justify-content: center; flex-wrap: wrap; margin-bottom: 30px; }
+  .pill { padding: 6px 15px; border-radius: 50px; border: 1.5px solid rgba(201,168,76,0.2); background: transparent; color: var(--text-muted); cursor: pointer; font-size: 0.9rem; }
+  .pill.active { background: var(--gold); color: #0f0f0f; border-color: var(--gold); }
 
-  /* Property Cards */
-  .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)); gap: 25px; padding: 0 20px 100px; }
-  .card { position: relative; background: var(--card); border-radius: var(--radius); border: 1px solid rgba(201,168,76,0.1); overflow: hidden; transition: 0.3s; }
-  .card:hover { transform: translateY(-5px); border-color: var(--gold); }
-
-  /* Slider System */
-  .image-wrapper { position: relative; width: 100%; height: 230px; background: #000; overflow: hidden; }
+  .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 20px; padding: 0 20px 80px; }
+  .card { position: relative; background: var(--card); border-radius: var(--radius); border: 1px solid rgba(201,168,76,0.1); overflow: hidden; }
+  .card.is-request { border: 2.5px solid var(--req-color); }
+  
+  .image-wrapper { position: relative; width: 100%; height: 210px; overflow: hidden; background: #000; touch-action: pan-y; }
   .image-slider { display: flex; width: 100%; height: 100%; overflow-x: auto; scroll-snap-type: x mandatory; scrollbar-width: none; -webkit-overflow-scrolling: touch; }
   .image-slider::-webkit-scrollbar { display: none; }
   .slider-item { flex: 0 0 100%; width: 100%; height: 100%; object-fit: cover; scroll-snap-align: start; }
-  video.slider-item { object-fit: contain; background: #000; }
   
-  .img-counter { position: absolute; top: 12px; left: 12px; background: rgba(0,0,0,0.7); color: #fff; padding: 4px 10px; border-radius: 8px; font-size: 0.75rem; z-index: 10; backdrop-filter: blur(4px); }
-  .slide-arrow { position: absolute; top: 50%; transform: translateY(-50%); background: rgba(0,0,0,0.5); color: #fff; border: none; width: 38px; height: 38px; border-radius: 50%; cursor: pointer; z-index: 11; font-size: 1.2rem; display: flex; align-items: center; justify-content: center; transition: 0.2s; }
-  .slide-arrow:active { scale: 0.9; background: var(--gold); }
-  .arrow-left { left: 10px; } .arrow-right { right: 10px; }
+  .img-counter { position: absolute; top: 10px; left: 10px; background: rgba(0,0,0,0.6); color: white; padding: 2px 8px; border-radius: 5px; font-size: 0.75rem; z-index: 5; }
+  .slide-arrow { position: absolute; top: 50%; transform: translateY(-50%); background: rgba(0,0,0,0.4); color: white; border: none; width: 32px; height: 32px; border-radius: 50%; cursor: pointer; z-index: 10; font-size: 1.2rem; }
+  .arrow-left { left: 8px; } .arrow-right { right: 8px; }
 
-  .status-badge { position: absolute; top: 12px; right: 12px; padding: 5px 12px; border-radius: 8px; font-weight: 800; font-size: 0.75rem; z-index: 12; box-shadow: 0 4px 10px rgba(0,0,0,0.3); }
-  .status-available { background: var(--gold); color: #000; }
-  .status-reserved { background: #e67e22; color: #fff; }
-  .status-sold { background: #ff4757; color: #fff; }
+  .status-badge { position: absolute; top: 10px; right: 10px; padding: 3px 10px; border-radius: 6px; font-weight: 800; font-size: 0.75rem; z-index: 15; }
+  .status-available { background: var(--gold); color: #0f0f0f; }
+  .status-reserved { background: #e67e22; color: white; }
+  .status-sold { background: #ff4757; color: white; }
+  .status-request { background: var(--req-color); color: white; }
 
-  /* Card Body */
-  .card-body { padding: 18px; }
-  .verify-badge { color: var(--verify); font-size: 0.8rem; font-weight: 700; margin-bottom: 8px; display: flex; align-items: center; gap: 5px; }
-  .price { font-weight: 900; font-size: 1.6rem; color: var(--gold); font-family: 'Tajawal'; }
-  .card-title { font-size: 1.2rem; font-weight: 700; margin: 8px 0; display: -webkit-box; -webkit-line-clamp: 1; -webkit-box-orient: vertical; overflow: hidden; }
-  .card-loc { color: var(--text-muted); font-size: 0.9rem; margin-bottom: 15px; display: flex; align-items: center; gap: 5px; }
+  .card-body { padding: 15px; }
+  .price { font-weight: 800; font-size: 1.4rem; color: var(--gold); margin-bottom: 5px; font-family: 'Tajawal'; }
+  .actions { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-top: 15px; }
+  .btn { padding: 10px; border-radius: 10px; font-weight: 800; display: flex; align-items: center; justify-content: center; gap: 5px; font-size: 0.8rem; cursor: pointer; border: none; text-decoration: none; }
+  .btn-call { background: var(--gold); color: #0f0f0f; }
+  .btn-wa { background: var(--whatsapp); color: white; }
 
-  .actions { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
-  .btn { padding: 12px; border-radius: 12px; font-weight: 800; display: flex; align-items: center; justify-content: center; gap: 8px; font-size: 0.9rem; cursor: pointer; border: none; text-decoration: none; transition: 0.2s; }
-  .btn-call { background: var(--gold); color: #000; }
-  .btn-wa { background: var(--whatsapp); color: #fff; }
-  .btn:active { transform: scale(0.96); }
+  .ad-banner { grid-column: 1 / -1; background: var(--dark2); border: 1px dashed var(--gold); border-radius: var(--radius); padding: 15px; margin: 10px 0; display: flex; align-items: center; justify-content: space-between; position: relative; }
+  .ad-tag { position: absolute; top:0; left:0; background: var(--gold); font-size: 10px; padding: 2px 5px; color: #000; font-weight: bold; }
 
-  /* Admin Tools */
-  .admin-panel { position: absolute; left: 10px; top: 50px; display: flex; flex-direction: column; gap: 5px; z-index: 20; }
-  .admin-btn { background: rgba(0,0,0,0.85); color: #fff; border: 1px solid rgba(255,255,255,0.2); border-radius: 8px; padding: 6px 10px; font-size: 0.7rem; cursor: pointer; backdrop-filter: blur(5px); }
+  #lightbox { position: fixed; inset: 0; background: #000; z-index: 2000; display: none; align-items: center; justify-content: center; }
+  #lbImg { max-width: 100%; max-height: 90vh; }
 
-  /* Lightbox & Modals */
-  #lightbox { position: fixed; inset: 0; background: rgba(0,0,0,0.95); z-index: 2000; display: none; align-items: center; justify-content: center; }
-  #lbImg { max-width: 95%; max-height: 85vh; border-radius: 10px; }
-  .lb-close { position: absolute; top: 30px; right: 30px; color: #fff; font-size: 3rem; cursor: pointer; }
-
-  .fab { position: fixed; bottom: 30px; left: 25px; width: 65px; height: 65px; border-radius: 20px; background: var(--gold); color: #000; font-size: 35px; display: none; align-items: center; justify-content: center; z-index: 500; border: none; box-shadow: 0 10px 25px rgba(201,168,76,0.4); cursor: pointer; }
-  
-  .modal-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.8); z-index: 1000; display: none; align-items: center; justify-content: center; padding: 15px; backdrop-filter: blur(8px); }
+  .fab { position: fixed; bottom: 30px; left: 20px; width: 60px; height: 60px; border-radius: 15px; background: var(--gold); font-size: 35px; display: none; align-items: center; justify-content: center; z-index: 500; border: none; }
+  .modal-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.9); z-index: 1000; display: none; align-items: center; justify-content: center; padding: 15px; }
   .modal-overlay.open { display: flex; }
-  .modal { background: var(--dark2); border-radius: 25px; width: 100%; max-width: 480px; padding: 25px; border: 1px solid var(--gold); max-height: 90vh; overflow-y: auto; }
-  .form-control { width: 100%; background: var(--dark3); border: 1px solid #333; border-radius: 12px; padding: 12px; color: var(--text); margin-bottom: 12px; font-family: 'Cairo'; outline: none; }
-  .form-control:focus { border-color: var(--gold); }
+  .modal { background: var(--dark2); border-radius: 20px; width: 100%; max-width: 450px; padding: 20px; border: 1px solid var(--gold); max-height: 90vh; overflow-y: auto; }
 </style>
 </head>
 <body id="body">
@@ -88,51 +72,53 @@
 <header>
   <div class="logo" id="mainLogo">
     <div class="logo-icon">🏠</div>
-    <div>سمسرني <span style="font-size: 0.7rem; color: var(--text-muted); display: block; margin-top: -5px;">عقارات بلدنا</span></div>
+    <div>سمسرني <span>عقارات بلدنا</span></div>
   </div>
-  <button onclick="document.getElementById('body').classList.toggle('light-mode')" style="background:var(--dark3); border:1.5px solid var(--gold); color:var(--gold); padding:6px 12px; border-radius:12px; cursor:pointer;">🌓</button>
+  <button style="background:none; border:1px solid var(--gold); color:var(--gold); border-radius:8px; padding:4px 8px;" onclick="document.getElementById('body').classList.toggle('light-mode')">🌓</button>
 </header>
 
 <section class="hero">
   <h1>عقارك بلمسة<br><span class="highlight">سمسرني</span></h1>
   <div class="search-bar">
-    <input type="text" id="searchInput" placeholder="ابحث بالمنطقة، السعر، أو الوصف..." oninput="applyFilters()">
+    <input type="text" placeholder="ابحث بالعنوان أو المنطقة..." id="searchInput" oninput="applyFilters()">
   </div>
   <div class="filter-pills">
-    <button class="pill active" onclick="setFilter('all', this)">الكل</button>
-    <button class="pill" onclick="setFilter('بيع', this)">للبيع</button>
-    <button class="pill" onclick="setFilter('إيجار', this)">للإيجار</button>
-    <button class="pill" onclick="setFilter('شقة', this)">شقق</button>
-    <button class="pill" onclick="setFilter('محل', this)">محلات</button>
+    <button class="pill active" onclick="setFilter('all', 'all', this)">الكل</button>
+    <button class="pill" onclick="setFilter('mode', 'request', this)">المطلوب 🔍</button>
+    <button class="pill" onclick="setFilter('purpose', 'إيجار', this)">للإيجار</button>
+    <button class="pill" onclick="setFilter('purpose', 'بيع', this)">للبيع</button>
   </div>
 </section>
 
 <div class="grid" id="grid"></div>
 
-<div id="lightbox"><span class="lb-close" onclick="closeLB()">×</span><img id="lbImg"></div>
+<div id="lightbox" onclick="closeLB()">
+  <span style="position:absolute; top:20px; right:20px; color:white; font-size:30px;">×</span>
+  <img id="lbImg">
+</div>
 
-<button class="fab" id="adminBtn" onclick="document.getElementById('addModal').classList.add('open')">+</button>
+<button class="fab" id="adminBtn" onclick="openModal()">+</button>
 
 <div class="modal-overlay" id="addModal">
   <div class="modal">
-    <h2 style="text-align:center; color:var(--gold); margin-bottom:20px;">إضافة إعلان جديد</h2>
-    <div style="background:var(--dark3); padding:10px; border-radius:12px; margin-bottom:15px; border:1px solid var(--gold)">
-      <input type="checkbox" id="f_verify"> <label for="f_verify" style="color:var(--gold); font-weight:bold; cursor:pointer;">توثيق العقار (Verified ✅)</label>
+    <h2 style="text-align:center; color:var(--gold); margin-bottom:15px;">إضافة إعلان</h2>
+    <select id="f_mode" class="form-control" onchange="document.getElementById('uBox').style.display=(this.value=='request'?'none':'block')">
+      <option value="offer">معروض (شقة عندي)</option>
+      <option value="request">مطلوب (بدور على شقة)</option>
+    </select>
+    <div style="color:var(--gold); margin-bottom:10px;">
+        <input type="checkbox" id="f_verify"> توثيق (Verified ✅)
     </div>
-    <div id="uBox" style="border:2px dashed var(--gold); border-radius:15px; padding:30px; text-align:center; cursor:pointer; margin-bottom:15px; background:var(--dark3)" onclick="document.getElementById('fInp').click()">
-      <p id="upStatus" style="font-weight:bold;">📸 ارفع الصور و الفيديوهات</p>
+    <div id="uBox" style="background:var(--dark3); border:2px dashed var(--gold); border-radius:12px; padding:20px; text-align:center; margin-bottom:10px; cursor:pointer;" onclick="document.getElementById('fInp').click()">
+      <p id="upStatus">📸 ارفع الصور و الفيديوهات</p>
       <input type="file" id="fInp" hidden multiple accept="image/*,video/*" onchange="processMedia(this)">
     </div>
-    <input type="text" id="f_t" class="form-control" placeholder="عنوان الإعلان (مثلاً: شقة لقطة بالشارع الرئيسي)">
-    <div style="display:grid; grid-template-columns: 1fr 1fr; gap:10px;">
-        <select id="f_p" class="form-control"><option value="بيع">بيع</option><option value="إيجار">إيجار</option></select>
-        <select id="f_ty" class="form-control"><option value="شقة">شقة</option><option value="محل">محل</option><option value="أرض">أرض</option></select>
-    </div>
-    <input type="number" id="f_pr" class="form-control" placeholder="السعر (ج.م)">
-    <input type="text" id="f_a" class="form-control" placeholder="المنطقة أو العنوان">
-    <input type="tel" id="f_ph" class="form-control" placeholder="رقم موبايل التواصل">
-    <button class="btn btn-call" style="width:100%; margin-top:10px;" onclick="save()">🚀 انشر الإعلان الآن</button>
-    <button onclick="document.getElementById('addModal').classList.remove('open')" style="width:100%; margin-top:15px; color:gray; background:none; border:none; cursor:pointer;">إلغاء</button>
+    <input type="text" id="f_t" class="form-control" placeholder="عنوان الإعلان">
+    <input type="number" id="f_pr" class="form-control" placeholder="السعر">
+    <input type="text" id="f_a" class="form-control" placeholder="المنطقة">
+    <input type="tel" id="f_ph" class="form-control" placeholder="رقم الموبايل">
+    <button class="btn btn-call" style="width: 100%;" onclick="save()">🚀 انشر الآن</button>
+    <button onclick="closeModal()" style="width:100%; background:none; border:none; color:gray; margin-top:10px;">إلغاء</button>
   </div>
 </div>
 
@@ -143,13 +129,14 @@
   const firebaseConfig = { databaseURL: "https://samsarny-5a5c2-default-rtdb.firebaseio.com/" };
   firebase.initializeApp(firebaseConfig);
   const db = firebase.database();
-  let mediaArray = [], allData = {}, currentFilter = 'all';
 
-  // معالجة وضغط الصور والفيديو لسرعة الموقع
+  let allData = {}, currentFilters = {type:'all', purpose:'all', mode:'all'}, mediaArray = [];
+
+  // دالة الضغط السحرية (V23)
   async function processMedia(input) {
     const files = Array.from(input.files);
     const status = document.getElementById('upStatus');
-    status.innerHTML = "⏳ جاري الضغط (360p)...";
+    status.innerText = "⏳ جاري ضغط الملفات (360p)...";
     mediaArray = [];
 
     for (let file of files) {
@@ -157,139 +144,132 @@
         const url = await resizeImg(file);
         mediaArray.push({type:'image', src: url});
       } else {
+        // الفيديوهات يتم رفعها كما هي لكن المتصفح سيتعامل معها بسلاسة بفضل كود السكرول الجديد
         const url = await readFile(file);
         mediaArray.push({type:'video', src: url});
       }
     }
-    status.innerHTML = "✅ جاهز للنشر (مضغوط)";
+    status.innerText = "✅ تم الضغط والمعالجة";
   }
 
   function resizeImg(file) {
     return new Promise(res => {
-      const reader = new FileReader();
-      reader.onload = (e) => {
+      const r = new FileReader();
+      r.onload = (e) => {
         const img = new Image();
         img.onload = () => {
           const canvas = document.createElement('canvas');
-          const scale = 800 / img.width;
-          canvas.width = 800; canvas.height = img.height * scale;
+          const scale = 700 / img.width;
+          canvas.width = 700; canvas.height = img.height * scale;
           canvas.getContext('2d').drawImage(img, 0, 0, canvas.width, canvas.height);
-          res(canvas.toDataURL('image/jpeg', 0.7));
+          res(canvas.toDataURL('image/jpeg', 0.6));
         };
         img.src = e.target.result;
       };
-      reader.readAsDataURL(file);
+      r.readAsDataURL(file);
     });
   }
 
   function readFile(file) {
     return new Promise(res => {
-      const reader = new FileReader();
-      reader.onload = (e) => res(e.target.result);
-      reader.readAsDataURL(file);
+      const r = new FileReader();
+      r.onload = (e) => res(e.target.result);
+      r.readAsDataURL(file);
     });
   }
 
+  function openModal() { document.getElementById('addModal').classList.add('open'); }
+  function closeModal() { document.getElementById('addModal').classList.remove('open'); }
+
   function save() {
-    const k = localStorage.getItem('samsarny_key') || prompt("أدخل كلمة مرور الأدمن:");
+    const k = localStorage.getItem('samsarny_key');
     const data = {
-      title: document.getElementById('f_t').value, price: document.getElementById('f_pr').value,
-      purpose: document.getElementById('f_p').value, type: document.getElementById('f_ty').value,
-      area: document.getElementById('f_a').value, phone: document.getElementById('f_ph').value,
-      media: mediaArray, isVerified: document.getElementById('f_verify').checked,
-      status: "available", date: Date.now()
+      mode: document.getElementById('f_mode').value, title: document.getElementById('f_t').value,
+      price: document.getElementById('f_pr').value, area: document.getElementById('f_a').value,
+      phone: document.getElementById('f_ph').value, media: mediaArray, status: "available", 
+      date: Date.now(), isVerified: document.getElementById('f_verify').checked
     };
-    if(!data.title || !data.phone) return alert("من فضلك أكمل البيانات الأساسية");
     db.ref('properties').push(data).then(() => location.reload());
   }
 
-  db.ref('properties').on('value', snap => {
-    allData = snap.val() || {};
+  db.ref('properties').on('value', snap => { allData = snap.val() || {}; applyFilters(); });
+
+  function setFilter(key, val, btn) {
+    currentFilters = {type:'all', purpose:'all', mode:'all'};
+    currentFilters[key] = val;
+    document.querySelectorAll('.pill').forEach(p => p.classList.remove('active'));
+    btn.classList.add('active');
     applyFilters();
-  });
+  }
 
   function applyFilters() {
-    const grid = document.getElementById('grid'); grid.innerHTML = "";
     const search = document.getElementById('searchInput').value.toLowerCase();
+    const grid = document.getElementById('grid'); grid.innerHTML = "";
     const isAdmin = localStorage.getItem('samsarny_admin') === 'true';
     if(isAdmin) document.getElementById('adminBtn').style.display = 'flex';
 
+    let count = 0;
     Object.keys(allData).reverse().forEach(id => {
       const item = allData[id];
-      const matchSearch = item.title.toLowerCase().includes(search) || item.area.toLowerCase().includes(search);
-      const matchFilter = currentFilter === 'all' || item.purpose === currentFilter || item.type === currentFilter;
+      if (item.title.toLowerCase().includes(search) && 
+         (currentFilters.mode === 'all' || item.mode === currentFilters.mode)) {
+        
+        count++;
+        if(count % 5 === 0) {
+            grid.innerHTML += `<div class="ad-banner"><div class="ad-tag">AD</div><div><h4>محتاج تشطيب أو نقل؟</h4><p>كلمنا نبعتلك أحسن صنايعية.</p></div><a href="https://wa.me/201021422704" class="btn btn-wa" style="width:auto; padding:5px 15px;">اطلب الآن</a></div>`;
+        }
 
-      if (matchSearch && matchFilter) {
+        const isR = item.mode === 'request';
         const media = item.media || [];
-        const sTxt = item.status === 'reserved' ? 'محجوز' : (item.status === 'sold' ? 'مباع' : 'متاح');
-        const sCls = item.status === 'reserved' ? 'status-reserved' : (item.status === 'sold' ? 'status-sold' : 'status-available');
-
         grid.innerHTML += `
-          <div class="card">
+          <div class="card ${isR ? 'is-request' : ''}">
+            ${!isR && media.length > 0 ? `
             <div class="image-wrapper">
-              <div class="img-counter" id="count-${id}">1 / ${media.length}</div>
-              <div class="image-slider" id="slider-${id}" onscroll="updateSlider('${id}', ${media.length})">
+              <div class="img-counter" id="cnt-${id}">1 / ${media.length}</div>
+              <div class="image-slider" id="sld-${id}" onscroll="updateC('${id}', ${media.length})">
                 ${media.map(m => m.type === 'video' ? 
                   `<video src="${m.src}" class="slider-item" playsinline loop muted onclick="this.paused?this.play():this.pause()"></video>` : 
                   `<img src="${m.src}" class="slider-item" onclick="openLB('${m.src}')">`).join('')}
               </div>
               ${media.length > 1 ? `
-                <button class="slide-arrow arrow-left" onclick="moveSlide('${id}', 1)">❮</button>
-                <button class="slide-arrow arrow-right" onclick="moveSlide('${id}', -1)">❯</button>
+                <button class="slide-arrow arrow-left" onclick="scr('${id}', 1)">❮</button>
+                <button class="slide-arrow arrow-right" onclick="scr('${id}', -1)">❯</button>
               ` : ''}
-              <div class="status-badge ${sCls}">${sTxt}</div>
-            </div>
+            </div>` : ''}
+            <div class="status-badge ${isR?'status-request':'status-available'}">${isR?'مطلوب 🔍':'متاح'}</div>
             <div class="card-body">
-              ${item.isVerified ? `<div class="verify-badge"><span>✅</span> عقار موثق من سمسرني</div>` : ''}
+              ${item.isVerified ? `<div style="color:var(--verify); font-size:12px; font-weight:bold;">✅ موثق</div>` : ''}
               <div class="price">${Number(item.price).toLocaleString()} ج.م</div>
               <h3 class="card-title">${item.title}</h3>
-              <div class="card-loc">📍 ${item.area} | ${item.type}</div>
+              <p>📍 ${item.area}</p>
               <div class="actions">
                 <a href="tel:${item.phone}" class="btn btn-call">📞 اتصال</a>
-                <a href="https://wa.me/20${item.phone}" target="_blank" class="btn btn-wa">واتساب</a>
+                <a href="https://wa.me/20${item.phone}" class="btn btn-wa">واتساب</a>
               </div>
-              ${isAdmin ? `
-                <div class="admin-panel">
-                  <button class="admin-btn" onclick="updateStatus('${id}', 'available')">متاح</button>
-                  <button class="admin-btn" onclick="updateStatus('${id}', 'reserved')">محجوز</button>
-                  <button class="admin-btn" onclick="updateStatus('${id}', 'sold')">مباع</button>
-                  <button class="admin-btn" style="background:red" onclick="if(confirm('حذف نهائي؟')) db.ref('properties/${id}').remove()">حذف</button>
-                </div>` : ''}
+              ${isAdmin ? `<button onclick="db.ref('properties/${id}').remove()" style="color:red; margin-top:10px; background:none; border:none;">❌ حذف</button>` : ''}
             </div>
           </div>`;
       }
     });
   }
 
-  function updateSlider(id, total) {
-    const s = document.getElementById(`slider-${id}`);
+  function updateC(id, total) {
+    const s = document.getElementById(`sld-${id}`);
     const idx = Math.round(s.scrollLeft / s.clientWidth);
-    document.getElementById(`count-${id}`).innerText = `${idx + 1} / ${total}`;
+    document.getElementById(`cnt-${id}`).innerText = `${idx + 1} / ${total}`;
   }
-  function moveSlide(id, dir) {
-    const s = document.getElementById(`slider-${id}`);
-    s.scrollBy({ left: dir * s.clientWidth, behavior: 'smooth' });
-  }
-  function setFilter(f, btn) {
-    currentFilter = f;
-    document.querySelectorAll('.pill').forEach(p => p.classList.remove('active'));
-    btn.classList.add('active');
-    applyFilters();
+  function scr(id, d) {
+    const s = document.getElementById(`sld-${id}`);
+    s.scrollBy({ left: d * s.clientWidth, behavior: 'smooth' });
   }
   function openLB(src) { document.getElementById('lbImg').src = src; document.getElementById('lightbox').style.display = 'flex'; }
   function closeLB() { document.getElementById('lightbox').style.display = 'none'; }
-  function updateStatus(id, stat) { db.ref(`properties/${id}`).update({status: stat}); }
 
   document.getElementById('mainLogo').onclick = async () => {
-    const p = prompt("كلمة سر الإدارة:");
+    const p = prompt("Password:");
     const s = await db.ref('admin_pass').get();
-    if(p === String(s.val())) {
-      localStorage.setItem('samsarny_admin','true');
-      localStorage.setItem('samsarny_key',p);
-      location.reload();
-    }
+    if(p === String(s.val())) { localStorage.setItem('samsarny_admin','true'); localStorage.setItem('samsarny_key',p); location.reload(); }
   };
 </script>
 </body>
-                                                                        </html>
-                                                                        
+</html>
