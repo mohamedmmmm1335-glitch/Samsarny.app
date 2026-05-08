@@ -2,7 +2,7 @@
 <html lang="ar" dir="rtl">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>سمسرني V35 - النسخة المتكاملة</title>
     <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;900&family=Tajawal:wght@400;500;700;800&display=swap" rel="stylesheet">
     <style>
@@ -48,7 +48,6 @@
             direction: rtl;
         }
 
-        /* --- Header --- */
         header {
             position: sticky;
             top: 0;
@@ -83,12 +82,7 @@
             font-size: 1.2rem;
         }
 
-        /* --- Hero Section --- */
-        .hero {
-            padding: 40px 20px;
-            text-align: center;
-        }
-
+        .hero { padding: 40px 20px; text-align: center; }
         .highlight {
             background: linear-gradient(135deg, var(--gold), var(--gold-light));
             -webkit-background-clip: text;
@@ -109,110 +103,35 @@
         }
 
         .search-bar input {
-            flex: 1;
-            background: transparent;
-            border: none;
-            outline: none;
-            color: var(--text);
-            font-family: 'Cairo';
-            font-size: 1rem;
+            flex: 1; background: transparent; border: none; outline: none;
+            color: var(--text); font-family: 'Cairo'; font-size: 1rem;
         }
 
-        .filter-pills {
-            display: flex;
-            gap: 10px;
-            justify-content: center;
-            flex-wrap: wrap;
-            margin-bottom: 20px;
-        }
-
+        .filter-pills { display: flex; gap: 10px; justify-content: center; flex-wrap: wrap; margin-bottom: 20px; }
         .pill {
-            padding: 8px 18px;
-            border-radius: 50px;
-            border: 1.5px solid rgba(201,168,76,0.2);
-            background: transparent;
-            color: var(--text-muted);
-            cursor: pointer;
-            font-weight: 600;
-            transition: 0.3s;
+            padding: 8px 18px; border-radius: 50px; border: 1.5px solid rgba(201,168,76,0.2);
+            background: transparent; color: var(--text-muted); cursor: pointer; font-weight: 600; transition: 0.3s;
         }
+        .pill.active { background: var(--gold); color: #000; border-color: var(--gold); box-shadow: 0 4px 12px rgba(201,168,76,0.3); }
 
-        .pill.active {
-            background: var(--gold);
-            color: #000;
-            border-color: var(--gold);
-            box-shadow: 0 4px 12px rgba(201,168,76,0.3);
-        }
+        .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(310px, 1fr)); gap: 25px; padding: 20px; padding-bottom: 100px; }
+        .card { background: var(--card); border-radius: var(--radius); border: 1px solid rgba(201,168,76,0.1); overflow: hidden; position: relative; }
 
-        /* --- Grid & Cards --- */
-        .grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
-            gap: 25px;
-            padding: 20px;
-            padding-bottom: 100px;
-        }
-
-        .card {
-            background: var(--card);
-            border-radius: var(--radius);
-            border: 1px solid rgba(201,168,76,0.1);
-            overflow: hidden;
-            position: relative;
-            transition: transform 0.3s;
-        }
-
-        .image-wrapper {
-            position: relative;
-            width: 100%;
-            height: 250px;
-            background: #000;
-        }
-
-        .image-slider {
-            display: flex;
-            width: 100%;
-            height: 100%;
-            overflow-x: auto;
-            scroll-snap-type: x mandatory;
-            scrollbar-width: none;
-        }
-
+        .image-wrapper { position: relative; width: 100%; height: 250px; background: #000; }
+        .image-slider { display: flex; width: 100%; height: 100%; overflow-x: auto; scroll-snap-type: x mandatory; scrollbar-width: none; }
         .image-slider::-webkit-scrollbar { display: none; }
-
-        .slider-item {
-            flex: 0 0 100%;
-            width: 100%;
-            height: 100%;
-            object-fit: cover;
-            scroll-snap-align: start;
-            cursor: pointer;
-        }
+        .slider-item { flex: 0 0 100%; width: 100%; height: 100%; object-fit: cover; scroll-snap-align: start; cursor: pointer; }
 
         .img-counter {
-            position: absolute;
-            top: 15px;
-            left: 15px;
-            background: rgba(0,0,0,0.7);
-            color: #fff;
-            padding: 4px 10px;
-            border-radius: 8px;
-            font-size: 0.8rem;
-            z-index: 10;
+            position: absolute; bottom: 12px; left: 12px; background: rgba(0,0,0,0.6);
+            backdrop-filter: blur(4px); color: #fff; padding: 3px 10px; border-radius: 20px;
+            font-size: 0.75rem; font-weight: 600; z-index: 20; border: 1px solid rgba(255,255,255,0.1);
         }
 
         .status-badge {
-            position: absolute;
-            top: 15px;
-            right: 15px;
-            padding: 5px 12px;
-            border-radius: 8px;
-            font-weight: 800;
-            font-size: 0.8rem;
-            z-index: 10;
-            box-shadow: 0 4px 10px rgba(0,0,0,0.3);
+            position: absolute; top: 15px; right: 15px; padding: 5px 12px; border-radius: 8px;
+            font-weight: 800; font-size: 0.8rem; z-index: 10; box-shadow: 0 4px 10px rgba(0,0,0,0.3);
         }
-
         .status-available { background: var(--gold); color: #000; }
         .status-reserved { background: #e67e22; color: #fff; }
         .status-sold { background: #ff4757; color: #fff; }
@@ -223,236 +142,45 @@
         .price { font-size: 1.6rem; font-weight: 900; color: var(--gold); font-family: 'Tajawal'; margin-bottom: 5px; }
         .card-title { font-size: 1.1rem; margin-bottom: 8px; line-height: 1.4; }
 
-        .actions {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 10px;
-            margin-top: 15px;
-        }
-
+        .actions { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 15px; }
         .btn {
-            padding: 12px;
-            border-radius: 12px;
-            font-weight: 800;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 8px;
-            border: none;
-            cursor: pointer;
-            text-decoration: none;
-            transition: 0.2s;
+            padding: 12px; border-radius: 12px; font-weight: 800; display: flex; align-items: center;
+            justify-content: center; gap: 8px; border: none; cursor: pointer; text-decoration: none; transition: 0.2s;
         }
-
         .btn-call { background: var(--gold); color: #000; }
         .btn-wa { background: var(--whatsapp); color: #fff; }
-        .btn-share { grid-column: span 2; background: var(--dark3); color: var(--text); border: 1px solid var(--gold); }
 
-        /* --- Ad Banner --- */
         .ad-banner {
-            grid-column: 1 / -1;
-            background: linear-gradient(45deg, var(--dark2), var(--dark3));
-            border: 2.5px dashed var(--gold);
-            border-radius: 20px;
-            padding: 30px;
-            text-align: center;
-            color: var(--gold);
-            font-weight: 900;
-            font-size: 1.2rem;
-            cursor: pointer;
-            position: relative;
+            grid-column: 1 / -1; background: var(--dark3); border: 2px dashed var(--gold);
+            border-radius: 20px; padding: 25px; text-align: center; color: var(--gold); font-weight: 900;
         }
 
-        /* --- Lightbox / Full Slider --- */
-        #lightbox {
-            position: fixed;
-            inset: 0;
-            background: #000;
-            z-index: 3000;
-            display: none;
-            flex-direction: column;
-        }
-
+        #lightbox { position: fixed; inset: 0; background: #000; z-index: 5000; display: none; flex-direction: column; }
         #lightbox.open { display: flex; }
+        .lb-header { padding: 20px; display: flex; justify-content: space-between; align-items: center; color: #fff; }
+        .zoom-ui { display: flex; align-items: center; gap: 20px; background: rgba(255,255,255,0.15); padding: 8px 20px; border-radius: 40px; }
+        .lb-content { flex: 1; position: relative; display: flex; align-items: center; overflow: hidden; }
+        .lb-main-container { display: flex; width: 100%; height: 100%; overflow-x: auto; scroll-snap-type: x mandatory; scrollbar-width: none; }
+        .lb-slide { min-width: 100%; height: 100%; display: flex; align-items: center; justify-content: center; scroll-snap-align: start; }
+        .lb-slide img { max-width: 100%; max-height: 100%; transition: 0.3s cubic-bezier(0.4, 0, 0.2, 1); }
 
-        .lb-header {
-            padding: 20px;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            background: rgba(0,0,0,0.6);
-            color: #fff;
-            z-index: 3010;
-        }
-
-        .zoom-ui {
-            display: flex;
-            align-items: center;
-            gap: 20px;
-            background: rgba(255,255,255,0.15);
-            padding: 8px 20px;
-            border-radius: 40px;
-        }
-
-        .lb-content {
-            flex: 1;
-            position: relative;
-            overflow: hidden;
-            display: flex;
-            align-items: center;
-        }
-
-        .lb-main-container {
-            width: 100%;
-            height: 100%;
-            display: flex;
-            overflow-x: auto;
-            scroll-snap-type: x mandatory;
-            scrollbar-width: none;
-        }
-
-        .lb-main-container::-webkit-scrollbar { display: none; }
-
-        .lb-slide {
-            min-width: 100%;
-            height: 100%;
-            scroll-snap-align: start;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            overflow: auto;
-        }
-
-        .lb-slide img, .lb-slide video {
-            max-width: 100%;
-            max-height: 100%;
-            transition: transform 0.25s cubic-bezier(0.4, 0, 0.2, 1);
-        }
-
-        .lb-arrow {
-            position: absolute;
-            top: 50%;
-            transform: translateY(-50%);
-            background: rgba(255,255,255,0.1);
-            color: #fff;
-            border: none;
-            width: 50px;
-            height: 50px;
-            border-radius: 50%;
-            font-size: 1.5rem;
-            cursor: pointer;
-            z-index: 3020;
-        }
-
-        .lb-prev { right: 20px; }
-        .lb-next { left: 20px; }
-
-        /* --- Admin --- */
         .fab {
-            position: fixed;
-            bottom: 30px;
-            left: 25px;
-            width: 65px;
-            height: 65px;
-            border-radius: 20px;
-            background: var(--gold);
-            font-size: 40px;
-            color: #000;
-            display: none;
-            align-items: center;
-            justify-content: center;
-            z-index: 2000;
-            box-shadow: 0 10px 30px rgba(201,168,76,0.4);
-            border: none;
+            position: fixed; bottom: 30px; left: 25px; width: 65px; height: 65px; border-radius: 20px;
+            background: var(--gold); font-size: 40px; color: #000; display: none; align-items: center;
+            justify-content: center; z-index: 2000; border: none; cursor: pointer; box-shadow: 0 10px 30px rgba(201,168,76,0.4);
         }
 
-        .admin-controls {
-            position: absolute;
-            top: 50px;
-            left: 10px;
-            display: flex;
-            flex-direction: column;
-            gap: 6px;
-            z-index: 100;
-        }
+        .admin-controls { position: absolute; top: 50px; left: 10px; display: flex; flex-direction: column; gap: 6px; z-index: 100; }
+        .adm-btn { background: rgba(0,0,0,0.85); color: #fff; border: 1px solid var(--gold); padding: 6px 12px; border-radius: 8px; font-size: 0.75rem; cursor: pointer; }
 
-        .adm-btn {
-            background: rgba(0,0,0,0.85);
-            color: #fff;
-            border: 1px solid var(--gold);
-            padding: 6px 12px;
-            border-radius: 8px;
-            font-size: 0.75rem;
-            cursor: pointer;
-        }
-
-        /* --- Modals --- */
-        .modal-overlay {
-            position: fixed;
-            inset: 0;
-            background: rgba(0,0,0,0.95);
-            z-index: 4000;
-            display: none;
-            align-items: center;
-            justify-content: center;
-            padding: 15px;
-        }
-
-        .modal {
-            background: var(--dark2);
-            width: 100%;
-            max-width: 480px;
-            border-radius: 25px;
-            padding: 25px;
-            border: 1px solid var(--gold);
-            max-height: 90vh;
-            overflow-y: auto;
-        }
-
-        .form-input {
-            width: 100%;
-            background: var(--dark3);
-            border: 1.5px solid #444;
-            border-radius: 12px;
-            padding: 14px;
-            color: #fff;
-            margin-bottom: 15px;
-            font-family: 'Cairo';
-            outline: none;
-        }
-
-        .media-preview-grid {
-            display: grid;
-            grid-template-columns: repeat(3, 1fr);
-            gap: 12px;
-            margin-bottom: 15px;
-        }
-
-        .preview-box {
-            position: relative;
-            height: 90px;
-            border-radius: 10px;
-            border: 1px solid var(--gold);
-            overflow: hidden;
-        }
-
-        .preview-box img { width: 100%; height: 100%; object-fit: cover; }
-        .del-media {
-            position: absolute;
-            top: 4px;
-            right: 4px;
-            background: #ff4757;
-            color: #fff;
-            border: none;
-            width: 24px;
-            height: 24px;
-            border-radius: 50%;
-            cursor: pointer;
-            font-weight: bold;
-        }
+        .modal-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.95); z-index: 4000; display: none; align-items: center; justify-content: center; padding: 15px; }
+        .modal { background: var(--dark2); width: 100%; max-width: 480px; border-radius: 25px; padding: 25px; border: 1px solid var(--gold); max-height: 90vh; overflow-y: auto; }
+        .form-input { width: 100%; background: var(--dark3); border: 1.5px solid #444; border-radius: 12px; padding: 14px; color: #fff; margin-bottom: 15px; font-family: 'Cairo'; outline: none; }
+        .preview-box { position: relative; height: 90px; border-radius: 10px; border: 1px solid var(--gold); overflow: hidden; }
+        .del-media { position: absolute; top: 4px; right: 4px; background: #ff4757; color: #fff; border: none; width: 24px; height: 24px; border-radius: 50%; cursor: pointer; }
     </style>
 </head>
-<body id="body">
+<body>
 
 <header>
     <div class="logo" onclick="initAdmin()">
@@ -465,14 +193,12 @@
 <section class="hero">
     <h1>بيت جديد.. أو <span class="highlight">صنايعي شاطر</span></h1>
     <div class="search-bar">
-        <input type="text" id="searchBox" placeholder="ابحث عن شقة، أرض، نجار، سباك..." oninput="renderAll()">
+        <input type="text" id="searchBox" placeholder="ابحث عن شقة، نجار، سباك..." oninput="renderAll()">
     </div>
     <div class="filter-pills">
         <button class="pill active" onclick="setF('all', 'all', this)">الكل</button>
         <button class="pill" onclick="setF('purpose', 'بيع', this)">للبيع</button>
         <button class="pill" onclick="setF('purpose', 'إيجار', this)">للإيجار</button>
-        <button class="pill" onclick="setF('type', 'أرض', this)">أراضي</button>
-        <button class="pill" onclick="setF('mode', 'worker', this)">صنايعية</button>
         <button class="pill" onclick="setF('mode', 'request', this)">مطلوب</button>
     </div>
 </section>
@@ -486,12 +212,10 @@
             <span id="zoomLabel" style="font-weight:900; color:var(--gold); min-width:60px; text-align:center;">100%</span>
             <button onclick="changeZoom(0.8)" style="background:none; border:none; color:white; font-size:1.5rem;">➖</button>
         </div>
-        <span onclick="closeLB()" style="font-size:3rem; cursor:pointer;">&times;</span>
+        <span onclick="closeLB()" style="font-size:3rem; cursor:pointer; color:white;">&times;</span>
     </div>
     <div class="lb-content">
-        <button class="lb-arrow lb-prev" onclick="lbNav(1)">❮</button>
         <div class="lb-main-container" id="lbScroll"></div>
-        <button class="lb-arrow lb-next" onclick="lbNav(-1)">❯</button>
     </div>
 </div>
 
@@ -501,44 +225,30 @@
     <div class="modal">
         <h2 style="text-align:center; color:var(--gold); margin-bottom:20px;">إضافة إعلان جديد</h2>
         <input type="hidden" id="editId">
-        
         <select id="m_mode" class="form-input" onchange="adjustForm(this.value)">
             <option value="offer">عقار معروض</option>
             <option value="request">عقار مطلوب</option>
             <option value="worker">إعلان صنايعي / خدمات</option>
         </select>
-
         <div style="margin-bottom:15px; color:var(--gold); font-weight:bold;">
             <input type="checkbox" id="m_verify"> توثيق الحساب (Verified ✅)
         </div>
-
         <div id="mediaSection">
-            <div id="preGrid" class="media-preview-grid"></div>
-            <div style="border:2px dashed var(--gold); padding:20px; text-align:center; cursor:pointer; background:var(--dark3); border-radius:15px;" onclick="document.getElementById('fileInp').click()">
-                📸 أضف الصور أو الفيديوهات
-                <input type="file" id="fileInp" hidden multiple accept="image/*,video/*" onchange="handleFiles(this)">
-            </div>
+            <div id="preGrid" style="display:grid; grid-template-columns:repeat(3,1fr); gap:10px; margin-bottom:10px;"></div>
+            <div style="border:2px dashed var(--gold); padding:20px; text-align:center; cursor:pointer; background:var(--dark3); border-radius:15px;" onclick="document.getElementById('fileInp').click()">📸 أضف الصور أو الفيديوهات</div>
+            <input type="file" id="fileInp" hidden multiple accept="image/*,video/*" onchange="handleFiles(this)">
         </div>
-
         <input type="text" id="m_title" class="form-input" placeholder="عنوان الإعلان">
-        
         <div id="propFields" style="display:flex; gap:10px;">
             <select id="m_purpose" class="form-input"><option value="بيع">بيع</option><option value="إيجار">إيجار</option></select>
-            <select id="m_type" class="form-input">
-                <option value="شقة">شقة</option><option value="أرض">أرض</option><option value="محل">محل</option><option value="عمارة">عمارة</option>
-            </select>
+            <select id="m_type" class="form-input"><option value="شقة">شقة</option><option value="أرض">أرض</option><option value="محل">محل</option><option value="عمارة">عمارة</option></select>
         </div>
-
-        <select id="m_status" class="form-input">
-            <option value="available">متاح</option><option value="reserved">محجوز</option><option value="sold">تم البيع/التنفيذ</option>
-        </select>
-
-        <input type="number" id="m_price" class="form-input" placeholder="السعر أو اليومية">
+        <select id="m_status" class="form-input"><option value="available">متاح</option><option value="reserved">محجوز</option><option value="sold">تم التنفيذ</option></select>
+        <input type="number" id="m_price" class="form-input" placeholder="السعر">
         <input type="text" id="m_area" class="form-input" placeholder="المنطقة">
-        <input type="tel" id="m_phone" class="form-input" placeholder="رقم الموبايل">
-
+        <input type="tel" id="m_phone" class="form-input" placeholder="رقم الهاتف">
         <button class="btn btn-call" style="width:100%; font-size:1.2rem;" onclick="saveData()">🚀 حفظ ونشر</button>
-        <button onclick="closeForm()" style="width:100%; background:none; border:none; color:gray; margin-top:20px; cursor:pointer;">إلغاء</button>
+        <button onclick="closeForm()" style="width:100%; background:none; border:none; color:gray; margin-top:20px;">إلغاء</button>
     </div>
 </div>
 
@@ -553,25 +263,17 @@
     let store = {}, tempMedia = [], activeZoom = 1;
     let filterObj = {type:'all', purpose:'all', mode:'all'};
 
-    // --- Back Button Logic ---
     window.history.pushState({p:1}, "");
     window.onpopstate = () => {
-        if(document.getElementById('lightbox').style.display === 'flex') {
-            closeLB();
-            window.history.pushState({p:1}, "");
-        } else if(document.getElementById('formModal').style.display === 'flex') {
-            closeForm();
-            window.history.pushState({p:1}, "");
-        }
+        if(document.getElementById('lightbox').style.display === 'flex') closeLB();
+        else if(document.getElementById('formModal').style.display === 'flex') closeForm();
+        window.history.pushState({p:1}, "");
     };
 
     function initAdmin() {
         const pass = prompt("كلمة السر:");
         db.ref('admin_pass').once('value').then(s => {
-            if(pass === String(s.val())) {
-                localStorage.setItem('samsar_admin', 'true');
-                location.reload();
-            }
+            if(pass === String(s.val())) { localStorage.setItem('samsar_admin', 'true'); location.reload(); }
         });
     }
 
@@ -583,9 +285,7 @@
     async function handleFiles(input) {
         for (let file of input.files) {
             const b64 = await new Promise(r => {
-                const reader = new FileReader();
-                reader.onload = e => r(e.target.result);
-                reader.readAsDataURL(file);
+                const rd = new FileReader(); rd.onload = e => r(e.target.result); rd.readAsDataURL(file);
             });
             tempMedia.push({type: file.type.startsWith('image') ? 'image' : 'video', src: b64});
         }
@@ -596,7 +296,7 @@
         document.getElementById('preGrid').innerHTML = tempMedia.map((m, i) => `
             <div class="preview-box">
                 <button class="del-media" onclick="tempMedia.splice(${i},1);drawPreview()">×</button>
-                ${m.type==='image' ? `<img src="${m.src}">` : `<video src="${m.src}"></video>`}
+                <img src="${m.src}" style="width:100%; height:100%; object-fit:cover;">
             </div>`).join('');
     }
 
@@ -610,17 +310,11 @@
             document.getElementById('m_area').value = itm.area;
             document.getElementById('m_phone').value = itm.phone;
             document.getElementById('m_mode').value = itm.mode || 'offer';
-            document.getElementById('m_purpose').value = itm.purpose;
-            document.getElementById('m_type').value = itm.type;
-            document.getElementById('m_status').value = itm.status;
-            document.getElementById('m_verify').checked = itm.isVerified;
-            adjustForm(itm.mode || 'offer');
-            tempMedia = [...(itm.media || [])];
-            drawPreview();
+            document.getElementById('m_purpose').value = itm.purpose || 'بيع';
+            document.getElementById('m_verify').checked = itm.verified || false;
+            tempMedia = itm.media || []; drawPreview(); adjustForm(itm.mode);
         } else {
-            document.getElementById('editId').value = "";
-            tempMedia = [];
-            drawPreview();
+            document.getElementById('editId').value = ""; document.getElementById('m_title').value = ""; tempMedia = []; drawPreview();
         }
     }
 
@@ -636,120 +330,93 @@
             price: document.getElementById('m_price').value,
             area: document.getElementById('m_area').value,
             phone: document.getElementById('m_phone').value,
-            media: tempMedia,
+            verified: document.getElementById('m_verify').checked,
             status: document.getElementById('m_status').value,
-            isVerified: document.getElementById('m_verify').checked,
-            ts: Date.now()
+            media: tempMedia,
+            time: Date.now()
         };
-        if(id) db.ref('properties/'+id).update(data).then(()=>location.reload());
-        else db.ref('properties').push(data).then(()=>location.reload());
+        const ref = id ? db.ref('properties/' + id) : db.ref('properties').push();
+        ref.set(data).then(() => { closeForm(); });
     }
 
-    db.ref('properties').on('value', s => { store = s.val() || {}; renderAll(); });
-    db.ref('ad_text').on('value', s => { window.globalAd = s.val(); renderAll(); });
+    db.ref('properties').on('value', snap => { store = snap.val() || {}; renderAll(); });
 
     function setF(k, v, btn) {
-        filterObj = {type:'all', purpose:'all', mode:'all'};
-        filterObj[k] = v;
+        if(k === 'all') filterObj = {type:'all', purpose:'all', mode:'all'};
+        else filterObj[k] = v;
         document.querySelectorAll('.pill').forEach(p => p.classList.remove('active'));
-        btn.classList.add('active');
-        renderAll();
+        btn.classList.add('active'); renderAll();
     }
 
     function renderAll() {
-        const query = document.getElementById('searchBox').value.toLowerCase();
         const grid = document.getElementById('mainGrid');
+        const q = document.getElementById('searchBox').value.toLowerCase();
         grid.innerHTML = "";
-        const isAdm = localStorage.getItem('samsar_admin') === 'true';
-        if(isAdm) document.getElementById('addBtn').style.display = 'flex';
+        const isAdmin = localStorage.getItem('samsar_admin') === 'true';
+        if(isAdmin) document.getElementById('addBtn').style.display = 'flex';
 
         let count = 0;
         Object.keys(store).reverse().forEach(id => {
-            const item = store[id];
-            const isW = item.mode === 'worker', isR = item.mode === 'request';
-            
-            if((filterObj.type==='all' || item.type===filterObj.type) && 
-               (filterObj.purpose==='all' || item.purpose===filterObj.purpose) &&
-               (filterObj.mode==='all' || item.mode===filterObj.mode) &&
-               (item.title.toLowerCase().includes(query) || item.area.toLowerCase().includes(query))) {
+            const itm = store[id];
+            if ((filterObj.mode === 'all' || itm.mode === filterObj.mode) &&
+                (filterObj.purpose === 'all' || itm.purpose === filterObj.purpose) &&
+                (itm.title.toLowerCase().includes(q) || itm.area.toLowerCase().includes(q))) {
                 
                 count++;
                 grid.innerHTML += `
-                    <div class="card">
-                        ${isAdm ? `<div class="admin-controls">
-                            <button class="adm-btn" onclick="openForm('${id}')">تعديل ✏️</button>
-                            <button class="adm-btn" style="background:red" onclick="if(confirm('حذف؟'))db.ref('properties/${id}').remove()">حذف 🗑️</button>
-                        </div>` : ''}
-                        ${!isR && item.media ? `
-                        <div class="image-wrapper">
-                            <div class="image-slider" onscroll="const idx=Math.round(this.scrollLeft/this.clientWidth); this.parentElement.querySelector('.img-counter').innerText=(idx+1)+' / ${item.media.length}'">
-                                ${item.media.map((m,idx) => `<${m.type==='video'?'video':'img'} src="${m.src}" class="slider-item" onclick="openLB('${id}',${idx})"></${m.type==='video'?'video':'img'}>`).join('')}
-                            </div>
-                            <div class="img-counter">1 / ${item.media.length}</div>
-                        </div>` : ''}
-                        <div class="status-badge status-${isR?'request':(isW?'worker':item.status)}">
-                            ${isR?'مطلوب':(isW?'خدمات':(item.status==='available'?'متاح':'مباع'))}
+                <div class="card">
+                    ${isAdmin ? `<div class="admin-controls"><button class="adm-btn" onclick="openForm('${id}')">تعديل</button><button class="adm-btn" style="background:red" onclick="db.ref('properties/${id}').remove()">حذف</button></div>` : ''}
+                    <div class="image-wrapper">
+                        <div class="image-slider" onscroll="updateCounter(this)">
+                            ${itm.media ? itm.media.map((m, i) => `<img src="${m.src}" class="slider-item" onclick="openLB('${id}', ${i})">`).join('') : ''}
                         </div>
-                        <div class="card-body">
-                            ${item.isVerified ? `<div style="color:var(--verify); font-weight:bold; font-size:0.7rem; margin-bottom:5px;">✅ موثق</div>` : ''}
-                            <div class="price">${Number(item.price).toLocaleString()} ج.م</div>
-                            <h3 class="card-title">${item.title}</h3>
-                            <p>📍 ${item.area} ${item.type?' | '+item.type : ''}</p>
-                            <div class="actions">
-                                <a href="tel:${item.phone}" class="btn btn-call">📞 اتصال</a>
-                                <a href="https://wa.me/20${item.phone}" target="_blank" class="btn btn-wa">واتساب</a>
-                                <button class="btn btn-share" onclick="navigator.share({url:location.href})">🔗 مشاركة</button>
-                            </div>
+                        <div class="img-counter">1 / ${itm.media ? itm.media.length : 0}</div>
+                        <div class="status-badge status-${itm.mode === 'worker' ? 'worker' : (itm.status || 'available')}">
+                            ${itm.verified ? '✅ ' : ''} ${itm.mode === 'worker' ? 'صنايعي' : itm.purpose}
                         </div>
-                    </div>`;
-
-                if(count % 3 === 0) {
-                    grid.innerHTML += `
-                        <div class="ad-banner" onclick="editGlobalAd()">
-                            ${isAdm ? '<span style="font-size:0.6rem; position:absolute; top:5px; left:10px;">تعديل ⚙️</span>' : ''}
-                            ${window.globalAd || "إعلان: سمسرني بيخلصك في ثانية!"}
-                        </div>`;
-                }
+                    </div>
+                    <div class="card-body">
+                        <div class="price">${Number(itm.price).toLocaleString()} ج.م</div>
+                        <h3 class="card-title">${itm.title}</h3>
+                        <p style="color:var(--text-muted); font-size:0.9rem;">📍 ${itm.area}</p>
+                        <div class="actions">
+                            <a href="tel:${itm.phone}" class="btn btn-call">📞 اتصال</a>
+                            <a href="https://wa.me/20${itm.phone}" class="btn btn-wa">واتساب</a>
+                        </div>
+                    </div>
+                </div>`;
+                if(count % 3 === 0) grid.innerHTML += `<div class="ad-banner">سمسرني.. طلبك عندنا في أسرع وقت!</div>`;
             }
         });
     }
 
-    function editGlobalAd() {
-        if(localStorage.getItem('samsar_admin') !== 'true') return;
-        const msg = prompt("نص الإعلان الجديد:", window.globalAd);
-        if(msg) db.ref('ad_text').set(msg);
+    function updateCounter(el) {
+        const width = el.offsetWidth;
+        const scrollPos = Math.abs(el.scrollLeft);
+        let current = Math.round(scrollPos / width) + 1;
+        const counter = el.parentElement.querySelector('.img-counter');
+        if (counter) {
+            const total = counter.innerText.split('/')[1].trim();
+            if (current < 1) current = 1;
+            if (current > total) current = total;
+            counter.innerText = `${current} / ${total}`;
+        }
     }
 
     function openLB(id, idx) {
-        activeZoom = 1; updateZoomLabel();
+        activeZoom = 1; document.getElementById('zoomLabel').innerText = "100%";
         const container = document.getElementById('lbScroll');
-        container.innerHTML = store[id].media.map(m => `
-            <div class="lb-slide">
-                ${m.type==='image' ? `<img src="${m.src}" class="zoomImg">` : `<video src="${m.src}" controls autoplay></video>`}
-            </div>`).join('');
-        document.getElementById('lightbox').style.display = 'flex';
+        container.innerHTML = store[id].media.map(m => `<div class="lb-slide"><img src="${m.src}" class="zoomImg"></div>`).join('');
+        document.getElementById('lightbox').classList.add('open');
         setTimeout(() => { container.scrollLeft = idx * container.clientWidth; }, 50);
     }
 
-    function lbNav(dir) {
-        const s = document.getElementById('lbScroll');
-        s.scrollBy({ left: dir * s.clientWidth, behavior: 'smooth' });
-        activeZoom = 1; updateZoomLabel();
-    }
+    function closeLB() { document.getElementById('lightbox').classList.remove('open'); }
 
-    function changeZoom(factor) {
-        activeZoom = Math.max(0.5, Math.min(5, activeZoom * factor));
-        updateZoomLabel();
-        document.querySelectorAll('.zoomImg').forEach(img => {
-            img.style.transform = `scale(${activeZoom})`;
-        });
+    function changeZoom(f) {
+        activeZoom *= f; document.getElementById('zoomLabel').innerText = Math.round(activeZoom*100) + "%";
+        document.querySelectorAll('.zoomImg').forEach(img => img.style.transform = `scale(${activeZoom})`);
     }
-
-    function updateZoomLabel() {
-        document.getElementById('zoomLabel').innerText = Math.round(activeZoom * 100) + "%";
-    }
-
-    function closeLB() { document.getElementById('lightbox').style.display = 'none'; }
 </script>
 </body>
 </html>
