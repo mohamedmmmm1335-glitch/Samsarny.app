@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>سمسرني – النسخة الذهبية V29</title>
+<title>سمسرني - النسخة النهائية المتكاملة</title>
 <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;900&family=Tajawal:wght@400;500;700;800&display=swap" rel="stylesheet">
 <style>
   :root {
@@ -32,15 +32,21 @@
   .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)); gap: 20px; padding: 0 20px 100px; }
   .card { position: relative; background: var(--card); border-radius: var(--radius); border: 1px solid rgba(201,168,76,0.1); overflow: hidden; }
   
+  /* Media Slider UI */
   .image-wrapper { position: relative; width: 100%; height: 230px; overflow: hidden; background: #000; }
   .image-slider { display: flex; width: 100%; height: 100%; overflow-x: auto; scroll-snap-type: x mandatory; scrollbar-width: none; }
   .image-slider::-webkit-scrollbar { display: none; }
-  .slider-item { flex: 0 0 100%; width: 100%; height: 100%; object-fit: cover; scroll-snap-align: start; }
+  .slider-item { flex: 0 0 100%; width: 100%; height: 100%; object-fit: cover; scroll-snap-align: start; cursor: zoom-in; }
   
   .img-counter { position: absolute; top: 10px; left: 10px; background: rgba(0,0,0,0.6); color: white; padding: 2px 8px; border-radius: 5px; font-size: 0.75rem; z-index: 5; }
-  .slide-arrow { position: absolute; top: 50%; transform: translateY(-50%); background: rgba(0,0,0,0.4); color: white; border: none; width: 35px; height: 35px; border-radius: 50%; cursor: pointer; z-index: 10; font-size: 1.2rem; }
+  .slide-arrow { position: absolute; top: 50%; transform: translateY(-50%); background: rgba(0,0,0,0.4); color: white; border: none; width: 35px; height: 35px; border-radius: 50%; cursor: pointer; z-index: 10; font-size: 1.2rem; display: flex; align-items: center; justify-content: center; }
   .arrow-left { left: 8px; } .arrow-right { right: 8px; }
+  
+  .slider-dots { position: absolute; bottom: 10px; left: 50%; transform: translateX(-50%); display: flex; gap: 5px; z-index: 10; }
+  .dot { width: 6px; height: 6px; border-radius: 50%; background: rgba(255,255,255,0.4); }
+  .dot.active { background: var(--gold); transform: scale(1.3); }
 
+  /* Status Badges */
   .status-badge { position: absolute; top: 10px; right: 10px; padding: 4px 10px; border-radius: 6px; font-weight: 800; font-size: 0.75rem; z-index: 15; }
   .status-available { background: var(--gold); color: #000; }
   .status-reserved { background: #e67e22; color: white; }
@@ -49,7 +55,6 @@
   
   .card-body { padding: 18px; }
   .price { font-weight: 900; font-size: 1.5rem; color: var(--gold); font-family: 'Tajawal'; }
-  .card-title { font-size: 1.2rem; font-weight: 700; margin: 8px 0; }
   
   .ad-banner { grid-column: 1 / -1; background: linear-gradient(45deg, var(--dark2), var(--dark3)); border: 2px dashed var(--gold); border-radius: 16px; padding: 25px; text-align: center; color: var(--gold); font-weight: 900; }
 
@@ -62,6 +67,11 @@
   .admin-actions { position: absolute; left: 10px; top: 45px; display: flex; flex-direction: column; gap: 5px; z-index: 30; }
   .admin-btn { background: rgba(0,0,0,0.8); color: white; border: 1px solid rgba(255,255,255,0.2); border-radius: 6px; padding: 5px 8px; font-size: 0.7rem; cursor: pointer; }
 
+  /* Modal & Lightbox */
+  #lightbox { position: fixed; inset: 0; background: #000; z-index: 2000; display: none; align-items: center; justify-content: center; }
+  #lbImg { max-width: 100%; max-height: 90vh; object-fit: contain; }
+  .lb-close { position: absolute; top: 20px; right: 20px; color: white; font-size: 2.5rem; cursor: pointer; }
+
   .fab { position: fixed; bottom: 30px; left: 20px; width: 60px; height: 60px; border-radius: 18px; background: var(--gold); font-size: 35px; display: none; align-items: center; justify-content: center; z-index: 500; border: none; box-shadow: 0 8px 25px rgba(201,168,76,0.4); }
   .modal-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.9); z-index: 1000; display: none; align-items: center; justify-content: center; padding: 15px; }
   .modal-overlay.open { display: flex !important; }
@@ -72,7 +82,7 @@
 <body id="body">
 
 <header>
-  <div class="logo" onclick="adminLogin()">
+  <div class="logo" onclick="adminAuth()">
     <div class="logo-icon">🏠</div>
     <div>سمسرني <span style="font-size: 0.6rem; display: block; color: var(--text-muted);">عقارات بلدنا</span></div>
   </div>
@@ -86,8 +96,8 @@
   </div>
   <div class="filter-pills">
     <button class="pill active" onclick="setFilter('all', 'all', this)">الكل</button>
-    <button class="pill" onclick="setFilter('purpose', 'بيع', this)">بيع</button>
-    <button class="pill" onclick="setFilter('purpose', 'إيجار', this)">إيجار</button>
+    <button class="pill" onclick="setFilter('purpose', 'بيع', this)">للبيع</button>
+    <button class="pill" onclick="setFilter('purpose', 'إيجار', this)">للإيجار</button>
     <button class="pill" onclick="setFilter('type', 'شقة', this)">شقق</button>
     <button class="pill" onclick="setFilter('type', 'محل', this)">محلات</button>
     <button class="pill" onclick="setFilter('type', 'أرض', this)">أراضي</button>
@@ -97,37 +107,44 @@
 
 <div class="grid" id="grid"></div>
 
+<div id="lightbox"><span class="lb-close" onclick="closeLB()">×</span><img id="lbImg"></div>
+
 <button class="fab" id="adminBtn" onclick="openModal()">+</button>
 
 <div class="modal-overlay" id="addModal">
   <div class="modal">
-    <h2 id="mTitle" style="text-align:center; color:var(--gold); margin-bottom:15px;">إضافة عقار</h2>
+    <h2 id="mTitle" style="text-align:center; color:var(--gold); margin-bottom:15px;">إضافة إعلان</h2>
     <input type="hidden" id="edit_id">
     
     <select id="f_mode" class="form-control" onchange="document.getElementById('uBox').style.display=(this.value=='request'?'none':'block')">
       <option value="offer">معروض</option>
       <option value="request">مطلوب</option>
     </select>
-    <div style="margin-bottom:12px; color:var(--gold); display:flex; align-items:center; gap:8px;"><input type="checkbox" id="f_verify"> توثيق (Verify ✅)</div>
-    <div id="uBox" style="border:2px dashed var(--gold); padding:20px; text-align:center; margin-bottom:12px;" onclick="document.getElementById('fInp').click()">
-      <p id="upStatus">📸 ارفع الصور/الفيديو</p>
+
+    <div style="margin-bottom:12px; color:var(--gold); font-weight:bold; display:flex; align-items:center; gap:8px;">
+      <input type="checkbox" id="f_verify"> توثيق (Verified ✅)
+    </div>
+
+    <div id="uBox" style="background:var(--dark3); border:2px dashed var(--gold); border-radius:12px; padding:20px; text-align:center; margin-bottom:12px; cursor:pointer;" onclick="document.getElementById('fInp').click()">
+      <p id="upStatus">📸 ارفع الصور أو الفيديوهات</p>
       <input type="file" id="fInp" hidden multiple accept="image/*,video/*" onchange="handleMedia(this)">
     </div>
-    <input type="text" id="f_t" class="form-control" placeholder="العنوان">
+
+    <input type="text" id="f_t" class="form-control" placeholder="عنوان العقار">
     <div style="display:flex; gap:10px;">
       <select id="f_p" class="form-control"><option value="بيع">بيع</option><option value="إيجار">إيجار</option></select>
       <select id="f_ty" class="form-control"><option value="شقة">شقة</option><option value="محل">محل</option><option value="أرض">أرض</option><option value="عمارة">عمارة</option></select>
     </div>
     <select id="f_st" class="form-control">
-      <option value="available">متاح</option>
-      <option value="reserved">تم الحجز</option>
-      <option value="sold">تم البيع</option>
+        <option value="available">متاح</option>
+        <option value="reserved">تم الحجز</option>
+        <option value="sold">تم البيع</option>
     </select>
     <input type="number" id="f_pr" class="form-control" placeholder="السعر">
     <input type="text" id="f_a" class="form-control" placeholder="المنطقة">
-    <input type="tel" id="f_ph" class="form-control" placeholder="الموبايل">
-    <button class="btn btn-call" style="width:100%" onclick="save()">🚀 تنفيذ</button>
-    <button onclick="closeModal()" style="width:100%; border:none; background:none; color:gray; margin-top:10px;">إلغاء</button>
+    <input type="tel" id="f_ph" class="form-control" placeholder="رقم الموبايل">
+    <button class="btn btn-call" style="width: 100%;" onclick="save()">🚀 حفظ ونشر</button>
+    <button onclick="closeModal()" style="width:100%; background:none; border:none; color:gray; margin-top:10px; cursor:pointer;">إلغاء</button>
   </div>
 </div>
 
@@ -141,16 +158,19 @@
 
   let allData = {}, currentFilters = {type:'all', purpose:'all', mode:'all'}, mediaArray = [];
 
-  function adminLogin() {
-    const p = prompt("الباسورد:");
+  function adminAuth() {
+    const p = prompt("كلمة السر للأدمن:");
     db.ref('admin_pass').get().then(s => {
-      if(p === String(s.val())) { localStorage.setItem('is_admin','true'); location.reload(); }
+      if(p === String(s.val())) {
+        localStorage.setItem('admin_logged', 'true');
+        location.reload();
+      }
     });
   }
 
   async function handleMedia(input) {
     const files = Array.from(input.files);
-    document.getElementById('upStatus').innerText = "⏳ جاري الرفع...";
+    document.getElementById('upStatus').innerText = "⏳ جاري التجهيز...";
     mediaArray = [];
     for (let f of files) {
       const b64 = await new Promise(res => {
@@ -158,7 +178,7 @@
       });
       mediaArray.push({type: f.type.startsWith('image')?'image':'video', src: b64});
     }
-    document.getElementById('upStatus').innerText = "✅ تم الرفع";
+    document.getElementById('upStatus').innerText = `✅ تم اختيار (${files.length})`;
   }
 
   function openModal(id = null) {
@@ -171,9 +191,14 @@
       document.getElementById('f_a').value = item.area;
       document.getElementById('f_ph').value = item.phone;
       document.getElementById('f_st').value = item.status || 'available';
-      document.getElementById('f_verify').checked = item.isVerified;
+      document.getElementById('f_p').value = item.purpose;
+      document.getElementById('f_ty').value = item.type;
+      document.getElementById('f_verify').checked = item.isVerified || false;
       mediaArray = item.media || [];
-      document.getElementById('mTitle').innerText = "تعديل العقار";
+      document.getElementById('mTitle').innerText = "تعديل الإعلان";
+    } else {
+      document.getElementById('edit_id').value = "";
+      document.getElementById('mTitle').innerText = "إضافة إعلان";
     }
   }
 
@@ -205,55 +230,67 @@
   function applyFilters() {
     const search = document.getElementById('searchInput').value.toLowerCase();
     const grid = document.getElementById('grid'); grid.innerHTML = "";
-    const isAdmin = localStorage.getItem('is_admin') === 'true';
+    const isAdmin = localStorage.getItem('admin_logged') === 'true';
     if(isAdmin) document.getElementById('adminBtn').style.display = 'flex';
 
     let count = 0;
     Object.keys(allData).reverse().forEach(id => {
       const item = allData[id];
-      const matchSearch = item.title.toLowerCase().includes(search) || item.area.toLowerCase().includes(search);
-      const matchType = currentFilters.type==='all' || item.type===currentFilters.type;
-      const matchPurpose = currentFilters.purpose==='all' || item.purpose===currentFilters.purpose;
-
-      if(matchSearch && matchType && matchPurpose) {
+      if((currentFilters.type==='all' || item.type===currentFilters.type) && 
+         (currentFilters.purpose==='all' || item.purpose===currentFilters.purpose) &&
+         (item.title.toLowerCase().includes(search) || item.area.toLowerCase().includes(search))) {
+        
         count++;
+        const isR = item.mode === 'request';
         const media = item.media || [];
         const st = item.status || 'available';
+        
         grid.innerHTML += `
           <div class="card">
             ${isAdmin ? `<div class="admin-actions">
               <button class="admin-btn" onclick="openModal('${id}')">تعديل ✏️</button>
               <button class="admin-btn" style="background:red" onclick="if(confirm('حذف؟'))db.ref('properties/${id}').remove()">حذف 🗑️</button>
             </div>` : ''}
+            ${!isR && media.length > 0 ? `
             <div class="image-wrapper">
-              <div class="img-counter" id="c-${id}">1 / ${media.length || 1}</div>
-              <div class="image-slider" id="s-${id}" onscroll="updateC('${id}', ${media.length})">
-                ${media.map(m => m.type==='video' ? `<video src="${m.src}" class="slider-item" loop muted onclick="this.play()"></video>` : `<img src="${m.src}" class="slider-item">`).join('') || '<img src="https://via.placeholder.com/400x300?text=No+Image" class="slider-item">'}
+              <div class="img-counter" id="cnt-${id}">1 / ${media.length}</div>
+              <div class="image-slider" id="sl-${id}" onscroll="updateSliderUI('${id}', ${media.length})">
+                ${media.map(m => m.type === 'video' ? `<video src="${m.src}" class="slider-item" playsinline loop muted onclick="this.play()"></video>` : `<img src="${m.src}" class="slider-item" onclick="openLB('${m.src}')">`).join('')}
               </div>
-            </div>
-            <div class="status-badge status-${st}">${st==='available'?'متاح':(st==='reserved'?'محجوز':'مباع')}</div>
+              ${media.length > 1 ? `
+                <button class="slide-arrow arrow-left" onclick="scrollSlide('${id}', 1)">❮</button>
+                <button class="slide-arrow arrow-right" onclick="scrollSlide('${id}', -1)">❯</button>
+                <div class="slider-dots dots-${id}">${media.map((_,i)=>`<div class="dot ${i===0?'active':''}"></div>`).join('')}</div>
+              `:''}
+            </div>` : ''}
+            <div class="status-badge status-${isR?'request':st}">${isR?'مطلوب':(st==='available'?'متاح':(st==='reserved'?'محجوز':'مباع'))}</div>
             <div class="card-body">
-              ${item.isVerified ? `<div style="color:var(--verify); font-weight:bold; font-size:0.75rem;">✅ موثق</div>` : ''}
+              ${item.isVerified ? `<div style="color:var(--verify); font-weight:bold; font-size:0.75rem; margin-bottom:5px;">✅ موثق من سمسرني</div>` : ''}
               <div class="price">${Number(item.price).toLocaleString()} ج.م</div>
               <h3 class="card-title">${item.title}</h3>
-              <p>📍 ${item.area} | ${item.purpose}</p>
+              <p>📍 ${item.area} | ${item.type}</p>
               <div class="actions">
                 <a href="tel:${item.phone}" class="btn btn-call">📞 اتصال</a>
-                <a href="https://wa.me/20${item.phone}" class="btn btn-wa">واتساب</a>
+                <a href="https://wa.me/20${item.phone}" target="_blank" class="btn btn-wa">واتساب</a>
                 <button class="btn btn-share" onclick="navigator.share({url:location.href})">🔗 مشاركة</button>
               </div>
             </div>
           </div>`;
-        if(count % 3 === 0) grid.innerHTML += `<div class="ad-banner">📢 إعلان: سمسرني بيخلصك في ثانية!</div>`;
+        if(count % 3 === 0) grid.innerHTML += `<div class="ad-banner">📢 إعلان: سمسرني بيخلصك في ثانية! تواصل معنا لتمييز إعلانك.</div>`;
       }
     });
   }
 
-  function updateC(id, total) {
-    const slider = document.getElementById(`s-${id}`);
-    const idx = Math.round(slider.scrollLeft / slider.clientWidth);
-    document.getElementById(`c-${id}`).innerText = `${Math.abs(idx)+1} / ${total}`;
+  function updateSliderUI(id, total) {
+    const s = document.getElementById(`sl-${id}`);
+    let idx = Math.round(Math.abs(s.scrollLeft) / s.clientWidth);
+    document.getElementById(`cnt-${id}`).innerText = `${idx + 1} / ${total}`;
+    const dots = document.querySelectorAll(`.dots-${id} .dot`);
+    dots.forEach((d, i) => d.classList.toggle('active', i === idx));
   }
+  function scrollSlide(id, d) { document.getElementById(`sl-${id}`).scrollBy({ left: d * 300, behavior: 'smooth' }); }
+  function openLB(src) { document.getElementById('lbImg').src = src; document.getElementById('lightbox').style.display = 'flex'; }
+  function closeLB() { document.getElementById('lightbox').style.display = 'none'; }
 </script>
 </body>
 </html>
