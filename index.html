@@ -32,13 +32,19 @@
   .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)); gap: 24px; padding: 0 24px 80px; }
   .card { position: relative; background: var(--card); border-radius: var(--radius); border: 1px solid rgba(255,255,255,0.06); overflow: hidden; }
   
-  .image-slider { position: relative; width: 100%; height: 220px; display: flex; overflow-x: auto; scroll-snap-type: x mandatory; scrollbar-width: none; }
+  /* ستايل السلايدر المتطور مع الأسهم */
+  .image-wrapper { position: relative; width: 100%; height: 220px; overflow: hidden; }
+  .image-slider { display: flex; width: 100%; height: 100%; overflow-x: auto; scroll-snap-type: x mandatory; scrollbar-width: none; scroll-behavior: smooth; }
   .image-slider::-webkit-scrollbar { display: none; }
   .slider-img { flex: 0 0 100%; width: 100%; height: 100%; object-fit: cover; scroll-snap-align: start; background: #222; }
-  .slider-dots { position: absolute; bottom: 10px; left: 50%; transform: translateX(-50%); display: flex; gap: 5px; pointer-events: none; }
-  .dot { width: 6px; height: 6px; background: rgba(255,255,255,0.5); border-radius: 50%; }
+  
+  .slide-arrow { position: absolute; top: 50%; transform: translateY(-50%); background: rgba(0,0,0,0.4); color: white; border: none; width: 30px; height: 30px; border-radius: 50%; cursor: pointer; display: flex; align-items: center; justify-content: center; z-index: 10; backdrop-filter: blur(4px); font-weight: bold; }
+  .arrow-left { left: 10px; }
+  .arrow-right { right: 10px; }
 
-  .status-badge { position: absolute; top: 12px; right: 12px; padding: 4px 12px; border-radius: 8px; font-weight: 800; font-size: 0.8rem; background: var(--gold); color: #0f0f0f; z-index: 5; }
+  .status-badge { position: absolute; top: 12px; right: 12px; padding: 4px 12px; border-radius: 8px; font-weight: 800; font-size: 0.8rem; z-index: 15; box-shadow: 0 4px 10px rgba(0,0,0,0.3); }
+  .status-available { background: var(--gold); color: #0f0f0f; }
+  .status-reserved { background: #3498db; color: white; }
   .status-sold { background: #ff4757; color: white; }
   
   .card-body { padding: 20px; }
@@ -51,8 +57,8 @@
   .btn-call { background: linear-gradient(135deg, var(--gold), var(--gold-light)); color: #0f0f0f; }
   .btn-wa { background: var(--whatsapp); color: white; }
   
-  .admin-actions { position: absolute; left: 12px; top: 12px; display: flex; gap: 5px; z-index: 10; }
-  .admin-btn { background: rgba(0,0,0,0.7); color: white; border: 1px solid rgba(255,255,255,0.2); border-radius: 8px; padding: 6px 10px; cursor: pointer; font-size: 0.8rem; backdrop-filter: blur(4px); }
+  .admin-actions { position: absolute; left: 12px; top: 12px; display: flex; flex-direction: column; gap: 5px; z-index: 20; }
+  .admin-btn { background: rgba(0,0,0,0.8); color: white; border: 1px solid rgba(255,255,255,0.2); border-radius: 8px; padding: 6px 10px; cursor: pointer; font-size: 0.75rem; backdrop-filter: blur(4px); }
 
   .fab { position: fixed; bottom: 35px; left: 25px; width: 65px; height: 65px; border-radius: 20px; background: var(--gold); border: none; font-size: 40px; display: none; align-items: center; justify-content: center; cursor: pointer; z-index: 500; box-shadow: 0 10px 30px rgba(201,168,76,0.5); }
   
@@ -126,7 +132,6 @@
   let currentFilters = { type: 'all', purpose: 'all' };
   let imagesArray = [];
 
-  // دالة الدخول لوضع الإدارة
   async function adminAccess() {
     const input = prompt("أدخل كلمة السر:");
     if(!input) return;
@@ -138,7 +143,7 @@
         alert("تم تفعيل وضع الإدارة ✅");
         location.reload();
       } else { alert("كلمة السر خطأ! ❌"); }
-    } catch (e) { alert("تأكد من إعدادات Firebase"); }
+    } catch (e) { alert("خطأ في الاتصال"); }
   }
 
   function handleMultipleImages(input) {
@@ -183,7 +188,9 @@
       price: document.getElementById('f_price').value,
       area: document.getElementById('f_area').value,
       phone: document.getElementById('f_phone').value,
-      images: imagesArray, sold: false, date: Date.now(),
+      images: imagesArray, 
+      status: "available", // الحالة الافتراضية
+      date: Date.now(),
       admin_pass: savedKey 
     };
 
@@ -191,17 +198,28 @@
     btn.innerText = "جاري النشر..."; btn.disabled = true;
 
     db.ref('properties').push(data).then(() => location.reload())
-    .catch(() => { alert("خطأ! تأكد من الباسورد"); btn.disabled = false; btn.innerText = "🚀 انشر الآن"; });
+    .catch(() => { alert("خطأ في الأمان!"); btn.disabled = false; btn.innerText = "🚀 انشر الآن"; });
   }
 
-  function toggleSold(id, currentStatus) {
+  // دالة لتغيير الحالة بين (متاح - تم الحجز - تم البيع)
+  function cycleStatus(id, currentStatus) {
     const savedKey = localStorage.getItem('samsarny_key');
-    db.ref().update({ [`properties/${id}/sold`]: !currentStatus, admin_pass: savedKey });
+    let nextStatus = "available";
+    if(currentStatus === "available") nextStatus = "reserved";
+    else if(currentStatus === "reserved") nextStatus = "sold";
+    
+    db.ref().update({ [`properties/${id}/status`]: nextStatus, admin_pass: savedKey });
   }
 
   function deleteProperty(id) {
     const savedKey = localStorage.getItem('samsarny_key');
-    if(confirm("حذف؟")) db.ref().update({ [`properties/${id}`]: null, admin_pass: savedKey });
+    if(confirm("هل تريد حذف هذا الإعلان نهائياً؟")) db.ref().update({ [`properties/${id}`]: null, admin_pass: savedKey });
+  }
+
+  function scrollSlider(id, direction) {
+    const slider = document.getElementById(`slider-${id}`);
+    const scrollAmount = slider.clientWidth;
+    slider.scrollBy({ left: direction * scrollAmount, behavior: 'smooth' });
   }
 
   db.ref('properties').on('value', (snap) => {
@@ -232,14 +250,28 @@
 
       if(matchSearch && matchType && matchPurpose) {
         const imgs = item.images || [];
+        // تحديد كلاس الحالة والاسم
+        let statusClass = "status-available", statusText = "متاح";
+        if(item.status === "reserved") { statusClass = "status-reserved"; statusText = "تم الحجز"; }
+        else if(item.status === "sold" || item.sold === true) { statusClass = "status-sold"; statusText = "تم البيع"; }
+
         grid.innerHTML += `
           <div class="card">
-            ${isAdmin ? `<div class="admin-actions"><button class="admin-btn" onclick="toggleSold('${id}', ${item.sold})">${item.sold ? 'متاح' : 'تم البيع'}</button><button class="admin-btn" style="background:#dc3545" onclick="deleteProperty('${id}')">حذف</button></div>` : ''}
-            <div class="image-slider">
-              ${imgs.map(src => `<img src="${src}" class="slider-img">`).join('')}
-              <div class="slider-dots">${imgs.map(() => `<div class="dot"></div>`).join('')}</div>
+            ${isAdmin ? `<div class="admin-actions">
+                <button class="admin-btn" onclick="cycleStatus('${id}', '${item.status || (item.sold ? 'sold' : 'available')}')">تغيير الحالة</button>
+                <button class="admin-btn" style="background:#dc3545" onclick="deleteProperty('${id}')">حذف</button>
+            </div>` : ''}
+            
+            <div class="image-wrapper">
+              ${imgs.length > 1 ? `<button class="slide-arrow arrow-left" onclick="scrollSlider('${id}', -1)">❮</button>` : ''}
+              <div class="image-slider" id="slider-${id}">
+                ${imgs.map(src => `<img src="${src}" class="slider-img">`).join('')}
+              </div>
+              ${imgs.length > 1 ? `<button class="slide-arrow arrow-right" onclick="scrollSlider('${id}', 1)">❯</button>` : ''}
             </div>
-            ${item.sold ? `<div class="status-badge status-sold">تم الحجز</div>` : `<div class="status-badge">متاح</div>`}
+
+            <div class="status-badge ${statusClass}">${statusText}</div>
+            
             <div class="card-body">
               <div class="price">${Number(item.price).toLocaleString()} ج.م</div>
               <h3 class="card-title">${item.title}</h3>
