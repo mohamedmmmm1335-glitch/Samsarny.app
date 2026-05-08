@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>سمسرني V35 - النسخة الذهبية</title>
+    <title>سمسرني V35 - النسخة الاحترافية</title>
     <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;900&family=Tajawal:wght@400;500;700;800&display=swap" rel="stylesheet">
     <style>
         :root {
@@ -85,6 +85,16 @@
         .btn-call { background: var(--gold); color: #000; }
         .btn-wa { background: var(--whatsapp); color: #fff; }
 
+        .ad-banner { grid-column: 1 / -1; background: var(--dark3); border: 2px dashed var(--gold); border-radius: 20px; padding: 20px; text-align: center; color: var(--gold); font-weight: bold; }
+
+        #lightbox { position: fixed; inset: 0; background: #000; z-index: 5000; display: none; flex-direction: column; }
+        #lightbox.open { display: flex; }
+        .lb-header { padding: 20px; display: flex; justify-content: space-between; align-items: center; color: #fff; }
+        .lb-content { flex: 1; display: flex; align-items: center; overflow: hidden; position: relative; }
+        .lb-main-container { display: flex; width: 100%; height: 100%; overflow-x: auto; scroll-snap-type: x mandatory; scrollbar-width: none; }
+        .lb-slide { min-width: 100%; height: 100%; display: flex; align-items: center; justify-content: center; scroll-snap-align: start; }
+        .lb-slide img { max-width: 100%; max-height: 100%; transition: 0.3s; }
+
         .fab { position: fixed; bottom: 30px; left: 25px; width: 60px; height: 60px; border-radius: 20px; background: var(--gold); font-size: 30px; color: #000; display: none; align-items: center; justify-content: center; z-index: 2000; border: none; cursor: pointer; }
 
         .modal-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.9); z-index: 4000; display: none; align-items: center; justify-content: center; padding: 15px; }
@@ -119,6 +129,20 @@
 </section>
 
 <div class="grid" id="mainGrid"></div>
+
+<div id="lightbox">
+    <div class="lb-header">
+        <div style="background:rgba(255,255,255,0.1); padding:5px 15px; border-radius:20px;">
+            <button onclick="changeZoom(1.2)" style="background:none; border:none; color:white; font-size:1.2rem;">➕</button>
+            <span id="zoomLabel" style="margin:0 10px;">100%</span>
+            <button onclick="changeZoom(0.8)" style="background:none; border:none; color:white; font-size:1.2rem;">➖</button>
+        </div>
+        <span onclick="closeLB()" style="font-size:2.5rem; cursor:pointer;">&times;</span>
+    </div>
+    <div class="lb-content">
+        <div class="lb-main-container" id="lbScroll"></div>
+    </div>
+</div>
 
 <button class="fab" id="addBtn" onclick="openForm()">+</button>
 
@@ -167,7 +191,7 @@
 <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-database-compat.js"></script>
 
 <script>
-    // 1. استخدام بياناتك الحقيقية من الصور اللي بعتها
+    // الإعدادات النهائية باستخدام الـ API Key بتاعك
     const firebaseConfig = {
         apiKey: "AIzaSyAUt5G3o2CRa_hW3TF6aoRDqlj00h_duiY",
         authDomain: "samsarny-5a5c2.firebaseapp.com",
@@ -181,23 +205,26 @@
     firebase.initializeApp(firebaseConfig);
     const db = firebase.database();
 
-    let store = {}, tempMedia = [];
+    let store = {}, tempMedia = [], activeZoom = 1;
     let filterObj = {purpose:'all', mode:'all'};
+
+    window.history.pushState({p:1}, "");
+    window.onpopstate = () => {
+        if(document.getElementById('lightbox').classList.contains('open')) closeLB();
+        else if(document.getElementById('formModal').style.display === 'flex') closeForm();
+        window.history.pushState({p:1}, "");
+    };
 
     function initAdmin() {
         const p = prompt("كلمة السر:");
         db.ref('admin_pass').once('value').then(s => {
             if(p === String(s.val())) { 
                 localStorage.setItem('samsar_admin', 'true'); 
-                document.getElementById('addBtn').style.display = 'flex';
-                renderAll();
-                alert("أهلاً بك يا مدير!");
+                location.reload(); 
+            } else {
+                alert("الباسورد غلط يا ريس");
             }
         });
-    }
-
-    if(localStorage.getItem('samsar_admin') === 'true') {
-        document.getElementById('addBtn').style.display = 'flex';
     }
 
     function adjustForm(v) {
@@ -290,7 +317,9 @@
         const q = document.getElementById('searchBox').value.toLowerCase();
         grid.innerHTML = "";
         const isAdmin = localStorage.getItem('samsar_admin') === 'true';
+        if(isAdmin) document.getElementById('addBtn').style.display = 'flex';
 
+        let c = 0;
         Object.keys(store).reverse().forEach(id => {
             const itm = store[id];
             const mMode = filterObj.mode === 'all' || itm.mode === filterObj.mode;
@@ -298,6 +327,7 @@
             const mSearch = (itm.title || '').toLowerCase().includes(q) || (itm.area || '').toLowerCase().includes(q);
 
             if (mMode && mPurp && mSearch) {
+                c++;
                 let stTxt = itm.purpose;
                 if(itm.status === 'sold') stTxt = 'تم التنفيذ';
                 else if(itm.status === 'reserved') stTxt = 'محجوز';
@@ -311,7 +341,7 @@
                     </div>` : ''}
                     <div class="image-wrapper">
                         <div class="image-slider" onscroll="updateCounter(this)">
-                            ${itm.media ? itm.media.map(m => `<img src="${m.src}" class="slider-item">`).join('') : '<div class="slider-item" style="background:#222;display:flex;align-items:center;justify-content:center;">لا يوجد صور</div>'}
+                            ${itm.media ? itm.media.map((m, i) => `<img src="${m.src}" class="slider-item" onclick="openLB('${id}', ${i})">`).join('') : '<div class="slider-item" style="background:#222;display:flex;align-items:center;justify-content:center;">لا يوجد صور</div>'}
                         </div>
                         <div class="img-counter">1 / ${itm.media ? itm.media.length : 0}</div>
                         <div class="status-badge status-${itm.status || 'available'}">${itm.verified?'✅ ':''}${stTxt}</div>
@@ -326,6 +356,7 @@
                         </div>
                     </div>
                 </div>`;
+                if(c % 4 === 0) grid.innerHTML += `<div class="ad-banner">سمسرني.. طلبك عندنا!</div>`;
             }
         });
     }
@@ -340,6 +371,6 @@
             cnt.innerText = `${curr} / ${tot}`;
         }
     }
-</script>
-</body>
-</html>
+
+    function openLB(id, i) {
+        act
