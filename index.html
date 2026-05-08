@@ -17,6 +17,7 @@
             --text-muted: #9a9080;
             --radius: 16px;
             --whatsapp: #25D366;
+            --req-color: #3498db;
         }
 
         body.light-mode {
@@ -63,6 +64,7 @@
         .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(310px, 1fr)); gap: 25px; padding: 20px; padding-bottom: 100px; }
         .card { background: var(--card); border-radius: var(--radius); border: 1px solid rgba(201,168,76,0.1); overflow: hidden; position: relative; }
 
+        /* أزرار الأدمن الجديدة تحت بعض */
         .admin-controls { position: absolute; top: 10px; left: 10px; display: flex; flex-direction: column; gap: 5px; z-index: 100; }
         .adm-btn { background: rgba(0, 0, 0, 0.7); backdrop-filter: blur(5px); color: #fff; border: 1px solid var(--gold); padding: 5px 10px; border-radius: 6px; font-size: 0.75rem; cursor: pointer; font-weight: bold; }
 
@@ -77,25 +79,29 @@
         .status-available { background: var(--gold); color: #000; }
         .status-reserved { background: #e67e22; color: #fff; }
         .status-sold { background: #ff4757; color: #fff; }
+        .status-req { background: var(--req-color); color: #fff; }
+
+        /* ستايل كارت المطلوب */
+        .request-placeholder { width: 100%; height: 100%; background: linear-gradient(135deg, #1a1a1a, #2c3e50); display: flex; flex-direction: column; align-items: center; justify-content: center; color: var(--req-color); text-align: center; padding: 20px; }
 
         .card-body { padding: 15px; }
         .price { font-size: 1.5rem; font-weight: 900; color: var(--gold); font-family: 'Tajawal'; }
         .actions { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 15px; }
-        .btn { padding: 12px; border-radius: 12px; font-weight: 800; display: flex; align-items: center; justify-content: center; gap: 8px; text-decoration: none; }
+        .btn { padding: 12px; border-radius: 12px; font-weight: 800; display: flex; align-items: center; justify-content: center; gap: 8px; text-decoration: none; font-size: 0.9rem; }
         .btn-call { background: var(--gold); color: #000; }
         .btn-wa { background: var(--whatsapp); color: #fff; }
+        .btn-req { background: var(--req-color); color: #fff; }
 
         .ad-banner { grid-column: 1 / -1; background: var(--dark3); border: 2px dashed var(--gold); border-radius: 20px; padding: 20px; text-align: center; color: var(--gold); font-weight: bold; }
 
         #lightbox { position: fixed; inset: 0; background: #000; z-index: 5000; display: none; flex-direction: column; }
         #lightbox.open { display: flex; }
         .lb-header { padding: 20px; display: flex; justify-content: space-between; align-items: center; color: #fff; }
-        .lb-content { flex: 1; display: flex; align-items: center; overflow: hidden; position: relative; }
         .lb-main-container { display: flex; width: 100%; height: 100%; overflow-x: auto; scroll-snap-type: x mandatory; scrollbar-width: none; }
         .lb-slide { min-width: 100%; height: 100%; display: flex; align-items: center; justify-content: center; scroll-snap-align: start; }
         .lb-slide img { max-width: 100%; max-height: 100%; transition: 0.3s; }
 
-        .fab { position: fixed; bottom: 30px; left: 25px; width: 60px; height: 60px; border-radius: 20px; background: var(--gold); font-size: 30px; color: #000; display: none; align-items: center; justify-content: center; z-index: 2000; border: none; }
+        .fab { position: fixed; bottom: 30px; left: 25px; width: 60px; height: 60px; border-radius: 20px; background: var(--gold); font-size: 30px; color: #000; display: none; align-items: center; justify-content: center; z-index: 2000; border: none; box-shadow: 0 5px 15px rgba(0,0,0,0.5); }
 
         .modal-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.9); z-index: 4000; display: none; align-items: center; justify-content: center; padding: 15px; }
         .modal { background: var(--dark2); width: 100%; max-width: 450px; border-radius: 20px; padding: 20px; border: 1px solid var(--gold); max-height: 90vh; overflow-y: auto; }
@@ -160,7 +166,7 @@
             <input type="file" id="fileInp" hidden multiple accept="image/*" onchange="handleFiles(this)">
         </div>
 
-        <input type="text" id="m_title" class="form-input" placeholder="عنوان الإعلان">
+        <input type="text" id="m_title" class="form-input" placeholder="عنوان الإعلان (مثلاً: مطلوب شقة في فيصل)">
         
         <div id="propFields" style="display:flex; gap:8px;">
             <select id="m_purpose" class="form-input"><option value="بيع">بيع</option><option value="إيجار">إيجار</option></select>
@@ -168,18 +174,18 @@
         </div>
 
         <select id="m_status" class="form-input">
-            <option value="available">متاح</option>
+            <option value="available">متاح / جار البحث</option>
             <option value="reserved">محجوز</option>
-            <option value="sold">تم البيع / التنفيذ</option>
+            <option value="sold">تم البيع / التوفير</option>
         </select>
 
-        <input type="number" id="m_price" class="form-input" placeholder="السعر">
+        <input type="number" id="m_price" class="form-input" placeholder="السعر أو الميزانية">
         <input type="text" id="m_area" class="form-input" placeholder="المنطقة">
         <input type="tel" id="m_phone" class="form-input" placeholder="رقم الموبايل">
         
         <div style="margin-bottom:15px;"><input type="checkbox" id="m_verify"> توثيق (Verified ✅)</div>
 
-        <button class="btn btn-call" style="width:100%;" onclick="saveData()">🚀 نشر الإعلان</button>
+        <button class="btn btn-call" style="width:100%; font-size:1.1rem;" onclick="saveData()">🚀 نشر الآن</button>
         <button onclick="closeForm()" style="width:100%; background:none; border:none; color:gray; margin-top:15px;">إلغاء</button>
     </div>
 </div>
@@ -224,10 +230,7 @@
 
     function drawPreview() {
         document.getElementById('preGrid').innerHTML = tempMedia.map((m, i) => `
-            <div class="preview-box">
-                <button class="del-media" onclick="tempMedia.splice(${i},1);drawPreview()">×</button>
-                <img src="${m.src}" style="width:100%;height:100%;object-fit:cover;">
-            </div>`).join('');
+            <div class="preview-box"><button class="adm-btn" style="position:absolute;right:0;top:0;background:red;" onclick="tempMedia.splice(${i},1);drawPreview()">×</button><img src="${m.src}" style="width:100%;height:100%;object-fit:cover;"></div>`).join('');
     }
 
     function openForm(id = null) {
@@ -296,63 +299,47 @@
             if (mMode && mPurp && mSearch) {
                 c++;
                 let stTxt = itm.purpose;
-                if(itm.status === 'sold') stTxt = 'تم البيع';
+                let badgeClass = itm.status || 'available';
+                
+                if(itm.status === 'sold') stTxt = (itm.mode === 'request' ? 'تم التوفير' : 'تم البيع');
                 else if(itm.status === 'reserved') stTxt = 'محجوز';
-                else if(itm.mode === 'worker') stTxt = 'صنايعي';
+                
+                if(itm.mode === 'request') { badgeClass = 'req'; stTxt = 'مطلوب'; }
+                else if(itm.mode === 'worker') { badgeClass = 'available'; stTxt = 'صنايعي'; }
 
-                grid.innerHTML += `
-                <div class="card">
-                    ${isAdmin ? `<div class="admin-controls">
-                        <button class="adm-btn" onclick="openForm('${id}')">⚙️ تعديل</button>
-                        <button class="adm-btn" style="color:#ff4757" onclick="if(confirm('حذف؟'))db.ref('properties/${id}').remove()">🗑️ حذف</button>
-                    </div>` : ''}
-                    <div class="image-wrapper">
-                        <div class="image-slider" onscroll="updateCounter(this)">
-                            ${itm.media ? itm.media.map((m, i) => `<img src="${m.src}" class="slider-item" onclick="openLB('${id}', ${i})">`).join('') : '<div class="slider-item" style="background:#222;display:flex;align-items:center;justify-content:center;">لا يوجد صور</div>'}
+                if (itm.mode === 'request') {
+                    // --- كارت المطلوب ---
+                    grid.innerHTML += `
+                    <div class="card" style="border: 1px solid var(--req-color);">
+                        ${isAdmin ? `<div class="admin-controls"><button class="adm-btn" onclick="openForm('${id}')">⚙️ تعديل</button><button class="adm-btn" style="color:#ff4757" onclick="if(confirm('حذف؟'))db.ref('properties/${id}').remove()">🗑️ حذف</button></div>` : ''}
+                        <div class="image-wrapper">
+                            <div class="request-placeholder">
+                                <div style="font-size: 50px; margin-bottom:10px;">🔍</div>
+                                <div style="font-weight: 900; font-size: 1.2rem;">مطلوب فوراً</div>
+                                <div style="font-size: 0.8rem; opacity: 0.8;">${itm.title}</div>
+                            </div>
+                            <div class="status-badge status-req">${itm.verified?'✅ ':''}جارِ البحث</div>
                         </div>
-                        <div class="img-counter">1 / ${itm.media ? itm.media.length : 0}</div>
-                        <div class="status-badge status-${itm.status || 'available'}">${itm.verified?'✅ ':''}${stTxt}</div>
-                    </div>
-                    <div class="card-body">
-                        <div class="price">${Number(itm.price).toLocaleString()} ج.م</div>
-                        <h3 style="font-size:1rem;margin:5px 0;">${itm.title}</h3>
-                        <p style="color:var(--text-muted);font-size:0.85rem;">📍 ${itm.area}</p>
-                        <div class="actions">
-                            <a href="tel:${itm.phone}" class="btn btn-call">📞 اتصال</a>
-                            <a href="https://wa.me/20${itm.phone}" class="btn btn-wa">واتساب</a>
+                        <div class="card-body">
+                            <div class="price" style="color:var(--req-color)">ميزانية: ${itm.price > 0 ? Number(itm.price).toLocaleString() + ' ج.م' : 'مفتوحة'}</div>
+                            <h3 style="font-size:1rem;margin:10px 0;">📍 المنطقة: ${itm.area}</h3>
+                            <div class="actions">
+                                <a href="tel:${itm.phone}" class="btn btn-req">📞 عندي طلبك</a>
+                                <a href="https://wa.me/20${itm.phone}" class="btn btn-wa">واتساب</a>
+                            </div>
                         </div>
-                    </div>
-                </div>`;
-                if(c % 4 === 0) grid.innerHTML += `<div class="ad-banner">سمسرني.. طلبك عندنا!</div>`;
-            }
-        });
-    }
-
-    function updateCounter(el) {
-        const w = el.offsetWidth;
-        const s = Math.abs(el.scrollLeft);
-        let curr = Math.round(s / w) + 1;
-        const cnt = el.parentElement.querySelector('.img-counter');
-        if(cnt) {
-            const tot = cnt.innerText.split('/')[1].trim();
-            if(curr < 1) curr = 1; if(curr > tot) curr = tot;
-            cnt.innerText = `${curr} / ${tot}`;
-        }
-    }
-
-    function openLB(id, i) {
-        activeZoom = 1; document.getElementById('zoomLabel').innerText = "100%";
-        const container = document.getElementById('lbScroll');
-        container.innerHTML = store[id].media.map(m => `<div class="lb-slide"><img src="${m.src}" class="zImg"></div>`).join('');
-        document.getElementById('lightbox').classList.add('open');
-        setTimeout(() => { container.scrollLeft = i * container.clientWidth; }, 50);
-    }
-    function closeLB() { document.getElementById('lightbox').classList.remove('open'); }
-    function changeZoom(f) {
-        activeZoom *= f; document.getElementById('zoomLabel').innerText = Math.round(activeZoom*100) + "%";
-        document.querySelectorAll('.zImg').forEach(img => img.style.transform = `scale(${activeZoom})`);
-    }
-</script>
-</body>
-    </html>
-    
+                    </div>`;
+                } else {
+                    // --- كارت المعروض العادي ---
+                    grid.innerHTML += `
+                    <div class="card">
+                        ${isAdmin ? `<div class="admin-controls"><button class="adm-btn" onclick="openForm('${id}')">⚙️ تعديل</button><button class="adm-btn" style="color:#ff4757" onclick="if(confirm('حذف؟'))db.ref('properties/${id}').remove()">🗑️ حذف</button></div>` : ''}
+                        <div class="image-wrapper">
+                            <div class="image-slider" onscroll="updateCounter(this)">
+                                ${itm.media ? itm.media.map((m, i) => `<img src="${m.src}" class="slider-item" onclick="openLB('${id}', ${i})">`).join('') : '<div class="slider-item" style="background:#222;display:flex;align-items:center;justify-content:center;">لا يوجد صور</div>'}
+                            </div>
+                            <div class="img-counter">1 / ${itm.media ? itm.media.length : 0}</div>
+                            <div class="status-badge status-${badgeClass}">${itm.verified?'✅ ':''}${stTxt}</div>
+                        </div>
+                        <div class="card-body">
+                            <div class="price">${Number(itm.price).to
