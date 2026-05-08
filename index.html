@@ -20,10 +20,7 @@
   .logo-icon { width: 35px; height: 35px; background: linear-gradient(135deg, var(--gold), var(--gold-light)); border-radius: 8px; display: flex; align-items: center; justify-content: center; color: #0f0f0f; }
   .theme-toggle { background: var(--dark3); border: 1px solid var(--gold); color: var(--gold); padding: 5px 10px; border-radius: 10px; cursor: pointer; }
 
-  /* مساحة البانر الإعلاني */
   .ad-banner { grid-column: 1 / -1; background: linear-gradient(45deg, var(--dark2), var(--dark3)); border: 1px dashed var(--gold); border-radius: var(--radius); padding: 20px; display: flex; align-items: center; justify-content: space-between; margin: 10px 0; position: relative; overflow: hidden; }
-  .ad-content h4 { color: var(--gold); margin-bottom: 5px; }
-  .ad-content p { font-size: 0.85rem; color: var(--text-muted); }
   .ad-tag { position: absolute; top: 0; left: 0; background: var(--gold); color: #000; font-size: 0.6rem; padding: 2px 8px; border-bottom-right-radius: 10px; font-weight: bold; }
 
   .hero { padding: 30px 20px; text-align: center; }
@@ -40,10 +37,10 @@
   .card { position: relative; background: var(--card); border-radius: var(--radius); border: 1px solid rgba(201,168,76,0.1); overflow: hidden; }
   .card.is-request { border: 2.5px solid var(--req-color); }
   
-  .image-wrapper { position: relative; width: 100%; height: 210px; overflow: hidden; }
+  .image-wrapper { position: relative; width: 100%; height: 210px; overflow: hidden; background: #000; }
   .image-slider { display: flex; width: 100%; height: 100%; overflow-x: auto; scroll-snap-type: x mandatory; scrollbar-width: none; }
   .image-slider::-webkit-scrollbar { display: none; }
-  .slider-img { flex: 0 0 100%; width: 100%; height: 100%; object-fit: cover; scroll-snap-align: start; cursor: zoom-in; }
+  .slider-item { flex: 0 0 100%; width: 100%; height: 100%; object-fit: cover; scroll-snap-align: start; }
   
   .img-counter { position: absolute; top: 10px; left: 10px; background: rgba(0,0,0,0.6); color: white; padding: 2px 8px; border-radius: 5px; font-size: 0.75rem; z-index: 5; }
   .slide-arrow { position: absolute; top: 50%; transform: translateY(-50%); background: rgba(0,0,0,0.4); color: white; border: none; width: 32px; height: 32px; border-radius: 50%; cursor: pointer; z-index: 10; font-size: 1.2rem; }
@@ -69,7 +66,6 @@
   .btn { padding: 10px; border-radius: 10px; font-weight: 800; display: flex; align-items: center; justify-content: center; gap: 5px; font-size: 0.8rem; cursor: pointer; border: none; text-decoration: none; }
   .btn-call { background: var(--gold); color: #0f0f0f; }
   .btn-wa { background: var(--whatsapp); color: white; }
-  .btn-vid { grid-column: span 2; background: #e74c3c; color: white; margin-top: 5px; }
   .btn-share { grid-column: span 2; background: var(--dark3); color: var(--text); border: 1px solid var(--gold); }
 
   .admin-actions { position: absolute; left: 10px; top: 10px; display: flex; flex-direction: column; gap: 5px; z-index: 20; }
@@ -128,26 +124,19 @@
 <div class="modal-overlay" id="addModal">
   <div class="modal">
     <h2 style="text-align:center; color:var(--gold); margin-bottom:15px;">إضافة إعلان جديد</h2>
-    
-    <label style="color:var(--gold); font-size: 0.8rem;">نوع الإعلان</label>
     <select id="f_mode" class="form-control" onchange="document.getElementById('uBox').style.display=(this.value=='request'?'none':'block')">
       <option value="offer">معروض</option>
       <option value="request">مطلوب</option>
     </select>
-
     <div class="check-row">
       <input type="checkbox" id="f_verify"> <label for="f_verify">توثيق العقار (Verified ✅)</label>
     </div>
-
     <div id="uBox" style="background:var(--dark3); border:2px dashed var(--gold); border-radius:12px; padding:15px; text-align:center; margin-bottom:10px; cursor:pointer;" onclick="document.getElementById('fInp').click()">
-      <p>📸 صور العقار</p>
-      <input type="file" id="fInp" hidden multiple accept="image/*" onchange="handleImgs(this)">
+      <p>📸 ارفع الصور و الفيديوهات</p>
+      <input type="file" id="fInp" hidden multiple accept="image/*,video/*" onchange="handleMedia(this)">
       <div id="pCon" style="display:flex; gap:8px; overflow-x:auto; margin-top:10px;"></div>
     </div>
-
     <input type="text" id="f_t" class="form-control" placeholder="عنوان الإعلان">
-    <input type="text" id="f_v" class="form-control" placeholder="رابط فيديو (اختياري)">
-    
     <div style="display:flex; gap:10px;">
       <select id="f_p" class="form-control"><option value="بيع">بيع</option><option value="إيجار">إيجار</option></select>
       <select id="f_ty" class="form-control"><option value="شقة">شقة</option><option value="محل">محل</option><option value="أرض">أرض</option></select>
@@ -168,7 +157,7 @@
   firebase.initializeApp(firebaseConfig);
   const db = firebase.database();
 
-  let allData = {}, currentFilters = {type:'all', purpose:'all', mode:'all'}, imagesArray = [];
+  let allData = {}, currentFilters = {type:'all', purpose:'all', mode:'all'}, mediaArray = [];
   let lbImgs = [], lbIdx = 0;
 
   window.addEventListener('popstate', () => {
@@ -188,24 +177,16 @@
 
   function toggleTheme() { document.getElementById('body').classList.toggle('light-mode'); }
   
-  function handleImgs(input) {
+  function handleMedia(input) {
     const files = Array.from(input.files);
-    const container = document.getElementById('pCon'); container.innerHTML = ""; imagesArray = [];
+    const container = document.getElementById('pCon');
+    container.innerHTML = ""; mediaArray = [];
     files.forEach(file => {
       const reader = new FileReader();
       reader.onload = (e) => {
-        const img = new Image();
-        img.src = e.target.result;
-        img.onload = () => {
-          const canvas = document.createElement('canvas');
-          const MAX = 600; let w = img.width, h = img.height;
-          if(w > MAX) { h *= MAX/w; w = MAX; }
-          canvas.width = w; canvas.height = h;
-          canvas.getContext('2d').drawImage(img,0,0,w,h);
-          const b64 = canvas.toDataURL('image/jpeg', 0.6);
-          imagesArray.push(b64);
-          container.innerHTML += `<img src="${b64}" style="width:40px;height:40px;object-fit:cover;border-radius:5px">`;
-        };
+        const type = file.type.startsWith('video') ? 'video' : 'image';
+        mediaArray.push({type: type, src: e.target.result});
+        container.innerHTML += `<div style="width:40px;height:40px;background:#444;border-radius:5px;display:flex;align-items:center;justify-content:center">${type === 'video' ? '🎥' : `<img src="${e.target.result}" style="width:100%;height:100%;object-fit:cover">`}</div>`;
       };
       reader.readAsDataURL(file);
     });
@@ -220,10 +201,8 @@
       mode: document.getElementById('f_mode').value, title: document.getElementById('f_t').value,
       purpose: document.getElementById('f_p').value, type: document.getElementById('f_ty').value,
       price: document.getElementById('f_pr').value, area: document.getElementById('f_a').value,
-      phone: document.getElementById('f_ph').value, images: imagesArray, status: "available", 
-      date: Date.now(), admin_pass: k, 
-      isVerified: document.getElementById('f_verify').checked,
-      video: document.getElementById('f_v').value
+      phone: document.getElementById('f_ph').value, media: mediaArray, status: "available", 
+      date: Date.now(), admin_pass: k, isVerified: document.getElementById('f_verify').checked
     };
     if(!data.title || !data.phone) return alert("أكمل البيانات");
     db.ref('properties').push(data).then(() => location.reload());
@@ -231,8 +210,7 @@
 
   function updateSliderUI(slider, id, total) {
     const width = slider.clientWidth;
-    let scrollPos = Math.abs(slider.scrollLeft);
-    let idx = Math.round(scrollPos / width);
+    let idx = Math.round(Math.abs(slider.scrollLeft) / width);
     if (idx >= total) idx = total - 1; if (idx < 0) idx = 0;
     document.getElementById(`count-${id}`).innerText = `${idx + 1} / ${total}`;
     const dots = document.querySelectorAll(`.dots-${id} .dot`);
@@ -244,8 +222,10 @@
     s.scrollBy({ left: dir * s.clientWidth, behavior: 'smooth' });
   }
 
-  function openLB(imgs, idx) {
-    lbImgs = imgs; lbIdx = idx;
+  function openLB(media, idx) {
+    lbImgs = media.filter(m => m.type === 'image').map(m => m.src);
+    if(lbImgs.length === 0) return;
+    lbIdx = 0; 
     document.getElementById('lbImg').src = lbImgs[lbIdx];
     document.getElementById('lightbox').style.display = 'flex';
     history.pushState(null,null,null);
@@ -288,21 +268,12 @@
 
       if(mS && mT && mP && mM) {
         counter++;
-        // إضافة البانر الإعلاني بعد كل 3 كروت
         if(counter % 4 === 0) {
-            grid.innerHTML += `
-            <div class="ad-banner">
-                <div class="ad-tag">إعلان ممول</div>
-                <div class="ad-content">
-                    <h4>محتاج صنايعي أو نقل عفش؟</h4>
-                    <p>أفضل شركات الخدمات في منطقتك بضمان سمسرني.</p>
-                </div>
-                <a href="https://wa.me/20123456789" class="btn btn-call" style="width:auto; padding:5px 15px;">احجز مكلك</a>
-            </div>`;
+            grid.innerHTML += `<div class="ad-banner"><div class="ad-tag">إعلان</div><div class="ad-content"><h4>محتاج صنايعي أو نقل عفش؟</h4><p>أفضل شركات الخدمات بضمان سمسرني.</p></div><a href="https://wa.me/20123456789" class="btn btn-call" style="width:auto; padding:5px 15px;">احجز مكلك</a></div>`;
         }
 
         const isR = item.mode === 'request';
-        const imgs = item.images || [];
+        const media = item.media || [];
         let sCls = isR ? "status-request" : (item.status === "reserved" ? "status-reserved" : (item.status === "sold" ? "status-sold" : "status-available"));
         let sTxt = isR ? "مطلوب 🔍" : (item.status === "reserved" ? "محجوز" : (item.status === "sold" ? "مباع" : "متاح"));
 
@@ -312,28 +283,29 @@
                 <button class="admin-btn" onclick="cycleStatus('${id}', '${item.status || 'available'}')">الحالة</button>
                 <button class="admin-btn" style="background:red" onclick="if(confirm('حذف؟')) db.ref('properties/${id}').remove()">حذف</button>
             </div>` : ''}
-            ${!isR && imgs.length > 0 ? `
+            ${!isR && media.length > 0 ? `
             <div class="image-wrapper">
-              <div class="img-counter" id="count-${id}">1 / ${imgs.length}</div>
-              <div class="image-slider" id="slider-${id}" onscroll="updateSliderUI(this, '${id}', ${imgs.length})">
-                ${imgs.map((src, i) => `<img src="${src}" class="slider-img" onclick="openLB(${JSON.stringify(imgs).replace(/"/g, '&quot;')}, ${i})">`).join('')}
+              <div class="img-counter" id="count-${id}">1 / ${media.length}</div>
+              <div class="image-slider" id="slider-${id}" onscroll="updateSliderUI(this, '${id}', ${media.length})">
+                ${media.map((m, i) => m.type === 'video' ? 
+                  `<video src="${m.src}" class="slider-item" controls muted playsinline></video>` : 
+                  `<img src="${m.src}" class="slider-item" onclick="openLB(${JSON.stringify(media).replace(/"/g, '&quot;')}, ${i})">`).join('')}
               </div>
-              ${imgs.length > 1 ? `
+              ${media.length > 1 ? `
                 <button class="slide-arrow arrow-left" onclick="scrollS('${id}', 1)">❮</button>
                 <button class="slide-arrow arrow-right" onclick="scrollS('${id}', -1)">❯</button>
-                <div class="slider-dots dots-${id}">${imgs.map((_, i) => `<div class="dot ${i===0?'active':''}"></div>`).join('')}</div>
+                <div class="slider-dots dots-${id}">${media.map((_, i) => `<div class="dot ${i===0?'active':''}"></div>`).join('')}</div>
               ` : ''}
             </div>` : ''}
             <div class="status-badge ${sCls}">${sTxt}</div>
             <div class="card-body">
-              ${item.isVerified ? `<div class="verify-badge"><span>✅</span> عقار موثق (معاين بالكامل)</div>` : ''}
+              ${item.isVerified ? `<div class="verify-badge"><span>✅</span> عقار موثق</div>` : ''}
               <div class="price">${Number(item.price).toLocaleString()} ج.م</div>
               <h3 class="card-title">${item.title}</h3>
               <div class="card-info">📍 ${item.area} | 🏠 ${item.type}</div>
               <div class="actions">
                 <a href="tel:${item.phone}" class="btn btn-call">📞 اتصال</a>
                 <a href="https://wa.me/20${item.phone}" target="_blank" class="btn btn-wa">💬 واتساب</a>
-                ${item.video ? `<a href="${item.video}" target="_blank" class="btn btn-vid">🎥 معاينة الفيديو</a>` : ''}
                 <button class="btn btn-share" onclick="navigator.share({title:'سمسرني', url:location.href})">🔗 مشاركة</button>
               </div>
             </div>
@@ -343,4 +315,5 @@
   }
 </script>
 </body>
-</html>
+    </html>
+  
