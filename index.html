@@ -32,15 +32,18 @@
   .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)); gap: 24px; padding: 0 24px 80px; }
   .card { position: relative; background: var(--card); border-radius: var(--radius); border: 1px solid rgba(255,255,255,0.06); overflow: hidden; }
   
-  /* ستايل السلايدر المتطور مع الأسهم */
   .image-wrapper { position: relative; width: 100%; height: 220px; overflow: hidden; }
   .image-slider { display: flex; width: 100%; height: 100%; overflow-x: auto; scroll-snap-type: x mandatory; scrollbar-width: none; scroll-behavior: smooth; }
   .image-slider::-webkit-scrollbar { display: none; }
   .slider-img { flex: 0 0 100%; width: 100%; height: 100%; object-fit: cover; scroll-snap-align: start; background: #222; }
   
-  .slide-arrow { position: absolute; top: 50%; transform: translateY(-50%); background: rgba(0,0,0,0.4); color: white; border: none; width: 30px; height: 30px; border-radius: 50%; cursor: pointer; display: flex; align-items: center; justify-content: center; z-index: 10; backdrop-filter: blur(4px); font-weight: bold; }
+  .slide-arrow { position: absolute; top: 50%; transform: translateY(-50%); background: rgba(0,0,0,0.4); color: white; border: none; width: 30px; height: 30px; border-radius: 50%; cursor: pointer; display: flex; align-items: center; justify-content: center; z-index: 10; backdrop-filter: blur(4px); }
   .arrow-left { left: 10px; }
   .arrow-right { right: 10px; }
+
+  .slider-dots { position: absolute; bottom: 12px; left: 50%; transform: translateX(-50%); display: flex; gap: 6px; z-index: 10; }
+  .dot { width: 8px; height: 8px; border-radius: 50%; background: rgba(255,255,255,0.4); transition: 0.3s; }
+  .dot.active { background: var(--gold); transform: scale(1.2); }
 
   .status-badge { position: absolute; top: 12px; right: 12px; padding: 4px 12px; border-radius: 8px; font-weight: 800; font-size: 0.8rem; z-index: 15; box-shadow: 0 4px 10px rgba(0,0,0,0.3); }
   .status-available { background: var(--gold); color: #0f0f0f; }
@@ -91,6 +94,7 @@
     <button class="pill" onclick="setFilter('purpose', 'بيع', this)">للبيع</button>
     <button class="pill" onclick="setFilter('type', 'شقة', this)">شقق</button>
     <button class="pill" onclick="setFilter('type', 'محل', this)">محلات</button>
+    <button class="pill" onclick="setFilter('type', 'أرض', this)">أراضي</button>
   </div>
 </section>
 
@@ -110,7 +114,7 @@
     <input type="text" id="f_title" class="form-control" placeholder="عنوان الإعلان">
     <div style="display:flex; gap:10px;">
       <select id="f_purpose" class="form-control"><option value="بيع">بيع</option><option value="إيجار">إيجار</option></select>
-      <select id="f_type" class="form-control"><option value="شقة">شقة</option><option value="محل">محل</option></select>
+      <select id="f_type" class="form-control"><option value="شقة">شقة</option><option value="محل">محل</option><option value="أرض">أرض</option></select>
     </div>
     <input type="number" id="f_price" class="form-control" placeholder="السعر">
     <input type="text" id="f_area" class="form-control" placeholder="المنطقة">
@@ -189,7 +193,7 @@
       area: document.getElementById('f_area').value,
       phone: document.getElementById('f_phone').value,
       images: imagesArray, 
-      status: "available", // الحالة الافتراضية
+      status: "available",
       date: Date.now(),
       admin_pass: savedKey 
     };
@@ -201,13 +205,11 @@
     .catch(() => { alert("خطأ في الأمان!"); btn.disabled = false; btn.innerText = "🚀 انشر الآن"; });
   }
 
-  // دالة لتغيير الحالة بين (متاح - تم الحجز - تم البيع)
   function cycleStatus(id, currentStatus) {
     const savedKey = localStorage.getItem('samsarny_key');
     let nextStatus = "available";
     if(currentStatus === "available") nextStatus = "reserved";
     else if(currentStatus === "reserved") nextStatus = "sold";
-    
     db.ref().update({ [`properties/${id}/status`]: nextStatus, admin_pass: savedKey });
   }
 
@@ -220,6 +222,16 @@
     const slider = document.getElementById(`slider-${id}`);
     const scrollAmount = slider.clientWidth;
     slider.scrollBy({ left: direction * scrollAmount, behavior: 'smooth' });
+    
+    // تحديث النقط
+    setTimeout(() => {
+        const index = Math.round(slider.scrollLeft / slider.clientWidth);
+        const dots = document.querySelectorAll(`.dots-${id} .dot`);
+        dots.forEach((dot, i) => {
+            if(i === index) dot.classList.add('active');
+            else dot.classList.remove('active');
+        });
+    }, 400);
   }
 
   db.ref('properties').on('value', (snap) => {
@@ -250,7 +262,6 @@
 
       if(matchSearch && matchType && matchPurpose) {
         const imgs = item.images || [];
-        // تحديد كلاس الحالة والاسم
         let statusClass = "status-available", statusText = "متاح";
         if(item.status === "reserved") { statusClass = "status-reserved"; statusText = "تم الحجز"; }
         else if(item.status === "sold" || item.sold === true) { statusClass = "status-sold"; statusText = "تم البيع"; }
@@ -263,11 +274,15 @@
             </div>` : ''}
             
             <div class="image-wrapper">
-              ${imgs.length > 1 ? `<button class="slide-arrow arrow-left" onclick="scrollSlider('${id}', -1)">❮</button>` : ''}
+              ${imgs.length > 1 ? `<button class="slide-arrow arrow-left" onclick="scrollSlider('${id}', 1)">❮</button>` : ''}
               <div class="image-slider" id="slider-${id}">
                 ${imgs.map(src => `<img src="${src}" class="slider-img">`).join('')}
               </div>
-              ${imgs.length > 1 ? `<button class="slide-arrow arrow-right" onclick="scrollSlider('${id}', 1)">❯</button>` : ''}
+              ${imgs.length > 1 ? `<button class="slide-arrow arrow-right" onclick="scrollSlider('${id}', -1)">❯</button>` : ''}
+              
+              <div class="slider-dots dots-${id}">
+                ${imgs.map((_, i) => `<div class="dot ${i === 0 ? 'active' : ''}"></div>`).join('')}
+              </div>
             </div>
 
             <div class="status-badge ${statusClass}">${statusText}</div>
@@ -287,5 +302,4 @@
   }
 </script>
 </body>
-      </html>
-      
+</html>
