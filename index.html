@@ -9,7 +9,7 @@
   :root {
     --gold: #c9a84c; --gold-light: #e8c97a; --dark: #0f0f0f; --dark2: #1a1a1a;
     --dark3: #242424; --card: #1e1e1e; --text: #f0ece0; --text-muted: #9a9080;
-    --radius: 16px; --whatsapp: #25D366;
+    --radius: 16px; --whatsapp: #25D366; --req-color: #3498db;
   }
   * { box-sizing: border-box; margin: 0; padding: 0; }
   body { font-family: 'Cairo', sans-serif; background: var(--dark); color: var(--text); min-height: 100vh; overflow-x: hidden; }
@@ -30,48 +30,48 @@
   .pill.active { background: var(--gold); border-color: var(--gold); color: #0f0f0f; }
 
   .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)); gap: 24px; padding: 0 24px 80px; }
-  .card { position: relative; background: var(--card); border-radius: var(--radius); border: 1px solid rgba(255,255,255,0.06); overflow: hidden; }
+  .card { position: relative; background: var(--card); border-radius: var(--radius); border: 1px solid rgba(255,255,255,0.06); overflow: hidden; transition: 0.3s; }
+  .card.is-request { border: 1.5px solid var(--req-color); background: #16202a; }
   
   .image-wrapper { position: relative; width: 100%; height: 220px; overflow: hidden; }
   .image-slider { display: flex; width: 100%; height: 100%; overflow-x: auto; scroll-snap-type: x mandatory; scrollbar-width: none; scroll-behavior: smooth; }
   .image-slider::-webkit-scrollbar { display: none; }
   .slider-img { flex: 0 0 100%; width: 100%; height: 100%; object-fit: cover; scroll-snap-align: start; background: #222; }
   
-  .slide-arrow { position: absolute; top: 50%; transform: translateY(-50%); background: rgba(0,0,0,0.4); color: white; border: none; width: 30px; height: 30px; border-radius: 50%; cursor: pointer; display: flex; align-items: center; justify-content: center; z-index: 10; backdrop-filter: blur(4px); }
-  .arrow-left { left: 10px; }
-  .arrow-right { right: 10px; }
+  .slide-arrow { position: absolute; top: 50%; transform: translateY(-50%); background: rgba(0,0,0,0.5); color: white; border: none; width: 35px; height: 35px; border-radius: 50%; cursor: pointer; z-index: 10; font-size: 1.2rem; }
+  .arrow-left { left: 10px; } .arrow-right { right: 10px; }
 
   .slider-dots { position: absolute; bottom: 12px; left: 50%; transform: translateX(-50%); display: flex; gap: 6px; z-index: 10; }
-  .dot { width: 8px; height: 8px; border-radius: 50%; background: rgba(255,255,255,0.4); transition: 0.3s; }
+  .dot { width: 8px; height: 8px; border-radius: 50%; background: rgba(255,255,255,0.4); }
   .dot.active { background: var(--gold); transform: scale(1.2); }
 
-  .status-badge { position: absolute; top: 12px; right: 12px; padding: 4px 12px; border-radius: 8px; font-weight: 800; font-size: 0.8rem; z-index: 15; box-shadow: 0 4px 10px rgba(0,0,0,0.3); }
+  .status-badge { position: absolute; top: 12px; right: 12px; padding: 4px 12px; border-radius: 8px; font-weight: 800; font-size: 0.8rem; z-index: 15; }
   .status-available { background: var(--gold); color: #0f0f0f; }
-  .status-reserved { background: #3498db; color: white; }
+  .status-reserved { background: #e67e22; color: white; }
   .status-sold { background: #ff4757; color: white; }
+  .status-request { background: var(--req-color); color: white; }
   
   .card-body { padding: 20px; }
   .price { font-family: 'Tajawal'; font-weight: 900; font-size: 1.4rem; color: var(--gold); margin-bottom: 8px; }
   .card-title { font-size: 1.2rem; font-weight: 700; margin-bottom: 10px; color: #fff; }
-  .card-info { color: var(--text-muted); font-size: 0.9rem; display: flex; align-items: center; gap: 5px; margin-bottom: 4px; }
+  .card-info { color: var(--text-muted); font-size: 0.9rem; margin-bottom: 4px; }
   
-  .actions { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 15px; }
-  .btn { padding: 12px; border-radius: 12px; text-decoration: none; font-weight: 800; display: flex; align-items: center; justify-content: center; gap: 6px; font-size: 0.9rem; border: none; cursor: pointer; }
+  .actions { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-top: 15px; }
+  .btn { padding: 12px; border-radius: 12px; text-decoration: none; font-weight: 800; display: flex; align-items: center; justify-content: center; gap: 6px; font-size: 0.85rem; border: none; cursor: pointer; }
   .btn-call { background: linear-gradient(135deg, var(--gold), var(--gold-light)); color: #0f0f0f; }
   .btn-wa { background: var(--whatsapp); color: white; }
+  .btn-share { grid-column: span 2; background: var(--dark3); color: var(--gold); border: 1px solid var(--gold); margin-top: 5px; }
   
   .admin-actions { position: absolute; left: 12px; top: 12px; display: flex; flex-direction: column; gap: 5px; z-index: 20; }
-  .admin-btn { background: rgba(0,0,0,0.8); color: white; border: 1px solid rgba(255,255,255,0.2); border-radius: 8px; padding: 6px 10px; cursor: pointer; font-size: 0.75rem; backdrop-filter: blur(4px); }
+  .admin-btn { background: rgba(0,0,0,0.8); color: white; border: 1px solid rgba(255,255,255,0.2); border-radius: 8px; padding: 6px 10px; cursor: pointer; font-size: 0.75rem; }
 
   .fab { position: fixed; bottom: 35px; left: 25px; width: 65px; height: 65px; border-radius: 20px; background: var(--gold); border: none; font-size: 40px; display: none; align-items: center; justify-content: center; cursor: pointer; z-index: 500; box-shadow: 0 10px 30px rgba(201,168,76,0.5); }
   
   .modal-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.92); z-index: 1000; display: none; align-items: center; justify-content: center; padding: 20px; backdrop-filter: blur(8px); }
   .modal-overlay.open { display: flex; }
-  .modal { background: var(--dark2); border-radius: 24px; width: 100%; max-width: 480px; padding: 30px; border: 1.5px solid rgba(201,168,76,0.3); max-height: 90vh; overflow-y: auto; }
-  .form-control { width: 100%; background: var(--dark3); border: 1.5px solid #333; border-radius: 12px; padding: 14px; color: white; margin-bottom: 15px; font-family: 'Cairo'; outline: none; }
-  
-  #previewContainer { display: flex; gap: 10px; overflow-x: auto; margin-top: 15px; padding-bottom: 10px; }
-  .preview-thumb { width: 70px; height: 70px; object-fit: cover; border-radius: 10px; border: 1px solid var(--gold); flex-shrink: 0; }
+  .modal { background: var(--dark2); border-radius: 24px; width: 100%; max-width: 480px; padding: 25px; border: 1.5px solid var(--gold); max-height: 90vh; overflow-y: auto; }
+  .form-control { width: 100%; background: var(--dark3); border: 1.5px solid #333; border-radius: 12px; padding: 12px; color: white; margin-bottom: 12px; font-family: 'Cairo'; outline: none; }
+  label { display: block; margin-bottom: 5px; font-size: 0.85rem; color: var(--gold); }
 </style>
 </head>
 <body>
@@ -86,14 +86,14 @@
 <section class="hero">
   <h1>اوعى تدور على عقار<br> من غير <span class="highlight">سمسرني</span></h1>
   <div class="search-bar">
-    <input type="text" placeholder="ابحث بالعنوان، المنطقة، أو السعر..." id="searchInput" oninput="applyFilters()">
+    <input type="text" placeholder="ابحث بالعنوان، السعر، أو مطلوب..." id="searchInput" oninput="applyFilters()">
   </div>
   <div class="filter-pills">
     <button class="pill active" onclick="setFilter('type', 'all', this)">الكل</button>
+    <button class="pill" onclick="setFilter('mode', 'request', this)">المطلوب 🔍</button>
     <button class="pill" onclick="setFilter('purpose', 'إيجار', this)">للإيجار</button>
     <button class="pill" onclick="setFilter('purpose', 'بيع', this)">للبيع</button>
     <button class="pill" onclick="setFilter('type', 'شقة', this)">شقق</button>
-    <button class="pill" onclick="setFilter('type', 'محل', this)">محلات</button>
     <button class="pill" onclick="setFilter('type', 'أرض', this)">أراضي</button>
   </div>
 </section>
@@ -104,23 +104,31 @@
 
 <div class="modal-overlay" id="addModal">
   <div class="modal">
-    <h2 style="margin-bottom:20px; color:var(--gold); text-align:center;">إضافة عقار جديد ✨</h2>
-    <div style="background:var(--dark3); border:2px dashed #444; border-radius:16px; padding:20px; text-align:center;" onclick="document.getElementById('fileInput').click()">
+    <h2 style="margin-bottom:15px; color:var(--gold); text-align:center;">إضافة إعلان جديد ✨</h2>
+    
+    <label>نوع الإعلان</label>
+    <select id="f_mode" class="form-control" onchange="toggleUpload(this.value)">
+      <option value="offer">معروض (عندي عقار)</option>
+      <option value="request">مطلوب (أبحث عن عقار)</option>
+    </select>
+
+    <div id="uploadBox" style="background:var(--dark3); border:2px dashed #444; border-radius:16px; padding:15px; text-align:center; margin-bottom:15px;" onclick="document.getElementById('fileInput').click()">
       <p id="uploadStatus">📸 اختر صور العقار</p>
       <input type="file" id="fileInput" hidden accept="image/*" multiple onchange="handleMultipleImages(this)">
       <div id="previewContainer"></div>
     </div>
-    <br>
-    <input type="text" id="f_title" class="form-control" placeholder="عنوان الإعلان">
+
+    <input type="text" id="f_title" class="form-control" placeholder="عنوان الإعلان (مثال: شقة للبيع في الدقي)">
     <div style="display:flex; gap:10px;">
       <select id="f_purpose" class="form-control"><option value="بيع">بيع</option><option value="إيجار">إيجار</option></select>
       <select id="f_type" class="form-control"><option value="شقة">شقة</option><option value="محل">محل</option><option value="أرض">أرض</option></select>
     </div>
     <input type="number" id="f_price" class="form-control" placeholder="السعر">
-    <input type="text" id="f_area" class="form-control" placeholder="المنطقة">
-    <input type="tel" id="f_phone" class="form-control" placeholder="رقم الموبايل">
+    <input type="text" id="f_area" class="form-control" placeholder="المنطقة / العنوان">
+    <input type="tel" id="f_phone" class="form-control" placeholder="رقم موبايل التواصل">
+    
     <button class="btn btn-call" style="width: 100%;" id="publishBtn" onclick="saveToFirebase()">🚀 انشر الآن</button>
-    <button onclick="closeModal()" style="background:none; border:none; color:gray; width:100%; margin-top:15px;">إلغاء</button>
+    <button onclick="closeModal()" style="background:none; border:none; color:gray; width:100%; margin-top:10px;">إلغاء</button>
   </div>
 </div>
 
@@ -133,7 +141,7 @@
   const db = firebase.database();
 
   let allData = {};
-  let currentFilters = { type: 'all', purpose: 'all' };
+  let currentFilters = { type: 'all', purpose: 'all', mode: 'all' };
   let imagesArray = [];
 
   async function adminAccess() {
@@ -146,8 +154,12 @@
         localStorage.setItem('samsarny_key', input);
         alert("تم تفعيل وضع الإدارة ✅");
         location.reload();
-      } else { alert("كلمة السر خطأ! ❌"); }
-    } catch (e) { alert("خطأ في الاتصال"); }
+      } else { alert("خطأ! ❌"); }
+    } catch (e) { alert("خطأ اتصال"); }
+  }
+
+  function toggleUpload(val) {
+    document.getElementById('uploadBox').style.display = (val === 'request') ? 'none' : 'block';
   }
 
   function handleMultipleImages(input) {
@@ -166,10 +178,10 @@
           if (width > MAX_WIDTH) { height *= MAX_WIDTH / width; width = MAX_WIDTH; }
           canvas.width = width; canvas.height = height;
           canvas.getContext('2d').drawImage(img, 0, 0, width, height);
-          const base64 = canvas.toDataURL('image/jpeg', 0.5);
-          imagesArray.push(base64);
+          imagesArray.push(canvas.toDataURL('image/jpeg', 0.5));
           const thumb = document.createElement('img');
-          thumb.src = base64; thumb.className = 'preview-thumb';
+          thumb.src = imagesArray[imagesArray.length-1];
+          thumb.style = "width:60px; height:60px; border-radius:8px; object-fit:cover;";
           container.appendChild(thumb);
         };
       };
@@ -183,9 +195,10 @@
   function saveToFirebase() {
     const btn = document.getElementById('publishBtn');
     let savedKey = localStorage.getItem('samsarny_key');
-    if(!savedKey) { savedKey = prompt("أدخل كلمة السر للنشر:"); if(!savedKey) return; }
+    if(!savedKey) { savedKey = prompt("أدخل كلمة السر:"); if(!savedKey) return; }
 
     const data = {
+      mode: document.getElementById('f_mode').value,
       title: document.getElementById('f_title').value,
       purpose: document.getElementById('f_purpose').value,
       type: document.getElementById('f_type').value,
@@ -198,40 +211,38 @@
       admin_pass: savedKey 
     };
 
-    if(!data.title || imagesArray.length === 0) return alert("أكمل البيانات!");
+    if(!data.title || !data.phone) return alert("أكمل البيانات!");
     btn.innerText = "جاري النشر..."; btn.disabled = true;
 
-    db.ref('properties').push(data).then(() => location.reload())
-    .catch(() => { alert("خطأ في الأمان!"); btn.disabled = false; btn.innerText = "🚀 انشر الآن"; });
+    db.ref('properties').push(data).then(() => location.reload()).catch(() => {
+        alert("خطأ أمان!"); btn.disabled = false; btn.innerText = "🚀 انشر الآن";
+    });
   }
 
   function cycleStatus(id, currentStatus) {
     const savedKey = localStorage.getItem('samsarny_key');
-    let nextStatus = "available";
-    if(currentStatus === "available") nextStatus = "reserved";
-    else if(currentStatus === "reserved") nextStatus = "sold";
+    let nextStatus = currentStatus === "available" ? "reserved" : (currentStatus === "reserved" ? "sold" : "available");
     db.ref().update({ [`properties/${id}/status`]: nextStatus, admin_pass: savedKey });
   }
 
   function deleteProperty(id) {
     const savedKey = localStorage.getItem('samsarny_key');
-    if(confirm("هل تريد حذف هذا الإعلان نهائياً؟")) db.ref().update({ [`properties/${id}`]: null, admin_pass: savedKey });
+    if(confirm("حذف الإعلان؟")) db.ref().update({ [`properties/${id}`]: null, admin_pass: savedKey });
   }
 
-  function scrollSlider(id, direction) {
+  function scrollSlider(id, dir) {
     const slider = document.getElementById(`slider-${id}`);
-    const scrollAmount = slider.clientWidth;
-    slider.scrollBy({ left: direction * scrollAmount, behavior: 'smooth' });
-    
-    // تحديث النقط
+    slider.scrollBy({ left: dir * slider.clientWidth, behavior: 'smooth' });
     setTimeout(() => {
-        const index = Math.round(slider.scrollLeft / slider.clientWidth);
-        const dots = document.querySelectorAll(`.dots-${id} .dot`);
-        dots.forEach((dot, i) => {
-            if(i === index) dot.classList.add('active');
-            else dot.classList.remove('active');
-        });
+        const idx = Math.round(slider.scrollLeft / slider.clientWidth);
+        document.querySelectorAll(`.dots-${id} .dot`).forEach((d, i) => d.classList.toggle('active', i === idx));
     }, 400);
+  }
+
+  function share(title, area) {
+    const text = `شوف العقار ده على سمسرني: ${title} في ${area}\n${window.location.href}`;
+    if (navigator.share) { navigator.share({ title: 'سمسرني', text: text, url: window.location.href }); }
+    else { prompt("انسخ الرابط للمشاركة:", window.location.href); }
   }
 
   db.ref('properties').on('value', (snap) => {
@@ -240,7 +251,7 @@
   });
 
   function setFilter(key, val, btn) {
-    if(key === 'type' && val === 'all') { currentFilters.type = 'all'; currentFilters.purpose = 'all'; }
+    if(key === 'type' && val === 'all') { currentFilters = {type:'all', purpose:'all', mode:'all'}; }
     else { currentFilters[key] = val; }
     document.querySelectorAll('.pill').forEach(p => p.classList.remove('active'));
     btn.classList.add('active');
@@ -249,9 +260,8 @@
 
   function applyFilters() {
     const search = document.getElementById('searchInput').value.toLowerCase();
-    const grid = document.getElementById('grid');
-    grid.innerHTML = "";
-    const isAdmin = localStorage.getItem('samsarny_admin') === 'true';
+    const grid = document.getElementById('grid'); grid.innerHTML = "";
+    const isAdmin = localStorage.getItem('samsarny_admin') === 'true');
     if(isAdmin) document.getElementById('adminBtn').style.display = 'flex';
 
     Object.keys(allData).reverse().forEach(id => {
@@ -259,41 +269,45 @@
       const matchSearch = item.title.toLowerCase().includes(search) || item.area.toLowerCase().includes(search);
       const matchType = currentFilters.type === 'all' || item.type === currentFilters.type;
       const matchPurpose = currentFilters.purpose === 'all' || item.purpose === currentFilters.purpose;
+      const matchMode = currentFilters.mode === 'all' || item.mode === currentFilters.mode;
 
-      if(matchSearch && matchType && matchPurpose) {
+      if(matchSearch && matchType && matchPurpose && matchMode) {
+        const isReq = item.mode === 'request';
         const imgs = item.images || [];
-        let statusClass = "status-available", statusText = "متاح";
-        if(item.status === "reserved") { statusClass = "status-reserved"; statusText = "تم الحجز"; }
-        else if(item.status === "sold" || item.sold === true) { statusClass = "status-sold"; statusText = "تم البيع"; }
+        let sCls = "status-available", sTxt = "متاح";
+        if(isReq) { sCls = "status-request"; sTxt = "مطلوب 🔍"; }
+        else if(item.status === "reserved") { sCls = "status-reserved"; sTxt = "تم الحجز"; }
+        else if(item.status === "sold") { sCls = "status-sold"; sTxt = "تم البيع"; }
+
+        const waMsg = encodeURIComponent(`أهلاً، بخصوص إعلان "${item.title}" في ${item.area} اللي شفته على موقع سمسرني.. كنت محتاج تفاصيل أكتر.`);
 
         grid.innerHTML += `
-          <div class="card">
+          <div class="card ${isReq ? 'is-request' : ''}">
             ${isAdmin ? `<div class="admin-actions">
-                <button class="admin-btn" onclick="cycleStatus('${id}', '${item.status || (item.sold ? 'sold' : 'available')}')">تغيير الحالة</button>
+                <button class="admin-btn" onclick="cycleStatus('${id}', '${item.status}')">تغيير الحالة</button>
                 <button class="admin-btn" style="background:#dc3545" onclick="deleteProperty('${id}')">حذف</button>
             </div>` : ''}
             
+            ${!isReq ? `
             <div class="image-wrapper">
               ${imgs.length > 1 ? `<button class="slide-arrow arrow-left" onclick="scrollSlider('${id}', 1)">❮</button>` : ''}
               <div class="image-slider" id="slider-${id}">
                 ${imgs.map(src => `<img src="${src}" class="slider-img">`).join('')}
               </div>
               ${imgs.length > 1 ? `<button class="slide-arrow arrow-right" onclick="scrollSlider('${id}', -1)">❯</button>` : ''}
-              
-              <div class="slider-dots dots-${id}">
-                ${imgs.map((_, i) => `<div class="dot ${i === 0 ? 'active' : ''}"></div>`).join('')}
-              </div>
-            </div>
+              <div class="slider-dots dots-${id}">${imgs.map((_, i) => `<div class="dot ${i === 0 ? 'active' : ''}"></div>`).join('')}</div>
+            </div>` : ''}
 
-            <div class="status-badge ${statusClass}">${statusText}</div>
+            <div class="status-badge ${sCls}">${sTxt}</div>
             
             <div class="card-body">
               <div class="price">${Number(item.price).toLocaleString()} ج.م</div>
               <h3 class="card-title">${item.title}</h3>
-              <div class="card-info">📍 ${item.area}</div>
+              <div class="card-info">📍 ${item.area} | 🏠 ${item.type}</div>
               <div class="actions">
                 <a href="tel:${item.phone}" class="btn btn-call">📞 اتصال</a>
-                <a href="https://wa.me/20${item.phone}" class="btn btn-wa">💬 واتساب</a>
+                <a href="https://wa.me/20${item.phone}?text=${waMsg}" target="_blank" class="btn btn-wa">💬 واتساب</a>
+                <button class="btn btn-share" onclick="share('${item.title}', '${item.area}')">🔗 مشاركة العقار</button>
               </div>
             </div>
           </div>`;
