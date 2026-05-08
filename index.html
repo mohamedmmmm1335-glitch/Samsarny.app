@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>سمسرني – النسخة الخفيفة V23</title>
+<title>سمسرني – النسخة الشاملة V25</title>
 <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;900&family=Tajawal:wght@400;500;700;800&display=swap" rel="stylesheet">
 <style>
   :root {
@@ -15,56 +15,52 @@
   * { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
   body { font-family: 'Cairo', sans-serif; background: var(--dark); color: var(--text); min-height: 100vh; overflow-x: hidden; transition: 0.3s; }
   
-  header { position: sticky; top: 0; z-index: 100; background: var(--dark2); border-bottom: 1px solid rgba(201,168,76,0.2); padding: 10px 20px; display: flex; align-items: center; justify-content: space-between; }
-  .logo { display: flex; align-items: center; gap: 10px; font-weight: 800; color: var(--gold); cursor: pointer; }
-  .logo-icon { width: 35px; height: 35px; background: linear-gradient(135deg, var(--gold), var(--gold-light)); border-radius: 8px; display: flex; align-items: center; justify-content: center; color: #0f0f0f; }
+  header { position: sticky; top: 0; z-index: 100; background: var(--dark2); border-bottom: 1px solid rgba(201,168,76,0.2); padding: 12px 20px; display: flex; align-items: center; justify-content: space-between; }
+  .logo { display: flex; align-items: center; gap: 10px; font-weight: 800; color: var(--gold); cursor: pointer; text-decoration: none; }
+  .logo-icon { width: 40px; height: 40px; background: linear-gradient(135deg, var(--gold), var(--gold-light)); border-radius: 10px; display: flex; align-items: center; justify-content: center; color: #000; font-size: 1.2rem; }
 
   .hero { padding: 30px 20px; text-align: center; }
-  .highlight { background: linear-gradient(135deg, var(--gold), var(--gold-light)); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+  .highlight { background: linear-gradient(135deg, var(--gold), var(--gold-light)); -webkit-background-clip: text; -webkit-text-fill-color: transparent; font-weight: 900; }
   
-  .search-bar { display: flex; gap: 10px; max-width: 600px; margin: 0 auto 20px; background: var(--dark3); border: 1.5px solid rgba(201,168,76,0.25); border-radius: 14px; padding: 10px 15px; }
-  .search-bar input { flex: 1; background: transparent; border: none; outline: none; color: var(--text); font-family: 'Cairo'; }
+  .search-bar { display: flex; gap: 10px; max-width: 600px; margin: 0 auto 20px; background: var(--dark3); border: 1.5px solid rgba(201,168,76,0.25); border-radius: 16px; padding: 12px 20px; }
+  .search-bar input { flex: 1; background: transparent; border: none; outline: none; color: var(--text); font-family: 'Cairo'; font-size: 1rem; }
   
-  .filter-pills { display: flex; gap: 8px; justify-content: center; flex-wrap: wrap; margin-bottom: 30px; }
-  .pill { padding: 6px 15px; border-radius: 50px; border: 1.5px solid rgba(201,168,76,0.2); background: transparent; color: var(--text-muted); cursor: pointer; font-size: 0.9rem; }
-  .pill.active { background: var(--gold); color: #0f0f0f; border-color: var(--gold); }
+  .filter-pills { display: flex; gap: 8px; justify-content: center; flex-wrap: wrap; margin-bottom: 30px; padding: 0 10px; }
+  .pill { padding: 6px 14px; border-radius: 50px; border: 1.5px solid rgba(201,168,76,0.2); background: var(--dark2); color: var(--text-muted); cursor: pointer; font-size: 0.85rem; font-weight: 600; transition: 0.3s; }
+  .pill.active { background: var(--gold); color: #000; border-color: var(--gold); box-shadow: 0 4px 12px rgba(201,168,76,0.3); }
 
-  .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 20px; padding: 0 20px 80px; }
+  .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)); gap: 20px; padding: 0 20px 100px; }
   .card { position: relative; background: var(--card); border-radius: var(--radius); border: 1px solid rgba(201,168,76,0.1); overflow: hidden; }
-  .card.is-request { border: 2.5px solid var(--req-color); }
+  .card.is-request { border: 2px solid var(--req-color); }
   
-  .image-wrapper { position: relative; width: 100%; height: 210px; overflow: hidden; background: #000; touch-action: pan-y; }
-  .image-slider { display: flex; width: 100%; height: 100%; overflow-x: auto; scroll-snap-type: x mandatory; scrollbar-width: none; -webkit-overflow-scrolling: touch; }
+  .image-wrapper { position: relative; width: 100%; height: 220px; overflow: hidden; background: #000; }
+  .image-slider { display: flex; width: 100%; height: 100%; overflow-x: auto; scroll-snap-type: x mandatory; scrollbar-width: none; }
   .image-slider::-webkit-scrollbar { display: none; }
   .slider-item { flex: 0 0 100%; width: 100%; height: 100%; object-fit: cover; scroll-snap-align: start; }
   
-  .img-counter { position: absolute; top: 10px; left: 10px; background: rgba(0,0,0,0.6); color: white; padding: 2px 8px; border-radius: 5px; font-size: 0.75rem; z-index: 5; }
-  .slide-arrow { position: absolute; top: 50%; transform: translateY(-50%); background: rgba(0,0,0,0.4); color: white; border: none; width: 32px; height: 32px; border-radius: 50%; cursor: pointer; z-index: 10; font-size: 1.2rem; }
+  .img-counter { position: absolute; top: 10px; left: 10px; background: rgba(0,0,0,0.6); color: white; padding: 3px 8px; border-radius: 6px; font-size: 0.75rem; z-index: 5; }
+  .slide-arrow { position: absolute; top: 50%; transform: translateY(-50%); background: rgba(0,0,0,0.4); color: white; border: none; width: 35px; height: 35px; border-radius: 50%; cursor: pointer; z-index: 10; font-size: 1.2rem; }
   .arrow-left { left: 8px; } .arrow-right { right: 8px; }
 
-  .status-badge { position: absolute; top: 10px; right: 10px; padding: 3px 10px; border-radius: 6px; font-weight: 800; font-size: 0.75rem; z-index: 15; }
-  .status-available { background: var(--gold); color: #0f0f0f; }
-  .status-reserved { background: #e67e22; color: white; }
-  .status-sold { background: #ff4757; color: white; }
+  .status-badge { position: absolute; top: 10px; right: 10px; padding: 4px 10px; border-radius: 6px; font-weight: 800; font-size: 0.75rem; z-index: 15; }
+  .status-available { background: var(--gold); color: #000; }
   .status-request { background: var(--req-color); color: white; }
 
-  .card-body { padding: 15px; }
-  .price { font-weight: 800; font-size: 1.4rem; color: var(--gold); margin-bottom: 5px; font-family: 'Tajawal'; }
-  .actions { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-top: 15px; }
-  .btn { padding: 10px; border-radius: 10px; font-weight: 800; display: flex; align-items: center; justify-content: center; gap: 5px; font-size: 0.8rem; cursor: pointer; border: none; text-decoration: none; }
-  .btn-call { background: var(--gold); color: #0f0f0f; }
+  .card-body { padding: 18px; }
+  .price { font-weight: 900; font-size: 1.5rem; color: var(--gold); font-family: 'Tajawal'; }
+  .card-title { font-size: 1.15rem; font-weight: 700; margin: 8px 0; }
+  .card-info { color: var(--text-muted); font-size: 0.9rem; margin-bottom: 15px; }
+
+  .actions { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+  .btn { padding: 12px; border-radius: 12px; font-weight: 800; display: flex; align-items: center; justify-content: center; gap: 5px; font-size: 0.9rem; cursor: pointer; border: none; text-decoration: none; }
+  .btn-call { background: var(--gold); color: #000; }
   .btn-wa { background: var(--whatsapp); color: white; }
 
-  .ad-banner { grid-column: 1 / -1; background: var(--dark2); border: 1px dashed var(--gold); border-radius: var(--radius); padding: 15px; margin: 10px 0; display: flex; align-items: center; justify-content: space-between; position: relative; }
-  .ad-tag { position: absolute; top:0; left:0; background: var(--gold); font-size: 10px; padding: 2px 5px; color: #000; font-weight: bold; }
-
-  #lightbox { position: fixed; inset: 0; background: #000; z-index: 2000; display: none; align-items: center; justify-content: center; }
-  #lbImg { max-width: 100%; max-height: 90vh; }
-
-  .fab { position: fixed; bottom: 30px; left: 20px; width: 60px; height: 60px; border-radius: 15px; background: var(--gold); font-size: 35px; display: none; align-items: center; justify-content: center; z-index: 500; border: none; }
-  .modal-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.9); z-index: 1000; display: none; align-items: center; justify-content: center; padding: 15px; }
+  .fab { position: fixed; bottom: 30px; left: 20px; width: 60px; height: 60px; border-radius: 18px; background: var(--gold); color: #000; font-size: 35px; display: none; align-items: center; justify-content: center; z-index: 500; border: none; box-shadow: 0 8px 20px rgba(201,168,76,0.3); }
+  .modal-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.85); z-index: 1000; display: none; align-items: center; justify-content: center; padding: 15px; }
   .modal-overlay.open { display: flex; }
-  .modal { background: var(--dark2); border-radius: 20px; width: 100%; max-width: 450px; padding: 20px; border: 1px solid var(--gold); max-height: 90vh; overflow-y: auto; }
+  .modal { background: var(--dark2); border-radius: 20px; width: 100%; max-width: 450px; padding: 25px; border: 1.5px solid var(--gold); max-height: 90vh; overflow-y: auto; }
+  .form-control { width: 100%; background: var(--dark3); border: 1.5px solid #333; border-radius: 12px; padding: 12px; color: var(--text); margin-bottom: 15px; font-family: 'Cairo'; outline: none; }
 </style>
 </head>
 <body id="body">
@@ -72,53 +68,56 @@
 <header>
   <div class="logo" id="mainLogo">
     <div class="logo-icon">🏠</div>
-    <div>سمسرني <span>عقارات بلدنا</span></div>
+    <div>سمسرني <span style="font-size: 0.6rem; color: var(--text-muted); display: block;">عقارات بلدنا</span></div>
   </div>
-  <button style="background:none; border:1px solid var(--gold); color:var(--gold); border-radius:8px; padding:4px 8px;" onclick="document.getElementById('body').classList.toggle('light-mode')">🌓</button>
+  <button style="background:var(--dark3); border:1px solid var(--gold); color:var(--gold); padding:5px 10px; border-radius:10px; cursor:pointer;" onclick="document.getElementById('body').classList.toggle('light-mode')">🌓</button>
 </header>
 
 <section class="hero">
   <h1>عقارك بلمسة<br><span class="highlight">سمسرني</span></h1>
   <div class="search-bar">
-    <input type="text" placeholder="ابحث بالعنوان أو المنطقة..." id="searchInput" oninput="applyFilters()">
+    <input type="text" placeholder="ابحث بالمنطقة أو السعر..." id="searchInput" oninput="applyFilters()">
   </div>
   <div class="filter-pills">
     <button class="pill active" onclick="setFilter('all', 'all', this)">الكل</button>
     <button class="pill" onclick="setFilter('mode', 'request', this)">المطلوب 🔍</button>
-    <button class="pill" onclick="setFilter('purpose', 'إيجار', this)">للإيجار</button>
-    <button class="pill" onclick="setFilter('purpose', 'بيع', this)">للبيع</button>
+    <button class="pill" onclick="setFilter('type', 'شقة', this)">شقق</button>
+    <button class="pill" onclick="setFilter('type', 'محل', this)">محلات</button>
+    <button class="pill" onclick="setFilter('type', 'أرض', this)">أراضي</button>
+    <button class="pill" onclick="setFilter('type', 'عمارة', this)">عمارات</button>
   </div>
 </section>
 
 <div class="grid" id="grid"></div>
 
-<div id="lightbox" onclick="closeLB()">
-  <span style="position:absolute; top:20px; right:20px; color:white; font-size:30px;">×</span>
-  <img id="lbImg">
-</div>
-
-<button class="fab" id="adminBtn" onclick="openModal()">+</button>
+<button class="fab" id="adminBtn" onclick="document.getElementById('addModal').classList.add('open')">+</button>
 
 <div class="modal-overlay" id="addModal">
   <div class="modal">
-    <h2 style="text-align:center; color:var(--gold); margin-bottom:15px;">إضافة إعلان</h2>
+    <h2 style="text-align:center; color:var(--gold); margin-bottom:20px;">إضافة إعلان</h2>
     <select id="f_mode" class="form-control" onchange="document.getElementById('uBox').style.display=(this.value=='request'?'none':'block')">
-      <option value="offer">معروض (شقة عندي)</option>
-      <option value="request">مطلوب (بدور على شقة)</option>
+      <option value="offer">معروض</option>
+      <option value="request">مطلوب</option>
     </select>
-    <div style="color:var(--gold); margin-bottom:10px;">
-        <input type="checkbox" id="f_verify"> توثيق (Verified ✅)
+    <div style="margin-bottom:15px; font-weight:bold; color:var(--gold)">
+      <input type="checkbox" id="f_verify"> توثيق (Verified ✅)
     </div>
-    <div id="uBox" style="background:var(--dark3); border:2px dashed var(--gold); border-radius:12px; padding:20px; text-align:center; margin-bottom:10px; cursor:pointer;" onclick="document.getElementById('fInp').click()">
+    <div id="uBox" style="background:var(--dark3); border:2px dashed var(--gold); border-radius:12px; padding:20px; text-align:center; margin-bottom:15px; cursor:pointer;" onclick="document.getElementById('fInp').click()">
       <p id="upStatus">📸 ارفع الصور و الفيديوهات</p>
       <input type="file" id="fInp" hidden multiple accept="image/*,video/*" onchange="processMedia(this)">
     </div>
     <input type="text" id="f_t" class="form-control" placeholder="عنوان الإعلان">
+    <select id="f_ty" class="form-control">
+      <option value="شقة">شقة</option>
+      <option value="محل">محل</option>
+      <option value="أرض">أرض</option>
+      <option value="عمارة">عمارة</option>
+    </select>
     <input type="number" id="f_pr" class="form-control" placeholder="السعر">
     <input type="text" id="f_a" class="form-control" placeholder="المنطقة">
     <input type="tel" id="f_ph" class="form-control" placeholder="رقم الموبايل">
     <button class="btn btn-call" style="width: 100%;" onclick="save()">🚀 انشر الآن</button>
-    <button onclick="closeModal()" style="width:100%; background:none; border:none; color:gray; margin-top:10px;">إلغاء</button>
+    <button onclick="document.getElementById('addModal').classList.remove('open')" style="width:100%; background:none; border:none; color:gray; margin-top:15px;">إلغاء</button>
   </div>
 </div>
 
@@ -130,26 +129,23 @@
   firebase.initializeApp(firebaseConfig);
   const db = firebase.database();
 
-  let allData = {}, currentFilters = {type:'all', purpose:'all', mode:'all'}, mediaArray = [];
+  let allData = {}, currentFilters = {mode:'all', type:'all'}, mediaArray = [];
 
-  // دالة الضغط السحرية (V23)
+  // ماكينة الضغط (360p)
   async function processMedia(input) {
     const files = Array.from(input.files);
-    const status = document.getElementById('upStatus');
-    status.innerText = "⏳ جاري ضغط الملفات (360p)...";
+    document.getElementById('upStatus').innerText = "⏳ جاري المعالجة...";
     mediaArray = [];
-
     for (let file of files) {
       if (file.type.startsWith('image')) {
         const url = await resizeImg(file);
         mediaArray.push({type:'image', src: url});
       } else {
-        // الفيديوهات يتم رفعها كما هي لكن المتصفح سيتعامل معها بسلاسة بفضل كود السكرول الجديد
         const url = await readFile(file);
         mediaArray.push({type:'video', src: url});
       }
     }
-    status.innerText = "✅ تم الضغط والمعالجة";
+    document.getElementById('upStatus').innerText = "✅ جاهز (" + files.length + ")";
   }
 
   function resizeImg(file) {
@@ -170,24 +166,14 @@
     });
   }
 
-  function readFile(file) {
-    return new Promise(res => {
-      const r = new FileReader();
-      r.onload = (e) => res(e.target.result);
-      r.readAsDataURL(file);
-    });
-  }
-
-  function openModal() { document.getElementById('addModal').classList.add('open'); }
-  function closeModal() { document.getElementById('addModal').classList.remove('open'); }
+  function readFile(file) { return new Promise(res => { const r = new FileReader(); r.onload = (e) => res(e.target.result); r.readAsDataURL(file); }); }
 
   function save() {
-    const k = localStorage.getItem('samsarny_key');
     const data = {
       mode: document.getElementById('f_mode').value, title: document.getElementById('f_t').value,
-      price: document.getElementById('f_pr').value, area: document.getElementById('f_a').value,
-      phone: document.getElementById('f_ph').value, media: mediaArray, status: "available", 
-      date: Date.now(), isVerified: document.getElementById('f_verify').checked
+      type: document.getElementById('f_ty').value, price: document.getElementById('f_pr').value,
+      area: document.getElementById('f_a').value, phone: document.getElementById('f_ph').value,
+      media: mediaArray, isVerified: document.getElementById('f_verify').checked, date: Date.now()
     };
     db.ref('properties').push(data).then(() => location.reload());
   }
@@ -195,7 +181,7 @@
   db.ref('properties').on('value', snap => { allData = snap.val() || {}; applyFilters(); });
 
   function setFilter(key, val, btn) {
-    currentFilters = {type:'all', purpose:'all', mode:'all'};
+    currentFilters = {mode:'all', type:'all'};
     currentFilters[key] = val;
     document.querySelectorAll('.pill').forEach(p => p.classList.remove('active'));
     btn.classList.add('active');
@@ -208,62 +194,49 @@
     const isAdmin = localStorage.getItem('samsarny_admin') === 'true';
     if(isAdmin) document.getElementById('adminBtn').style.display = 'flex';
 
-    let count = 0;
     Object.keys(allData).reverse().forEach(id => {
       const item = allData[id];
-      if (item.title.toLowerCase().includes(search) && 
-         (currentFilters.mode === 'all' || item.mode === currentFilters.mode)) {
-        
-        count++;
-        if(count % 5 === 0) {
-            grid.innerHTML += `<div class="ad-banner"><div class="ad-tag">AD</div><div><h4>محتاج تشطيب أو نقل؟</h4><p>كلمنا نبعتلك أحسن صنايعية.</p></div><a href="https://wa.me/201021422704" class="btn btn-wa" style="width:auto; padding:5px 15px;">اطلب الآن</a></div>`;
-        }
+      const matchSearch = item.title.toLowerCase().includes(search) || item.area.toLowerCase().includes(search);
+      const matchMode = currentFilters.mode === 'all' || item.mode === currentFilters.mode;
+      const matchType = currentFilters.type === 'all' || item.type === currentFilters.type;
 
+      if (matchSearch && matchMode && matchType) {
         const isR = item.mode === 'request';
         const media = item.media || [];
         grid.innerHTML += `
           <div class="card ${isR ? 'is-request' : ''}">
             ${!isR && media.length > 0 ? `
             <div class="image-wrapper">
-              <div class="img-counter" id="cnt-${id}">1 / ${media.length}</div>
-              <div class="image-slider" id="sld-${id}" onscroll="updateC('${id}', ${media.length})">
+              <div class="img-counter" id="c-${id}">1 / ${media.length}</div>
+              <div class="image-slider" id="s-${id}" onscroll="upd('${id}', ${media.length})">
                 ${media.map(m => m.type === 'video' ? 
                   `<video src="${m.src}" class="slider-item" playsinline loop muted onclick="this.paused?this.play():this.pause()"></video>` : 
-                  `<img src="${m.src}" class="slider-item" onclick="openLB('${m.src}')">`).join('')}
+                  `<img src="${m.src}" class="slider-item">`).join('')}
               </div>
               ${media.length > 1 ? `
-                <button class="slide-arrow arrow-left" onclick="scr('${id}', 1)">❮</button>
-                <button class="slide-arrow arrow-right" onclick="scr('${id}', -1)">❯</button>
+                <button class="slide-arrow arrow-left" onclick="mv('${id}', 1)">❮</button>
+                <button class="slide-arrow arrow-right" onclick="mv('${id}', -1)">❯</button>
               ` : ''}
             </div>` : ''}
             <div class="status-badge ${isR?'status-request':'status-available'}">${isR?'مطلوب 🔍':'متاح'}</div>
             <div class="card-body">
-              ${item.isVerified ? `<div style="color:var(--verify); font-size:12px; font-weight:bold;">✅ موثق</div>` : ''}
+              ${item.isVerified ? `<div style="color:var(--verify); font-size:11px; font-weight:bold;">✅ موثق</div>` : ''}
               <div class="price">${Number(item.price).toLocaleString()} ج.م</div>
               <h3 class="card-title">${item.title}</h3>
-              <p>📍 ${item.area}</p>
+              <p class="card-info">📍 ${item.area} | ${item.type}</p>
               <div class="actions">
                 <a href="tel:${item.phone}" class="btn btn-call">📞 اتصال</a>
-                <a href="https://wa.me/20${item.phone}" class="btn btn-wa">واتساب</a>
+                <a href="https://wa.me/20${item.phone}" target="_blank" class="btn btn-wa">واتساب</a>
               </div>
-              ${isAdmin ? `<button onclick="db.ref('properties/${id}').remove()" style="color:red; margin-top:10px; background:none; border:none;">❌ حذف</button>` : ''}
+              ${isAdmin ? `<button onclick="db.ref('properties/${id}').remove()" style="color:red; margin-top:10px; background:none; border:none; cursor:pointer;">❌ حذف</button>` : ''}
             </div>
           </div>`;
       }
     });
   }
 
-  function updateC(id, total) {
-    const s = document.getElementById(`sld-${id}`);
-    const idx = Math.round(s.scrollLeft / s.clientWidth);
-    document.getElementById(`cnt-${id}`).innerText = `${idx + 1} / ${total}`;
-  }
-  function scr(id, d) {
-    const s = document.getElementById(`sld-${id}`);
-    s.scrollBy({ left: d * s.clientWidth, behavior: 'smooth' });
-  }
-  function openLB(src) { document.getElementById('lbImg').src = src; document.getElementById('lightbox').style.display = 'flex'; }
-  function closeLB() { document.getElementById('lightbox').style.display = 'none'; }
+  function upd(id, t) { const s = document.getElementById(`s-${id}`); const idx = Math.round(s.scrollLeft / s.clientWidth); document.getElementById(`c-${id}`).innerText = `${idx + 1} / ${t}`; }
+  function mv(id, d) { const s = document.getElementById(`s-${id}`); s.scrollBy({ left: d * s.clientWidth, behavior: 'smooth' }); }
 
   document.getElementById('mainLogo').onclick = async () => {
     const p = prompt("Password:");
