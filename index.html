@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>سمسرني – النسخة الألترا</title>
+<title>سمسرني – النسخة الشاملة V28</title>
 <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;900&family=Tajawal:wght@400;500;700;800&display=swap" rel="stylesheet">
 <style>
   :root {
@@ -16,66 +16,68 @@
   body { font-family: 'Cairo', sans-serif; background: var(--dark); color: var(--text); min-height: 100vh; overflow-x: hidden; transition: 0.3s; }
   
   header { position: sticky; top: 0; z-index: 100; background: var(--dark2); border-bottom: 1px solid rgba(201,168,76,0.2); padding: 10px 20px; display: flex; align-items: center; justify-content: space-between; }
-  .logo { display: flex; align-items: center; gap: 10px; font-weight: 800; color: var(--gold); cursor: pointer; }
+  .logo { display: flex; align-items: center; gap: 10px; font-weight: 800; color: var(--gold); cursor: pointer; text-decoration: none; }
   .logo-icon { width: 35px; height: 35px; background: linear-gradient(135deg, var(--gold), var(--gold-light)); border-radius: 8px; display: flex; align-items: center; justify-content: center; color: #0f0f0f; }
-  .theme-toggle { background: var(--dark3); border: 1px solid var(--gold); color: var(--gold); padding: 5px 10px; border-radius: 10px; cursor: pointer; }
 
   .hero { padding: 30px 20px; text-align: center; }
-  .highlight { background: linear-gradient(135deg, var(--gold), var(--gold-light)); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+  .highlight { background: linear-gradient(135deg, var(--gold), var(--gold-light)); -webkit-background-clip: text; -webkit-text-fill-color: transparent; font-weight: 900; }
   
   .search-bar { display: flex; gap: 10px; max-width: 600px; margin: 0 auto 20px; background: var(--dark3); border: 1.5px solid rgba(201,168,76,0.25); border-radius: 14px; padding: 10px 15px; }
-  .search-bar input { flex: 1; background: transparent; border: none; outline: none; color: var(--text); font-family: 'Cairo'; }
+  .search-bar input { flex: 1; background: transparent; border: none; outline: none; color: var(--text); font-family: 'Cairo'; width: 100%; }
   
   .filter-pills { display: flex; gap: 8px; justify-content: center; flex-wrap: wrap; margin-bottom: 30px; }
-  .pill { padding: 6px 15px; border-radius: 50px; border: 1.5px solid rgba(201,168,76,0.2); background: transparent; color: var(--text-muted); cursor: pointer; font-size: 0.9rem; }
+  .pill { padding: 6px 15px; border-radius: 50px; border: 1.5px solid rgba(201,168,76,0.2); background: transparent; color: var(--text-muted); cursor: pointer; font-size: 0.85rem; font-weight: 600; }
   .pill.active { background: var(--gold); color: #0f0f0f; border-color: var(--gold); }
 
-  .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 20px; padding: 0 20px 80px; }
+  .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)); gap: 20px; padding: 0 20px 100px; }
   .card { position: relative; background: var(--card); border-radius: var(--radius); border: 1px solid rgba(201,168,76,0.1); overflow: hidden; }
-  .card.is-request { border: 2.5px solid var(--req-color); }
   
-  /* Media Styles */
-  .image-wrapper { position: relative; width: 100%; height: 210px; overflow: hidden; background: #000; }
+  /* Slider & Media */
+  .image-wrapper { position: relative; width: 100%; height: 230px; overflow: hidden; background: #000; }
   .image-slider { display: flex; width: 100%; height: 100%; overflow-x: auto; scroll-snap-type: x mandatory; scrollbar-width: none; }
   .image-slider::-webkit-scrollbar { display: none; }
   .slider-item { flex: 0 0 100%; width: 100%; height: 100%; object-fit: cover; scroll-snap-align: start; cursor: zoom-in; }
   video.slider-item { object-fit: contain; }
   
   .img-counter { position: absolute; top: 10px; left: 10px; background: rgba(0,0,0,0.6); color: white; padding: 2px 8px; border-radius: 5px; font-size: 0.75rem; z-index: 5; }
-  .slide-arrow { position: absolute; top: 50%; transform: translateY(-50%); background: rgba(0,0,0,0.4); color: white; border: none; width: 32px; height: 32px; border-radius: 50%; cursor: pointer; z-index: 10; font-size: 1.2rem; }
+  .slide-arrow { position: absolute; top: 50%; transform: translateY(-50%); background: rgba(0,0,0,0.4); color: white; border: none; width: 35px; height: 35px; border-radius: 50%; cursor: pointer; z-index: 10; font-size: 1.2rem; }
   .arrow-left { left: 8px; } .arrow-right { right: 8px; }
+  
+  .slider-dots { position: absolute; bottom: 10px; left: 50%; transform: translateX(-50%); display: flex; gap: 5px; z-index: 10; }
+  .dot { width: 6px; height: 6px; border-radius: 50%; background: rgba(255,255,255,0.4); transition: 0.3s; }
+  .dot.active { background: var(--gold); transform: scale(1.3); }
 
-  .status-badge { position: absolute; top: 10px; right: 10px; padding: 3px 10px; border-radius: 6px; font-weight: 800; font-size: 0.75rem; z-index: 15; }
-  .status-available { background: var(--gold); color: #0f0f0f; }
+  .status-badge { position: absolute; top: 10px; right: 10px; padding: 4px 10px; border-radius: 6px; font-weight: 800; font-size: 0.75rem; z-index: 15; }
+  .status-available { background: var(--gold); color: #000; }
   .status-reserved { background: #e67e22; color: white; }
   .status-sold { background: #ff4757; color: white; }
   .status-request { background: var(--req-color); color: white; }
   
-  .card-body { padding: 15px; }
-  .price { font-weight: 800; font-size: 1.4rem; color: var(--gold); margin-bottom: 5px; font-family: 'Tajawal'; }
-  .card-title { font-size: 1.15rem; font-weight: 700; color: var(--text); margin-bottom: 8px; }
+  .card-body { padding: 18px; }
+  .price { font-weight: 900; font-size: 1.5rem; color: var(--gold); font-family: 'Tajawal'; }
+  .card-title { font-size: 1.2rem; font-weight: 700; margin: 8px 0; }
   
-  /* Banner Style */
-  .ad-banner { grid-column: 1 / -1; background: linear-gradient(45deg, var(--dark2), var(--dark3)); border: 2px dashed var(--gold); border-radius: 16px; padding: 20px; text-align: center; color: var(--gold); font-weight: 900; }
+  .ad-banner { grid-column: 1 / -1; background: linear-gradient(45deg, var(--dark2), var(--dark3)); border: 2px dashed var(--gold); border-radius: 16px; padding: 25px; text-align: center; color: var(--gold); font-weight: 900; }
 
   .actions { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-top: 15px; }
-  .btn { padding: 10px; border-radius: 10px; font-weight: 800; display: flex; align-items: center; justify-content: center; gap: 5px; font-size: 0.8rem; cursor: pointer; border: none; text-decoration: none; }
-  .btn-call { background: var(--gold); color: #0f0f0f; }
+  .btn { padding: 12px; border-radius: 10px; font-weight: 800; display: flex; align-items: center; justify-content: center; gap: 5px; font-size: 0.85rem; cursor: pointer; border: none; text-decoration: none; }
+  .btn-call { background: var(--gold); color: #000; }
   .btn-wa { background: var(--whatsapp); color: white; }
   .btn-share { grid-column: span 2; background: var(--dark3); color: var(--text); border: 1px solid var(--gold); }
 
-  .admin-actions { position: absolute; left: 10px; top: 40px; display: flex; flex-direction: column; gap: 5px; z-index: 20; }
+  .admin-actions { position: absolute; left: 10px; top: 45px; display: flex; flex-direction: column; gap: 5px; z-index: 30; }
   .admin-btn { background: rgba(0,0,0,0.8); color: white; border: 1px solid rgba(255,255,255,0.2); border-radius: 6px; padding: 5px 8px; font-size: 0.7rem; cursor: pointer; }
 
+  /* Lightbox */
   #lightbox { position: fixed; inset: 0; background: #000; z-index: 2000; display: none; align-items: center; justify-content: center; }
   #lbImg { max-width: 100%; max-height: 90vh; object-fit: contain; }
   .lb-close { position: absolute; top: 20px; right: 20px; color: white; font-size: 2.5rem; cursor: pointer; }
 
-  .fab { position: fixed; bottom: 30px; left: 20px; width: 60px; height: 60px; border-radius: 15px; background: var(--gold); font-size: 35px; display: none; align-items: center; justify-content: center; cursor: pointer; z-index: 500; border: none; box-shadow: 0 8px 25px rgba(201,168,76,0.4); }
+  .fab { position: fixed; bottom: 30px; left: 20px; width: 60px; height: 60px; border-radius: 18px; background: var(--gold); font-size: 35px; display: none; align-items: center; justify-content: center; z-index: 500; border: none; box-shadow: 0 8px 25px rgba(201,168,76,0.4); }
   .modal-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.9); z-index: 1000; display: none; align-items: center; justify-content: center; padding: 15px; }
   .modal-overlay.open { display: flex; }
   .modal { background: var(--dark2); border-radius: 20px; width: 100%; max-width: 450px; padding: 20px; border: 1px solid var(--gold); max-height: 90vh; overflow-y: auto; }
-  .form-control { width: 100%; background: var(--dark3); border: 1px solid #444; border-radius: 10px; padding: 10px; color: var(--text); margin-bottom: 10px; font-family: 'Cairo'; outline: none; }
+  .form-control { width: 100%; background: var(--dark3); border: 1.5px solid #444; border-radius: 10px; padding: 12px; color: var(--text); margin-bottom: 12px; font-family: 'Cairo'; outline: none; }
 </style>
 </head>
 <body id="body">
@@ -83,19 +85,20 @@
 <header>
   <div class="logo" id="mainLogo">
     <div class="logo-icon">🏠</div>
-    <div>سمسرني <span>عقارات بلدنا</span></div>
+    <div>سمسرني <span style="font-size: 0.6rem; display: block; color: var(--text-muted);">عقارات بلدنا</span></div>
   </div>
-  <button class="theme-toggle" onclick="toggleTheme()">🌓</button>
+  <button class="theme-toggle" onclick="document.getElementById('body').classList.toggle('light-mode')">🌓</button>
 </header>
 
 <section class="hero">
   <h1>عقارك بلمسة<br><span class="highlight">سمسرني</span></h1>
   <div class="search-bar">
-    <input type="text" placeholder="ابحث بالعنوان أو السعر..." id="searchInput" oninput="applyFilters()">
+    <input type="text" placeholder="ابحث بالمنطقة، السعر، النوع..." id="searchInput" oninput="applyFilters()">
   </div>
   <div class="filter-pills">
     <button class="pill active" onclick="setFilter('all', 'all', this)">الكل</button>
-    <button class="pill" onclick="setFilter('mode', 'request', this)">المطلوب 🔍</button>
+    <button class="pill" onclick="setFilter('purpose', 'بيع', this)">للبيع</button>
+    <button class="pill" onclick="setFilter('purpose', 'إيجار', this)">للإيجار</button>
     <button class="pill" onclick="setFilter('type', 'شقة', this)">شقق</button>
     <button class="pill" onclick="setFilter('type', 'محل', this)">محلات</button>
     <button class="pill" onclick="setFilter('type', 'أرض', this)">أراضي</button>
@@ -105,39 +108,43 @@
 
 <div class="grid" id="grid"></div>
 
-<div id="lightbox">
-  <span class="lb-close" onclick="closeLB()">×</span>
-  <img id="lbImg">
-</div>
+<div id="lightbox"><span class="lb-close" onclick="closeLB()">×</span><img id="lbImg"></div>
 
 <button class="fab" id="adminBtn" onclick="openModal()">+</button>
 
 <div class="modal-overlay" id="addModal">
   <div class="modal">
-    <h2 id="modalTitle" style="text-align:center; color:var(--gold); margin-bottom:15px;">إعلان جديد</h2>
+    <h2 id="mTitle" style="text-align:center; color:var(--gold); margin-bottom:15px;">إضافة عقار</h2>
     <input type="hidden" id="edit_id">
+    
     <select id="f_mode" class="form-control" onchange="document.getElementById('uBox').style.display=(this.value=='request'?'none':'block')">
       <option value="offer">معروض</option>
       <option value="request">مطلوب</option>
     </select>
-    
-    <div style="margin-bottom:10px; display:flex; align-items:center; gap:10px; color:var(--gold); font-weight:bold;">
-      <input type="checkbox" id="f_verify"> عقار موثق (Verify)
+
+    <div style="margin-bottom:12px; color:var(--gold); font-weight:bold; display:flex; align-items:center; gap:8px;">
+      <input type="checkbox" id="f_verify"> توثيق العقار (Verified ✅)
     </div>
 
-    <div id="uBox" style="background:var(--dark3); border:2px dashed var(--gold); border-radius:12px; padding:15px; text-align:center; margin-bottom:10px; cursor:pointer;" onclick="document.getElementById('fInp').click()">
-      <p id="upStatus">📸 ارفع الصور/الفيديوهات</p>
+    <div id="uBox" style="background:var(--dark3); border:2px dashed var(--gold); border-radius:12px; padding:20px; text-align:center; margin-bottom:12px; cursor:pointer;" onclick="document.getElementById('fInp').click()">
+      <p id="upStatus">📸 ارفع الصور أو الفيديوهات</p>
       <input type="file" id="fInp" hidden multiple accept="image/*,video/*" onchange="handleMedia(this)">
     </div>
+
     <input type="text" id="f_t" class="form-control" placeholder="عنوان الإعلان">
     <div style="display:flex; gap:10px;">
       <select id="f_p" class="form-control"><option value="بيع">بيع</option><option value="إيجار">إيجار</option></select>
       <select id="f_ty" class="form-control"><option value="شقة">شقة</option><option value="محل">محل</option><option value="أرض">أرض</option><option value="عمارة">عمارة</option></select>
     </div>
+    <select id="f_st" class="form-control">
+        <option value="available">متاح</option>
+        <option value="reserved">تم الحجز</option>
+        <option value="sold">تم البيع</option>
+    </select>
     <input type="number" id="f_pr" class="form-control" placeholder="السعر">
     <input type="text" id="f_a" class="form-control" placeholder="المنطقة">
     <input type="tel" id="f_ph" class="form-control" placeholder="رقم الموبايل">
-    <button class="btn btn-call" style="width: 100%;" onclick="save()">🚀 انشر الإعلان</button>
+    <button class="btn btn-call" style="width: 100%;" onclick="save()">🚀 تنفيذ</button>
     <button onclick="closeModal()" style="width:100%; background:none; border:none; color:gray; margin-top:10px;">إلغاء</button>
   </div>
 </div>
@@ -150,85 +157,71 @@
   firebase.initializeApp(firebaseConfig);
   const db = firebase.database();
 
-  let allData = {}, currentFilters = {type:'all', mode:'all'}, mediaArray = [];
+  let allData = {}, currentFilters = {type:'all', purpose:'all', mode:'all'}, mediaArray = [];
 
-  // دالة التعامل مع الميديا (ضغط صور + لودينج فيديوهات)
   async function handleMedia(input) {
     const files = Array.from(input.files);
-    const status = document.getElementById('upStatus');
-    status.innerText = "⏳ جاري المعالجة...";
+    document.getElementById('upStatus').innerText = "⏳ جاري المعالجة...";
     mediaArray = [];
-    for (let file of files) {
-      if (file.type.startsWith('image')) {
-        const b64 = await resizeImg(file);
-        mediaArray.push({type:'image', src: b64});
-      } else {
-        const b64 = await readAsData(file);
-        mediaArray.push({type:'video', src: b64});
-      }
+    for (let f of files) {
+      const b64 = f.type.startsWith('image') ? await compressImg(f) : await readBase64(f);
+      mediaArray.push({type: f.type.startsWith('image')?'image':'video', src: b64});
     }
-    status.innerText = `✅ تم رفع (${files.length})`;
+    document.getElementById('upStatus').innerText = `✅ تم جاهزية (${files.length})`;
   }
 
-  function resizeImg(file) {
+  function compressImg(f) {
     return new Promise(res => {
-      const reader = new FileReader();
-      reader.onload = (e) => {
-        const img = new Image();
-        img.src = e.target.result;
+      const r = new FileReader(); r.onload = e => {
+        const img = new Image(); img.src = e.target.result;
         img.onload = () => {
-          const canvas = document.createElement('canvas');
-          const max = 700; let w = img.width, h = img.height;
-          if(w > max) { h *= max/w; w = max; }
-          canvas.width = w; canvas.height = h;
-          canvas.getContext('2d').drawImage(img,0,0,w,h);
-          res(canvas.toDataURL('image/jpeg', 0.6));
+          const cv = document.createElement('canvas'); const max = 800; let w = img.width, h = img.height;
+          if(w > max) { h *= max/w; w = max; } cv.width = w; cv.height = h;
+          cv.getContext('2d').drawImage(img,0,0,w,h); res(cv.toDataURL('image/jpeg', 0.6));
         };
-      };
-      reader.readAsDataURL(file);
+      }; r.readAsDataURL(f);
     });
   }
-  function readAsData(f) { return new Promise(res => { const r = new FileReader(); r.onload=e=>res(e.target.result); r.readAsDataURL(f); }); }
+  function readBase64(f) { return new Promise(res => { const r = new FileReader(); r.onload=e=>res(e.target.result); r.readAsDataURL(f); }); }
 
   function openModal(id = null) {
-    history.pushState(null,null,null);
-    const m = document.getElementById('addModal');
-    m.classList.add('open');
+    document.getElementById('addModal').classList.add('open');
     if(id) {
-      const itm = allData[id];
+      const item = allData[id];
       document.getElementById('edit_id').value = id;
-      document.getElementById('f_t').value = itm.title;
-      document.getElementById('f_pr').value = itm.price;
-      document.getElementById('f_a').value = itm.area;
-      document.getElementById('f_ph').value = itm.phone;
-      document.getElementById('f_verify').checked = itm.isVerified;
-      mediaArray = itm.media || [];
-      document.getElementById('modalTitle').innerText = "تعديل العقار";
+      document.getElementById('f_t').value = item.title;
+      document.getElementById('f_pr').value = item.price;
+      document.getElementById('f_a').value = item.area;
+      document.getElementById('f_ph').value = item.phone;
+      document.getElementById('f_st').value = item.status || 'available';
+      document.getElementById('f_verify').checked = item.isVerified || false;
+      mediaArray = item.media || [];
+      document.getElementById('mTitle').innerText = "تعديل العقار";
     } else {
       document.getElementById('edit_id').value = "";
-      document.getElementById('modalTitle').innerText = "إعلان جديد";
+      document.getElementById('mTitle').innerText = "إضافة عقار";
     }
   }
 
   function closeModal() { document.getElementById('addModal').classList.remove('open'); }
 
   function save() {
-    const editId = document.getElementById('edit_id').value;
+    const id = document.getElementById('edit_id').value;
     const data = {
       mode: document.getElementById('f_mode').value, title: document.getElementById('f_t').value,
       purpose: document.getElementById('f_p').value, type: document.getElementById('f_ty').value,
       price: document.getElementById('f_pr').value, area: document.getElementById('f_a').value,
       phone: document.getElementById('f_ph').value, media: mediaArray, 
-      isVerified: document.getElementById('f_verify').checked, status: "available", date: Date.now()
+      status: document.getElementById('f_st').value, isVerified: document.getElementById('f_verify').checked, date: Date.now()
     };
-    if(editId) db.ref('properties/'+editId).update(data).then(()=>location.reload());
-    else db.ref('properties').push(data).then(() => location.reload());
+    if(id) db.ref('properties/'+id).update(data).then(()=>location.reload());
+    else db.ref('properties').push(data).then(()=>location.reload());
   }
 
   db.ref('properties').on('value', snap => { allData = snap.val() || {}; applyFilters(); });
 
   function setFilter(key, val, btn) {
-    currentFilters = {type:'all', mode:'all'};
+    currentFilters = {type:'all', purpose:'all', mode:'all'};
     currentFilters[key] = val;
     document.querySelectorAll('.pill').forEach(p => p.classList.remove('active'));
     btn.classList.add('active');
@@ -238,49 +231,44 @@
   function applyFilters() {
     const search = document.getElementById('searchInput').value.toLowerCase();
     const grid = document.getElementById('grid'); grid.innerHTML = "";
-    const isAdmin = localStorage.getItem('samsarny_admin') === 'true';
+    const isAdmin = localStorage.getItem('samsarny_admin') === 'true');
     if(isAdmin) document.getElementById('adminBtn').style.display = 'flex';
 
     let count = 0;
     Object.keys(allData).reverse().forEach(id => {
       const item = allData[id];
       if((currentFilters.type==='all' || item.type===currentFilters.type) && 
-         (currentFilters.mode==='all' || item.mode===currentFilters.mode) &&
+         (currentFilters.purpose==='all' || item.purpose===currentFilters.purpose) &&
          (item.title.toLowerCase().includes(search) || item.area.toLowerCase().includes(search))) {
         
         count++;
-        // إضافة البانر الإعلاني كل 4 كروت
-        if(count % 4 === 0) {
-            grid.innerHTML += `<div class="ad-banner">📢 إعلان: سمسرني بيخلصك في ثانية! تواصل معنا لتمييز إعلانك.</div>`;
-        }
-
         const isR = item.mode === 'request';
         const media = item.media || [];
+        const st = item.status || 'available';
         grid.innerHTML += `
-          <div class="card ${isR ? 'is-request' : ''}">
+          <div class="card">
             ${isAdmin ? `<div class="admin-actions">
                 <button class="admin-btn" onclick="openModal('${id}')">تعديل ✏️</button>
                 <button class="admin-btn" style="background:red" onclick="db.ref('properties/${id}').remove()">حذف 🗑️</button>
             </div>` : ''}
             ${!isR && media.length > 0 ? `
             <div class="image-wrapper">
-              <div class="img-counter" id="count-${id}">1 / ${media.length}</div>
-              <div class="image-slider" id="slider-${id}" onscroll="updateSlider(this, '${id}', ${media.length})">
-                ${media.map((m, i) => m.type === 'video' ? 
-                  `<video src="${m.src}" class="slider-item" playsinline loop muted onclick="this.paused?this.play():this.pause()"></video>` : 
-                  `<img src="${m.src}" class="slider-item" onclick="openLB('${m.src}')">`).join('')}
+              <div class="img-counter" id="cnt-${id}">1 / ${media.length}</div>
+              <div class="image-slider" id="sl-${id}" onscroll="upd('${id}', ${media.length})">
+                ${media.map(m => m.type === 'video' ? `<video src="${m.src}" class="slider-item" playsinline loop muted onclick="this.paused?this.play():this.pause()"></video>` : `<img src="${m.src}" class="slider-item" onclick="openLB('${m.src}')">`).join('')}
               </div>
               ${media.length > 1 ? `
                 <button class="slide-arrow arrow-left" onclick="scrollS('${id}', 1)">❮</button>
                 <button class="slide-arrow arrow-right" onclick="scrollS('${id}', -1)">❯</button>
-              ` : ''}
+                <div class="slider-dots dots-${id}">${media.map((_,i)=>`<div class="dot ${i===0?'active':''}"></div>`).join('')}</div>
+              `:''}
             </div>` : ''}
-            <div class="status-badge ${isR?'status-request':'status-available'}">${isR?'مطلوب':'متاح'}</div>
+            <div class="status-badge status-${isR?'request':st}">${isR?'مطلوب':(st==='available'?'متاح':(st==='reserved'?'محجوز':'مباع'))}</div>
             <div class="card-body">
-              ${item.isVerified ? `<div style="color:var(--verify); font-weight:bold; font-size:0.8rem; margin-bottom:5px;">✅ عقار موثق من سمسرني</div>` : ''}
+              ${item.isVerified ? `<div style="color:var(--verify); font-weight:bold; font-size:0.75rem; margin-bottom:5px;">✅ عقار موثق</div>` : ''}
               <div class="price">${Number(item.price).toLocaleString()} ج.م</div>
               <h3 class="card-title">${item.title}</h3>
-              <div class="card-info">📍 ${item.area} | 🏠 ${item.type}</div>
+              <p class="card-info">📍 ${item.area} | ${item.type}</p>
               <div class="actions">
                 <a href="tel:${item.phone}" class="btn btn-call">📞 اتصال</a>
                 <a href="https://wa.me/20${item.phone}" target="_blank" class="btn btn-wa">واتساب</a>
@@ -288,27 +276,28 @@
               </div>
             </div>
           </div>`;
+        if(count % 3 === 0) grid.innerHTML += `<div class="ad-banner">📢 إعلان: سمسرني بيخلصك في ثانية!</div>`;
       }
     });
   }
 
-  function updateSlider(slider, id, total) {
-    let idx = Math.round(Math.abs(slider.scrollLeft) / slider.clientWidth);
-    document.getElementById(`count-${id}`).innerText = `${idx + 1} / ${total}`;
+  function upd(id, total) {
+    const s = document.getElementById(`sl-${id}`);
+    let idx = Math.round(s.scrollLeft / s.clientWidth);
+    document.getElementById(`cnt-${id}`).innerText = `${Math.abs(idx) + 1} / ${total}`;
+    const dots = document.querySelectorAll(`.dots-${id} .dot`);
+    dots.forEach((d, i) => d.classList.toggle('active', i === Math.abs(idx)));
   }
-  function scrollS(id, dir) { document.getElementById(`slider-${id}`).scrollBy({ left: dir * 300, behavior: 'smooth' }); }
+  function scrollS(id, d) { document.getElementById(`sl-${id}`).scrollBy({ left: d * 300, behavior: 'smooth' }); }
   function openLB(src) { document.getElementById('lbImg').src = src; document.getElementById('lightbox').style.display = 'flex'; }
   function closeLB() { document.getElementById('lightbox').style.display = 'none'; }
-  function toggleTheme() { document.getElementById('body').classList.toggle('light-mode'); }
 
   document.getElementById('mainLogo').onclick = async () => {
     const p = prompt("الباسورد:");
     const s = await db.ref('admin_pass').get();
-    if(p === String(s.val())) {
-      localStorage.setItem('samsarny_admin','true');
-      location.reload();
-    }
+    if(p === String(s.val())) { localStorage.setItem('samsarny_admin','true'); location.reload(); }
   };
 </script>
 </body>
-</html>
+  </html>
+  
