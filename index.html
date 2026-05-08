@@ -15,7 +15,7 @@
   body { font-family: 'Cairo', sans-serif; background: var(--dark); color: var(--text); min-height: 100vh; overflow-x: hidden; }
   
   header { position: sticky; top: 0; z-index: 100; background: rgba(15,15,15,0.95); backdrop-filter: blur(12px); border-bottom: 1px solid rgba(201,168,76,0.2); padding: 14px 24px; display: flex; align-items: center; justify-content: space-between; }
-  .logo { display: flex; align-items: center; gap: 10px; font-family: 'Tajawal', sans-serif; font-weight: 800; font-size: 1.5rem; color: var(--gold); cursor: pointer; }
+  .logo { display: flex; align-items: center; gap: 10px; font-family: 'Tajawal', sans-serif; font-weight: 800; font-size: 1.5rem; color: var(--gold); cursor: pointer; user-select: none; }
   .logo-icon { width: 40px; height: 40px; background: linear-gradient(135deg, var(--gold), var(--gold-light)); border-radius: 10px; display: flex; align-items: center; justify-content: center; font-size: 1.2rem; color: #0f0f0f; }
 
   .hero { position: relative; padding: 40px 24px; text-align: center; z-index: 1; }
@@ -38,14 +38,14 @@
   .image-slider::-webkit-scrollbar { display: none; }
   .slider-img { flex: 0 0 100%; width: 100%; height: 100%; object-fit: cover; scroll-snap-align: start; background: #222; }
   
-  .slide-arrow { position: absolute; top: 50%; transform: translateY(-50%); background: rgba(0,0,0,0.5); color: white; border: none; width: 35px; height: 35px; border-radius: 50%; cursor: pointer; z-index: 10; font-size: 1.2rem; }
+  .slide-arrow { position: absolute; top: 50%; transform: translateY(-50%); background: rgba(0,0,0,0.5); color: white; border: none; width: 35px; height: 35px; border-radius: 50%; cursor: pointer; z-index: 10; font-size: 1.2rem; display: flex; align-items: center; justify-content: center; }
   .arrow-left { left: 10px; } .arrow-right { right: 10px; }
 
   .slider-dots { position: absolute; bottom: 12px; left: 50%; transform: translateX(-50%); display: flex; gap: 6px; z-index: 10; }
-  .dot { width: 8px; height: 8px; border-radius: 50%; background: rgba(255,255,255,0.4); }
+  .dot { width: 8px; height: 8px; border-radius: 50%; background: rgba(255,255,255,0.4); transition: 0.3s; }
   .dot.active { background: var(--gold); transform: scale(1.2); }
 
-  .status-badge { position: absolute; top: 12px; right: 12px; padding: 4px 12px; border-radius: 8px; font-weight: 800; font-size: 0.8rem; z-index: 15; }
+  .status-badge { position: absolute; top: 12px; right: 12px; padding: 4px 12px; border-radius: 8px; font-weight: 800; font-size: 0.8rem; z-index: 15; box-shadow: 0 4px 10px rgba(0,0,0,0.3); }
   .status-available { background: var(--gold); color: #0f0f0f; }
   .status-reserved { background: #e67e22; color: white; }
   .status-sold { background: #ff4757; color: white; }
@@ -54,7 +54,7 @@
   .card-body { padding: 20px; }
   .price { font-family: 'Tajawal'; font-weight: 900; font-size: 1.4rem; color: var(--gold); margin-bottom: 8px; }
   .card-title { font-size: 1.2rem; font-weight: 700; margin-bottom: 10px; color: #fff; }
-  .card-info { color: var(--text-muted); font-size: 0.9rem; margin-bottom: 4px; }
+  .card-info { color: var(--text-muted); font-size: 0.9rem; margin-bottom: 4px; display: flex; align-items: center; gap: 5px; }
   
   .actions { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-top: 15px; }
   .btn { padding: 12px; border-radius: 12px; text-decoration: none; font-weight: 800; display: flex; align-items: center; justify-content: center; gap: 6px; font-size: 0.85rem; border: none; cursor: pointer; }
@@ -63,7 +63,7 @@
   .btn-share { grid-column: span 2; background: var(--dark3); color: var(--gold); border: 1px solid var(--gold); margin-top: 5px; }
   
   .admin-actions { position: absolute; left: 12px; top: 12px; display: flex; flex-direction: column; gap: 5px; z-index: 20; }
-  .admin-btn { background: rgba(0,0,0,0.8); color: white; border: 1px solid rgba(255,255,255,0.2); border-radius: 8px; padding: 6px 10px; cursor: pointer; font-size: 0.75rem; }
+  .admin-btn { background: rgba(0,0,0,0.8); color: white; border: 1px solid rgba(255,255,255,0.2); border-radius: 8px; padding: 6px 10px; cursor: pointer; font-size: 0.75rem; backdrop-filter: blur(4px); }
 
   .fab { position: fixed; bottom: 35px; left: 25px; width: 65px; height: 65px; border-radius: 20px; background: var(--gold); border: none; font-size: 40px; display: none; align-items: center; justify-content: center; cursor: pointer; z-index: 500; box-shadow: 0 10px 30px rgba(201,168,76,0.5); }
   
@@ -77,7 +77,7 @@
 <body>
 
 <header>
-  <div class="logo" onclick="adminAccess()">
+  <div class="logo" id="mainLogo">
     <div class="logo-icon">🏠</div>
     <div>سمسرني <span>عقارات بلدنا</span></div>
   </div>
@@ -94,6 +94,7 @@
     <button class="pill" onclick="setFilter('purpose', 'إيجار', this)">للإيجار</button>
     <button class="pill" onclick="setFilter('purpose', 'بيع', this)">للبيع</button>
     <button class="pill" onclick="setFilter('type', 'شقة', this)">شقق</button>
+    <button class="pill" onclick="setFilter('type', 'محل', this)">محلات</button>
     <button class="pill" onclick="setFilter('type', 'أرض', this)">أراضي</button>
   </div>
 </section>
@@ -112,13 +113,13 @@
       <option value="request">مطلوب (أبحث عن عقار)</option>
     </select>
 
-    <div id="uploadBox" style="background:var(--dark3); border:2px dashed #444; border-radius:16px; padding:15px; text-align:center; margin-bottom:15px;" onclick="document.getElementById('fileInput').click()">
+    <div id="uploadBox" style="background:var(--dark3); border:2px dashed #444; border-radius:16px; padding:15px; text-align:center; margin-bottom:15px; cursor:pointer;" onclick="document.getElementById('fileInput').click()">
       <p id="uploadStatus">📸 اختر صور العقار</p>
       <input type="file" id="fileInput" hidden accept="image/*" multiple onchange="handleMultipleImages(this)">
-      <div id="previewContainer"></div>
+      <div id="previewContainer" style="display:flex; gap:10px; overflow-x:auto; margin-top:10px;"></div>
     </div>
 
-    <input type="text" id="f_title" class="form-control" placeholder="عنوان الإعلان (مثال: شقة للبيع في الدقي)">
+    <input type="text" id="f_title" class="form-control" placeholder="عنوان الإعلان">
     <div style="display:flex; gap:10px;">
       <select id="f_purpose" class="form-control"><option value="بيع">بيع</option><option value="إيجار">إيجار</option></select>
       <select id="f_type" class="form-control"><option value="شقة">شقة</option><option value="محل">محل</option><option value="أرض">أرض</option></select>
@@ -128,7 +129,7 @@
     <input type="tel" id="f_phone" class="form-control" placeholder="رقم موبايل التواصل">
     
     <button class="btn btn-call" style="width: 100%;" id="publishBtn" onclick="saveToFirebase()">🚀 انشر الآن</button>
-    <button onclick="closeModal()" style="background:none; border:none; color:gray; width:100%; margin-top:10px;">إلغاء</button>
+    <button onclick="closeModal()" style="background:none; border:none; color:gray; width:100%; margin-top:10px; cursor:pointer;">إلغاء</button>
   </div>
 </div>
 
@@ -144,19 +145,20 @@
   let currentFilters = { type: 'all', purpose: 'all', mode: 'all' };
   let imagesArray = [];
 
-  async function adminAccess() {
-    const input = prompt("أدخل كلمة السر:");
+  // تصليح زر اللوجو للأدمن
+  document.getElementById('mainLogo').addEventListener('click', async () => {
+    const input = prompt("أدخل كلمة السر للدخول كأدمن:");
     if(!input) return;
     try {
       const snap = await db.ref('admin_pass').get();
       if(input === String(snap.val())) {
         localStorage.setItem('samsarny_admin', 'true');
         localStorage.setItem('samsarny_key', input);
-        alert("تم تفعيل وضع الإدارة ✅");
+        alert("أهلاً بك يا أدمن ✅");
         location.reload();
-      } else { alert("خطأ! ❌"); }
-    } catch (e) { alert("خطأ اتصال"); }
-  }
+      } else { alert("كلمة السر خطأ! ❌"); }
+    } catch (e) { alert("خطأ في الاتصال بالسيرفر"); }
+  });
 
   function toggleUpload(val) {
     document.getElementById('uploadBox').style.display = (val === 'request') ? 'none' : 'block';
@@ -178,10 +180,10 @@
           if (width > MAX_WIDTH) { height *= MAX_WIDTH / width; width = MAX_WIDTH; }
           canvas.width = width; canvas.height = height;
           canvas.getContext('2d').drawImage(img, 0, 0, width, height);
-          imagesArray.push(canvas.toDataURL('image/jpeg', 0.5));
+          const base64 = canvas.toDataURL('image/jpeg', 0.6);
+          imagesArray.push(base64);
           const thumb = document.createElement('img');
-          thumb.src = imagesArray[imagesArray.length-1];
-          thumb.style = "width:60px; height:60px; border-radius:8px; object-fit:cover;";
+          thumb.src = base64; thumb.style = "width:60px; height:60px; border-radius:8px; object-fit:cover; border:1px solid var(--gold);";
           container.appendChild(thumb);
         };
       };
@@ -195,7 +197,7 @@
   function saveToFirebase() {
     const btn = document.getElementById('publishBtn');
     let savedKey = localStorage.getItem('samsarny_key');
-    if(!savedKey) { savedKey = prompt("أدخل كلمة السر:"); if(!savedKey) return; }
+    if(!savedKey) { savedKey = prompt("أدخل كلمة السر للنشر:"); if(!savedKey) return; }
 
     const data = {
       mode: document.getElementById('f_mode').value,
@@ -211,23 +213,25 @@
       admin_pass: savedKey 
     };
 
-    if(!data.title || !data.phone) return alert("أكمل البيانات!");
-    btn.innerText = "جاري النشر..."; btn.disabled = true;
+    if(!data.title || !data.phone) return alert("من فضلك أكمل البيانات الأساسية!");
+    btn.innerText = "جاري الحفظ..."; btn.disabled = true;
 
     db.ref('properties').push(data).then(() => location.reload()).catch(() => {
-        alert("خطأ أمان!"); btn.disabled = false; btn.innerText = "🚀 انشر الآن";
+        alert("فشل في الأمان! تأكد من كلمة السر."); btn.disabled = false; btn.innerText = "🚀 انشر الآن";
     });
   }
 
   function cycleStatus(id, currentStatus) {
     const savedKey = localStorage.getItem('samsarny_key');
-    let nextStatus = currentStatus === "available" ? "reserved" : (currentStatus === "reserved" ? "sold" : "available");
+    let nextStatus = "available";
+    if(currentStatus === "available") nextStatus = "reserved";
+    else if(currentStatus === "reserved") nextStatus = "sold";
     db.ref().update({ [`properties/${id}/status`]: nextStatus, admin_pass: savedKey });
   }
 
   function deleteProperty(id) {
     const savedKey = localStorage.getItem('samsarny_key');
-    if(confirm("حذف الإعلان؟")) db.ref().update({ [`properties/${id}`]: null, admin_pass: savedKey });
+    if(confirm("حذف هذا الإعلان نهائياً؟")) db.ref().update({ [`properties/${id}`]: null, admin_pass: savedKey });
   }
 
   function scrollSlider(id, dir) {
@@ -261,7 +265,7 @@
   function applyFilters() {
     const search = document.getElementById('searchInput').value.toLowerCase();
     const grid = document.getElementById('grid'); grid.innerHTML = "";
-    const isAdmin = localStorage.getItem('samsarny_admin') === 'true');
+    const isAdmin = localStorage.getItem('samsarny_admin') === 'true';
     if(isAdmin) document.getElementById('adminBtn').style.display = 'flex';
 
     Object.keys(allData).reverse().forEach(id => {
@@ -284,7 +288,7 @@
         grid.innerHTML += `
           <div class="card ${isReq ? 'is-request' : ''}">
             ${isAdmin ? `<div class="admin-actions">
-                <button class="admin-btn" onclick="cycleStatus('${id}', '${item.status}')">تغيير الحالة</button>
+                <button class="admin-btn" onclick="cycleStatus('${id}', '${item.status || 'available'}')">تغيير الحالة</button>
                 <button class="admin-btn" style="background:#dc3545" onclick="deleteProperty('${id}')">حذف</button>
             </div>` : ''}
             
@@ -307,7 +311,7 @@
               <div class="actions">
                 <a href="tel:${item.phone}" class="btn btn-call">📞 اتصال</a>
                 <a href="https://wa.me/20${item.phone}?text=${waMsg}" target="_blank" class="btn btn-wa">💬 واتساب</a>
-                <button class="btn btn-share" onclick="share('${item.title}', '${item.area}')">🔗 مشاركة العقار</button>
+                <button class="btn btn-share" onclick="share('${item.title}', '${item.area}')">🔗 مشاركة</button>
               </div>
             </div>
           </div>`;
