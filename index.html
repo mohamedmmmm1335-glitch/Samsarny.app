@@ -1062,26 +1062,29 @@ select.finput option{background:var(--dark2);}
 <!-- TOAST -->
 <div class="toast" id="toast"><span id="toastIcon">✅</span><span id="toastMsg">تم</span></div>
 
-<!-- Firebase -->
-<script src="https://www.gstatic.com/firebasejs/9.1.3/firebase-app-compat.js"></script>
-<script src="https://www.gstatic.com/firebasejs/9.1.3/firebase-database-compat.js"></script>
-<script src="https://www.gstatic.com/firebasejs/9.1.3/firebase-auth-compat.js"></script>
-
 <script>
-// ===================== CONFIG =====================
-const FB_CONFIG = {
-  apiKey: "AIzaSyAUt5G3o2CRa_hW3TF6aoRDqlj00h_duiY",
-  authDomain: "samsarny-5a5c2.firebaseapp.com",
-  databaseURL: "https://samsarny-5a5c2-default-rtdb.firebaseio.com",
-  projectId: "samsarny-5a5c2",
-  storageBucket: "samsarny-5a5c2.firebasestorage.app",
-  messagingSenderId: "891182543023",
-  appId: "1:891182543023:web:a86920f36595c11a3f645a"
-};
+// ===================== API CONFIG =====================
+// غيّر الرابط ده لما ترفع السيرفر
+const API_BASE = 'http://localhost:3000/api';
 
-firebase.initializeApp(FB_CONFIG);
-const db = firebase.database();
-const auth = firebase.auth();
+// ===== API Helper =====
+async function apiCall(method, path, body = null) {
+  const opts = {
+    method,
+    headers: { 'Content-Type': 'application/json' },
+  };
+  const token = localStorage.getItem('adminToken');
+  if (token) opts.headers['Authorization'] = 'Bearer ' + token;
+  if (body) opts.body = JSON.stringify(body);
+
+  const res = await fetch(API_BASE + path, opts);
+  const data = await res.json();
+  if (!res.ok) throw new Error(data.error || 'خطأ في السيرفر');
+  return data;
+}
+
+// Poll interval for real-time-like updates (every 30 seconds)
+let pollInterval = null;
 
 // ===================== STATE =====================
 let store = {};
@@ -1100,23 +1103,33 @@ window.onpopstate = () => {
   window.history.pushState({p:1}, "");
 };
 
-// Listen to auth state
-auth.onAuthStateChanged(user => {
-  if(user) {
+// Check if already logged in (token in localStorage)
+(function initAuth() {
+  const token = localStorage.getItem('adminToken');
+  if(token) {
     isAdmin = true;
     showAdminUI();
   } else {
     isAdmin = false;
     hideAdminUI();
   }
-  renderAll();
-});
+})();
 
-// Realtime listener
-db.ref('properties').on('value', snap => {
-  store = snap.val() || {};
-  renderAll();
-});
+// Fetch properties from API
+async function fetchProperties() {
+  try {
+    const res = await apiCall('GET', '/properties');
+    store = {};
+    (res.data || []).forEach(p => { store[p.id] = p; });
+    renderAll();
+  } catch(e) {
+    console.error('Error fetching properties:', e);
+  }
+}
+
+// Initial load + poll every 30s for updates
+fetchProperties();
+setInterval(fetchProperties, 30000);
 
 // ===================== LAZY LOADING STATE =====================
 const PAGE_SIZE = 12;
@@ -1304,14 +1317,14 @@ function buildCard(itm, idx) {
   div.className = 'card' + (itm.featured ? ' is-featured' : '');
   div.style.animationDelay = delay + 's';
 
-  // increment views once per user per listing
+  // increment views once per user per listing (API call)
   const viewKey = 'viewed_' + itm.id;
   if(!localStorage.getItem(viewKey)) {
     const viewObserver = new IntersectionObserver((entries) => {
       if(entries[0].isIntersecting) {
         viewObserver.disconnect();
         localStorage.setItem(viewKey, '1');
-        db.ref('properties/' + itm.id + '/views').transaction(v => (v||0) + 1);
+        apiCall('GET', '/properties/' + itm.id).catch(()=>{});
       }
     }, {threshold: 0.5});
     setTimeout(() => viewObserver.observe(div), 1000);
@@ -1583,11 +1596,9 @@ async function saveData() {
   btn.disabled = true;
 
   const editId = document.getElementById('editId').value;
-  const propId = editId || db.ref('properties').push().key;
 
   try {
-    // Upload images to Storage (not base64 in DB!)
-    const mediaArr = await uploadMediaToStorage(propId);
+    const mediaArr = await uploadMediaToStorage(null);
 
     const data = {
       mode:     document.getElementById('m_mode').value,
@@ -1601,17 +1612,22 @@ async function saveData() {
       desc:     document.getElementById('m_desc').value.trim(),
       verified: document.getElementById('m_verify').checked,
       featured: document.getElementById('m_featured').checked,
-      views:    (store[propId]?.views || 0),
       media:    mediaArr,
-      time:     Date.now()
     };
 
-    await db.ref('properties/' + propId).set(data);
+    if(editId) {
+      await apiCall('PUT', '/properties/' + editId, data);
+      toast('✅', 'تم تعديل الإعلان!');
+    } else {
+      const res = await apiCall('POST', '/properties', data);
+      const msg = isAdmin ? 'تم نشر الإعلان!' : 'تم استلام إعلانك وهيتراجع قبل النشر 👍';
+      toast('✅', msg);
+    }
+    await fetchProperties();
     closeForm();
-    toast('✅', editId ? 'تم تعديل الإعلان!' : 'تم نشر الإعلان!');
   } catch(err) {
     console.error(err);
-    toast('❌', 'حصلت مشكلة، جرب تاني');
+    toast('❌', err.message || 'حصلت مشكلة، جرب تاني');
   }
 
   btn.textContent = '🚀 نشر الإعلان';
@@ -1622,10 +1638,12 @@ async function saveData() {
 async function deleteListing(id) {
   if(!confirm('مؤكد إنك عاوز تحذف الإعلان ده؟')) return;
   try {
-    await db.ref('properties/' + id).remove();
+    await apiCall('DELETE', '/properties/' + id);
+    delete store[id];
+    renderAll();
     toast('🗑️', 'تم حذف الإعلان');
   } catch(e) {
-    toast('❌', 'حصل خطأ أثناء الحذف');
+    toast('❌', e.message || 'حصل خطأ أثناء الحذف');
   }
 }
 
@@ -1633,7 +1651,11 @@ async function deleteListing(id) {
 function tryLogin() {
   if(isAdmin) {
     if(confirm('إنت admin دلوقتي. عاوز تخرج؟')) {
-      auth.signOut();
+      apiCall('POST', '/auth/logout').catch(()=>{});
+      localStorage.removeItem('adminToken');
+      isAdmin = false;
+      hideAdminUI();
+      renderAll();
       toast('👋', 'تم تسجيل الخروج');
     }
     return;
@@ -1658,7 +1680,11 @@ async function checkPass() {
   btn.disabled = true;
 
   try {
-    await auth.signInWithEmailAndPassword('admin@samsarny.com', entered);
+    const res = await apiCall('POST', '/auth/login', { password: entered });
+    localStorage.setItem('adminToken', res.token);
+    isAdmin = true;
+    showAdminUI();
+    renderAll();
     closeLogin();
     toast('🎉', 'أهلاً يا مسؤول!');
   } catch(e) {
@@ -1731,12 +1757,21 @@ function renderRequests(reqs) {
 let workerStore = {};
 let activeSpecFilter = 'all';
 
-db.ref('workers').on('value', snap => {
-  workerStore = snap.val() || {};
-  // تحديث عداد الصنايعية
-  document.getElementById('s-worker').textContent = Object.keys(workerStore).length;
-  renderWorkers();
-});
+// Fetch workers from API
+async function fetchWorkers() {
+  try {
+    const res = await apiCall('GET', '/workers');
+    workerStore = {};
+    (res.data || []).forEach(w => { workerStore[w.id] = w; });
+    document.getElementById('s-worker').textContent = Object.keys(workerStore).length;
+    renderWorkers();
+  } catch(e) {
+    console.error('Error fetching workers:', e);
+  }
+}
+
+fetchWorkers();
+setInterval(fetchWorkers, 30000);
 
 function setWorkerFilter() {
   const ws = document.getElementById('workersSection');
@@ -1853,7 +1888,6 @@ async function saveWorker() {
   if(!name || !phone) { toast('⚠️','الرجاء كتابة الاسم والموبايل'); return; }
 
   const editId = document.getElementById('wEditId').value;
-  const wId = editId || db.ref('workers').push().key;
 
   const data = {
     name,
@@ -1864,24 +1898,32 @@ async function saveWorker() {
     desc: document.getElementById('w_desc').value.trim(),
     featured: document.getElementById('w_featured').checked,
     verified: document.getElementById('w_verify').checked,
-    time: Date.now()
   };
 
   try {
-    await db.ref('workers/'+wId).set(data);
+    if(editId) {
+      await apiCall('PUT', '/workers/' + editId, data);
+      toast('✅', 'تم تعديل بيانات الصنايعي!');
+    } else {
+      await apiCall('POST', '/workers', data);
+      const msg = isAdmin ? 'تم إضافة الصنايعي!' : 'تم استلام البيانات وهيتراجع قبل النشر 👍';
+      toast('✅', msg);
+    }
+    await fetchWorkers();
     closeWorkerForm();
-    toast('✅', editId ? 'تم تعديل بيانات الصنايعي!' : 'تم إضافة الصنايعي!');
   } catch(e) {
-    toast('❌','حصلت مشكلة، جرب تاني');
+    toast('❌', e.message || 'حصلت مشكلة، جرب تاني');
   }
 }
 
 async function deleteWorker(id) {
   if(!confirm('مؤكد إنك عاوز تحذف الصنايعي ده؟')) return;
   try {
-    await db.ref('workers/'+id).remove();
+    await apiCall('DELETE', '/workers/' + id);
+    delete workerStore[id];
+    renderWorkers();
     toast('🗑️','تم حذف الصنايعي');
-  } catch(e) { toast('❌','حصل خطأ'); }
+  } catch(e) { toast('❌', e.message || 'حصل خطأ'); }
 }
 
 // ===================== ADMIN PANEL (GEAR) =====================
