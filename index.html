@@ -1106,6 +1106,36 @@ select.finput option{background:var(--dark2);}
   </div>
 </div>
 
+<!-- ====== PENDING DETAIL MODAL ====== -->
+<div class="overlay" id="pendingDetailOverlay">
+  <div class="modal" style="max-width:520px;">
+    <div class="modal-close-row">
+      <button class="modal-close-btn" onclick="closePendingDetail()">✕</button>
+    </div>
+    <div class="modal-title" id="pdTitle">تفاصيل الطلب</div>
+
+    <!-- صور العقار -->
+    <div id="pdImgs" style="margin-bottom:16px;"></div>
+
+    <!-- بيانات -->
+    <div id="pdBody" style="display:flex;flex-direction:column;gap:10px;margin-bottom:20px;"></div>
+
+    <!-- أزرار -->
+    <div style="display:flex;gap:10px;">
+      <button id="pdApprove" onclick="pdAction('approved')" style="
+        flex:1;background:rgba(37,211,102,0.15);color:#25D366;
+        border:1px solid rgba(37,211,102,0.3);padding:12px;border-radius:12px;
+        font-family:'Cairo';font-size:0.9rem;font-weight:800;cursor:pointer;
+      ">✅ موافقة</button>
+      <button id="pdReject" onclick="pdAction('rejected')" style="
+        flex:1;background:rgba(224,64,64,0.1);color:var(--red);
+        border:1px solid rgba(224,64,64,0.2);padding:12px;border-radius:12px;
+        font-family:'Cairo';font-size:0.9rem;font-weight:800;cursor:pointer;
+      ">❌ رفض</button>
+    </div>
+  </div>
+</div>
+
 <!-- TOAST -->
 <div class="toast" id="toast"><span id="toastIcon">✅</span><span id="toastMsg">تم</span></div>
 
@@ -1610,17 +1640,37 @@ function clearFormFields() {
 async function handleFiles(input) {
   const MAX_SIZE = 800; // px - resize to save storage
   const maxPhotos = isAdmin ? 10 : 3;
+
   if(tempMedia.length >= maxPhotos) {
     toast('⚠️', `الحد الأقصى ${maxPhotos} صور بس`);
     input.value = '';
     return;
   }
+
   for(const file of input.files) {
+    if(tempMedia.length >= maxPhotos) {
+      toast('⚠️', `اتضافت ${maxPhotos} صور بس، الباقي اتشال`);
+      break;
+    }
     const resized = await resizeImage(file, MAX_SIZE);
     tempMedia.push({ src: resized, uploaded: false });
   }
   input.value = '';
   drawPreview();
+
+  // تعطيل زرار الإضافة لو وصل الحد
+  const fileInp = document.getElementById('fileInp');
+  if(fileInp) {
+    if(!isAdmin && tempMedia.length >= maxPhotos) {
+      fileInp.disabled = true;
+      fileInp.closest('.upload-zone').style.opacity = '0.4';
+      fileInp.closest('.upload-zone').style.pointerEvents = 'none';
+    } else {
+      fileInp.disabled = false;
+      fileInp.closest('.upload-zone').style.opacity = '1';
+      fileInp.closest('.upload-zone').style.pointerEvents = 'auto';
+    }
+  }
 }
 
 function resizeImage(file, maxPx) {
@@ -1819,11 +1869,12 @@ async function fetchPending() {
 
     section.style.display = 'block';
     countEl.textContent = all.length;
-    list.innerHTML = all.map(itm => `
+    list.innerHTML = all.map((itm,idx) => `
       <div style="
         border:1px solid rgba(255,255,255,0.07);border-radius:12px;
         padding:12px;margin-bottom:10px;background:var(--card);
-      ">
+        cursor:pointer;transition:border-color 0.2s;
+      " onclick="openPendingDetail(${idx})">
         <div style="display:flex;justify-content:space-between;align-items:flex-start;gap:8px;margin-bottom:10px;">
           <div style="flex:1;">
             <div style="font-weight:800;font-size:0.9rem;margin-bottom:4px;">
@@ -1835,8 +1886,9 @@ async function fetchPending() {
               ${itm.phone ? ' • ' + itm.phone : ''}
             </div>
           </div>
+          <div style="font-size:0.72rem;color:var(--gold);font-weight:700;flex-shrink:0;">👁 تفاصيل</div>
         </div>
-        <div style="display:flex;gap:8px;">
+        <div style="display:flex;gap:8px;" onclick="event.stopPropagation()">
           <button onclick="approvePending('${itm.id}','${itm._type}','approved')" style="
             flex:1;background:rgba(37,211,102,0.15);color:#25D366;
             border:1px solid rgba(37,211,102,0.3);padding:9px;border-radius:10px;
@@ -1849,10 +1901,85 @@ async function fetchPending() {
           ">❌ رفض</button>
         </div>
       </div>`).join('');
+    window._pendingAll = all;
   } catch(e) {
     console.error('fetchPending error:', e);
   }
 }
+
+
+// ===================== PENDING DETAIL MODAL =====================
+let _pdItem = null;
+
+function openPendingDetail(idx) {
+  const itm = window._pendingAll[idx];
+  if(!itm) return;
+  _pdItem = itm;
+
+  document.getElementById('pdTitle').textContent =
+    (itm._type==='worker' ? '🔧 ' : '🏠 ') + (itm.title||itm.name||'بدون عنوان');
+
+  // صور العقار
+  const imgsEl = document.getElementById('pdImgs');
+  const media = itm.media || [];
+  if(media.length > 0) {
+    imgsEl.innerHTML = `
+      <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:6px;margin-bottom:4px;">
+        ${media.map(m => `
+          <div style="height:90px;border-radius:10px;overflow:hidden;border:1px solid rgba(255,255,255,0.08);">
+            <img src="${m.src||m.url||''}" style="width:100%;height:100%;object-fit:cover;" loading="lazy">
+          </div>`).join('')}
+      </div>
+      <div style="font-size:0.72rem;color:var(--muted);text-align:center;margin-bottom:8px;">${media.length} صورة</div>`;
+  } else {
+    imgsEl.innerHTML = '<div style="text-align:center;color:var(--muted);font-size:0.82rem;margin-bottom:12px;">لا يوجد صور</div>';
+  }
+
+  // بيانات
+  const rows = [];
+  const add = (label, val) => val ? rows.push(`
+    <div style="display:flex;justify-content:space-between;align-items:center;
+      padding:10px 14px;background:var(--dark3);border-radius:10px;">
+      <span style="color:var(--muted);font-size:0.8rem;">${label}</span>
+      <span style="font-weight:700;font-size:0.88rem;">${val}</span>
+    </div>`) : null;
+
+  if(itm._type === 'worker') {
+    add('التخصص', itm.specialty);
+    add('الاسم', itm.name);
+    add('المنطقة', itm.area);
+    add('الموبايل', itm.phone);
+    add('سنوات الخبرة', itm.exp ? itm.exp + ' سنين' : null);
+    add('الوصف', itm.desc);
+  } else {
+    add('نوع الإعلان', itm.purpose);
+    add('نوع العقار', itm.type);
+    add('السعر', itm.price > 0 ? Number(itm.price).toLocaleString('ar-EG') + ' ج' : 'غير محدد');
+    add('المنطقة', itm.area);
+    add('الموبايل', itm.phone);
+    add('الوصف', itm.desc);
+  }
+
+  document.getElementById('pdBody').innerHTML = rows.join('');
+  document.getElementById('pendingDetailOverlay').classList.add('open');
+  document.body.style.overflow = 'hidden';
+}
+
+function closePendingDetail() {
+  document.getElementById('pendingDetailOverlay').classList.remove('open');
+  document.body.style.overflow = '';
+  _pdItem = null;
+}
+
+async function pdAction(status) {
+  if(!_pdItem) return;
+  await approvePending(_pdItem.id, _pdItem._type, status);
+  closePendingDetail();
+}
+
+document.getElementById('pendingDetailOverlay').addEventListener('click', e => {
+  if(e.target.id === 'pendingDetailOverlay') closePendingDetail();
+});
 
 async function approvePending(id, type, status) {
   try {
