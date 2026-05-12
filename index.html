@@ -336,7 +336,7 @@ body.light header{background:rgba(255,255,255,0.96);}
   width:58px;height:58px;border-radius:18px;
   background:linear-gradient(135deg,var(--gold),var(--gold-light));
   color:#000;font-size:1.7rem;border:none;cursor:pointer;
-  display:none;align-items:center;justify-content:center;
+  display:flex;align-items:center;justify-content:center;
   box-shadow:0 8px 28px rgba(201,168,76,0.4);
   transition:all 0.2s;z-index:700;
 }
@@ -732,8 +732,36 @@ select.finput option{background:var(--dark2);}
 <div class="grid" id="mainGrid"></div>
 
 <!-- FAB -->
-<button class="fab" id="fab" onclick="openForm()">+</button>
+<button class="fab" id="fab" onclick="openAddMenu()">+</button>
 
+
+<!-- ADD MENU for public -->
+<div id="addMenu" style="
+  position:fixed;bottom:calc(90px + var(--safe-bottom));left:16px;
+  display:none;flex-direction:column;gap:10px;z-index:700;
+">
+  <button onclick="closeAddMenu();openForm(null,'offer')" style="
+    background:linear-gradient(135deg,var(--gold),var(--gold-light));
+    color:#000;border:none;padding:12px 20px;border-radius:14px;
+    font-family:'Cairo';font-size:0.9rem;font-weight:800;cursor:pointer;
+    box-shadow:0 6px 20px rgba(201,168,76,0.4);white-space:nowrap;
+  ">🏠 أضف عقارك للبيع أو الإيجار</button>
+  <button onclick="closeAddMenu();openForm(null,'request')" style="
+    background:linear-gradient(135deg,#8b5cf6,#a78bfa);
+    color:#fff;border:none;padding:12px 20px;border-radius:14px;
+    font-family:'Cairo';font-size:0.9rem;font-weight:800;cursor:pointer;
+    box-shadow:0 6px 20px rgba(139,92,246,0.4);white-space:nowrap;
+  ">🔍 أضف طلب عقار مطلوب</button>
+  <button onclick="closeAddMenu();openWorkerForm()" style="
+    background:linear-gradient(135deg,#3b82f6,#60a5fa);
+    color:#fff;border:none;padding:12px 20px;border-radius:14px;
+    font-family:'Cairo';font-size:0.9rem;font-weight:800;cursor:pointer;
+    box-shadow:0 6px 20px rgba(59,130,246,0.4);white-space:nowrap;
+  ">🔧 سجّل كصنايعي</button>
+</div>
+<div id="addMenuOverlay" onclick="closeAddMenu()" style="
+  display:none;position:fixed;inset:0;z-index:699;
+"></div>
 <!-- GEAR ADMIN BUTTON -->
 <button class="gear-fab" id="gearFab" onclick="toggleAdminPanel()">⚙️</button>
 <div class="admin-panel" id="adminPanel">
@@ -1486,7 +1514,20 @@ function onModeChange() {
   document.getElementById('statusField').style.display  = mode === 'request' ? 'none' : 'block';
 }
 
-function openForm(id = null) {
+
+function openAddMenu() {
+  const menu = document.getElementById('addMenu');
+  const overlay = document.getElementById('addMenuOverlay');
+  const isOpen = menu.style.display === 'flex';
+  menu.style.display = isOpen ? 'none' : 'flex';
+  overlay.style.display = isOpen ? 'none' : 'block';
+}
+function closeAddMenu() {
+  document.getElementById('addMenu').style.display = 'none';
+  document.getElementById('addMenuOverlay').style.display = 'none';
+}
+
+function openForm(id = null, mode = null) {
   clearFormFields();
   if(id && store[id]) {
     const itm = store[id];
@@ -1520,6 +1561,11 @@ function closeForm() {
 function clearFormFields() {
   document.getElementById('editId').value = '';
   document.getElementById('formTitle').textContent = '📋 إضافة إعلان جديد';
+  if(mode === 'request') {
+    const purposeEl = document.getElementById('f_purpose');
+    if(purposeEl) purposeEl.value = 'مطلوب';
+    document.getElementById('formTitle').textContent = '🔍 إضافة طلب عقار مطلوب';
+  }
   ['m_title','m_price','m_area','m_phone','m_desc'].forEach(id => document.getElementById(id).value = '');
   document.getElementById('m_mode').value = 'offer';
   document.getElementById('m_purpose').value = 'بيع';
@@ -1712,13 +1758,11 @@ async function checkPass() {
 
 function showAdminUI() {
   document.getElementById('adminBadge').style.display = 'inline';
-  document.getElementById('fab').style.display = 'flex';
   document.getElementById('gearFab').classList.add('visible');
 }
 
 function hideAdminUI() {
   document.getElementById('adminBadge').style.display = 'none';
-  document.getElementById('fab').style.display = 'none';
   document.getElementById('gearFab').classList.remove('visible');
   closeAdminPanel();
 }
