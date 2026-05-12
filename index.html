@@ -853,6 +853,7 @@ select.finput option{background:var(--dark2);}
       <button class="lb-ctrl" onclick="lbZoom(1.25)">＋</button>
       <span id="lbZoomLabel" style="color:#fff;font-size:0.85rem;min-width:40px;text-align:center;">100%</span>
       <button class="lb-ctrl" onclick="lbZoom(0.8)">－</button>
+      <button class="lb-ctrl" onclick="downloadCurrentImg()" title="تحميل">⬇️</button>
       <span class="lb-close" onclick="closeLB()">✕</span>
     </div>
   </div>
@@ -1392,7 +1393,7 @@ function openLB(id, startIdx) {
 
   const scroller = document.getElementById('lbScroller');
   scroller.innerHTML = itm.media.map(m =>
-    `<div class="lb-slide-wrap"><img class="lb-img" src="${m.src||m.url||''}" draggable="false"></div>`
+    `<div class="lb-slide-wrap"><img class="lb-img" src="${m.src||m.url||''}" ></div>`
   ).join('');
 
   document.getElementById('lb').classList.add('open');
@@ -1411,6 +1412,19 @@ function updateLBCounter(scroller) {
   const total = scroller.querySelectorAll('.lb-slide-wrap').length;
   const curr = Math.round(Math.abs(scroller.scrollLeft) / scroller.clientWidth) + 1;
   document.getElementById('lbCounter').textContent = `${curr} / ${total}`;
+}
+
+function downloadCurrentImg() {
+  const scroller = document.getElementById("lbScroller");
+  const idx = Math.round(Math.abs(scroller.scrollLeft) / scroller.clientWidth);
+  const imgs = scroller.querySelectorAll(".lb-img");
+  const img = imgs[idx];
+  if(!img) return;
+  const a = document.createElement("a");
+  a.href = img.src;
+  a.download = "samsarny-image.jpg";
+  a.target = "_blank";
+  a.click();
 }
 
 function closeLB() {
