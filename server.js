@@ -32,6 +32,40 @@ function initFirebase() {
 }
 function getDb() { if (!db) initFirebase(); return db; }
 
+// ===== FCM TOKENS =====
+// بنحفظ tokens الأدمن والعملاء في Firebase
+const TOKEN_REF = 'fcm_tokens';
+
+async function saveToken(token, role = 'user') {
+  try {
+    await getDb().ref(TOKEN_REF + '/' + Buffer.from(token).toString('base64').slice(0,20)).set({
+      token, role, time: Date.now()
+    });
+  } catch(e) { console.error('saveToken error:', e); }
+}
+
+async function getTokensByRole(role) {
+  try {
+    const snap = await getDb().ref(TOKEN_REF).once('value');
+    const data = snap.val() || {};
+    return Object.values(data).filter(t => t.role === role).map(t => t.token);
+  } catch(e) { return []; }
+}
+
+async function sendNotification(tokens, title, body) {
+  if (!tokens || tokens.length === 0) return;
+  const messaging = admin.messaging();
+  const results = await Promise.allSettled(
+    tokens.map(token =>
+      messaging.send({ token, notification: { title, body }, webpush: { notification: { icon: '/logo.png', badge: '/logo.png' } } })
+    )
+  );
+  const ok = results.filter(r => r.status === 'fulfilled').length;
+  console.log(`📨 FCM: ${ok}/${tokens.length} sent`);
+}
+
+
+
 // ===== JWT AUTH =====
 const JWT_SECRET = process.env.JWT_SECRET || 'samsarny_secret';
 
@@ -239,6 +273,15 @@ const generalLimit = rateLimit({ windowMs: 15*60*1000, max: 200, message: { erro
 const submitLimit  = rateLimit({ windowMs: 60*60*1000, max: 10,  message: { error: 'بعت كتير أوي، انتظر ساعة' } });
 app.use(generalLimit);
 
+
+// ===== FCM TOKEN ROUTES =====
+app.post('/api/fcm/token', async (req, res) => {
+  const { token, role } = req.body;
+  if (!token) return res.status(400).json({ error: 'token مطلوب' });
+  await saveToken(token, role || 'user');
+  return res.json({ success: true });
+});
+
 // ===== AUTH ROUTES =====
 app.post('/api/auth/login', async (req, res) => {
   const { password } = req.body;
@@ -266,7 +309,24 @@ app.get('/api/auth/logs', requireAdmin, (req, res) => {
 // ===== PROPERTIES ROUTES =====
 app.get('/api/properties', async (req, res) => {
   try {
-    const items = await propSvc.getApproved();
+    let items = await propSvc.getApproved();
+
+    // ===== SERVER-SIDE FILTERING =====
+    const { purpose, mode, status, area, q } = req.query;
+
+    if (purpose) items = items.filter(i => i.purpose === purpose);
+    if (mode)    items = items.filter(i => i.mode === mode);
+    if (status)  items = items.filter(i => (i.status || 'available') === status);
+    if (area)    items = items.filter(i => (i.area || '').includes(area));
+    if (q) {
+      const ql = q.toLowerCase();
+      items = items.filter(i =>
+        (i.title || '').toLowerCase().includes(ql) ||
+        (i.area  || '').toLowerCase().includes(ql) ||
+        (i.type  || '').toLowerCase().includes(ql)
+      );
+    }
+
     return res.json({ success: true, data: items, count: items.length });
   } catch(e) { return res.status(500).json({ error: 'خطأ في جلب البيانات' }); }
 });
@@ -290,7 +350,18 @@ app.post('/api/properties', submitLimit, validateProperty, async (req, res) => {
   try {
     const item = await propSvc.create(req.body, req.isAdmin || false);
     const msg = req.isAdmin ? 'تم نشر الإعلان مباشرةً' : 'تم استلام الإعلان وهيتراجع قبل النشر';
-    if (req.isAdmin) logAction('CREATE_PROPERTY', item.title);
+    if (req.isAdmin) {
+      logAction('CREATE_PROPERTY', item.title);
+      // إشعار للعملاء لما الأدمن ينشر عقار جديد
+      getTokensByRole('user').then(tokens =>
+        sendNotification(tokens, '🏠 عقار جديد على سمسرني!', item.title + ' - ' + (item.area || ''))
+      ).catch(()=>{});
+    } else {
+      // إشعار للأدمن لما العميل يطلب إضافة
+      getTokensByRole('admin').then(tokens =>
+        sendNotification(tokens, '📋 طلب إضافة جديد!', 'طلب جديد: ' + item.title)
+      ).catch(()=>{});
+    }
     return res.status(201).json({ success: true, data: item, message: msg });
   } catch(e) { return res.status(500).json({ error: 'خطأ في حفظ البيانات' }); }
 });
@@ -336,7 +407,14 @@ app.post('/api/workers', submitLimit, validateWorker, async (req, res) => {
   try {
     const item = await workerSvc.create(req.body, req.isAdmin || false);
     const msg = req.isAdmin ? 'تم إضافة الصنايعي مباشرةً' : 'تم استلام البيانات وهيتراجع قبل النشر';
-    if (req.isAdmin) logAction('CREATE_WORKER', item.name);
+    if (req.isAdmin) {
+      logAction('CREATE_WORKER', item.name);
+    } else {
+      // إشعار للأدمن لما العميل يسجل صنايعي
+      getTokensByRole('admin').then(tokens =>
+        sendNotification(tokens, '🔧 طلب تسجيل صنايعي!', 'طلب جديد: ' + item.name + ' - ' + (item.specialty || ''))
+      ).catch(()=>{});
+    }
     return res.status(201).json({ success: true, data: item, message: msg });
   } catch(e) { return res.status(500).json({ error: 'خطأ في الحفظ' }); }
 });
