@@ -731,32 +731,61 @@ select.finput option{background:var(--dark2);}
 
 
 <!-- ADD MENU for public -->
-<div id="addMenu" style="
+<style>
+.add-menu-wrap {
   position:fixed;bottom:calc(90px + var(--safe-bottom));left:16px;
-  display:none;flex-direction:column;gap:10px;z-index:700;
-">
-  <button onclick="closeAddMenu();openForm(null,'offer')" style="
-    background:linear-gradient(135deg,var(--gold),var(--gold-light));
-    color:#000;border:none;padding:12px 20px;border-radius:14px;
-    font-family:'Cairo';font-size:0.9rem;font-weight:800;cursor:pointer;
-    box-shadow:0 6px 20px rgba(201,168,76,0.4);white-space:nowrap;
-  ">🏠 أضف عقارك للبيع أو الإيجار</button>
-  <button onclick="closeAddMenu();openForm(null,'request')" style="
-    background:linear-gradient(135deg,#8b5cf6,#a78bfa);
-    color:#fff;border:none;padding:12px 20px;border-radius:14px;
-    font-family:'Cairo';font-size:0.9rem;font-weight:800;cursor:pointer;
-    box-shadow:0 6px 20px rgba(139,92,246,0.4);white-space:nowrap;
-  ">🔍 أضف طلب عقار مطلوب</button>
-  <button onclick="closeAddMenu();openWorkerForm()" style="
-    background:linear-gradient(135deg,#3b82f6,#60a5fa);
-    color:#fff;border:none;padding:12px 20px;border-radius:14px;
-    font-family:'Cairo';font-size:0.9rem;font-weight:800;cursor:pointer;
-    box-shadow:0 6px 20px rgba(59,130,246,0.4);white-space:nowrap;
-  ">🔧 سجّل كصنايعي</button>
-</div>
-<div id="addMenuOverlay" onclick="closeAddMenu()" style="
+  display:flex;flex-direction:column;gap:10px;z-index:700;
+  pointer-events:none;
+}
+.add-menu-btn {
+  display:flex;align-items:center;gap:10px;
+  border:none;padding:13px 18px;border-radius:16px;
+  font-family:'Cairo';font-size:0.88rem;font-weight:800;cursor:pointer;
+  white-space:nowrap;pointer-events:all;
+  transform:translateX(-120%) scale(0.85);
+  opacity:0;
+  transition:transform 0.32s cubic-bezier(0.34,1.56,0.64,1), opacity 0.22s ease, filter 0.2s;
+  box-shadow:0 6px 22px rgba(0,0,0,0.35);
+}
+.add-menu-btn:hover { filter:brightness(1.12); transform:translateX(0) scale(1.04) !important; }
+.add-menu-wrap.open .add-menu-btn { transform:translateX(0) scale(1); opacity:1; }
+.add-menu-wrap.open .add-menu-btn:nth-child(1) { transition-delay:0.02s; }
+.add-menu-wrap.open .add-menu-btn:nth-child(2) { transition-delay:0.09s; }
+.add-menu-wrap.open .add-menu-btn:nth-child(3) { transition-delay:0.16s; }
+.add-menu-label {
+  font-size:0.86rem;font-weight:800;flex:1;text-align:right;
+}
+.add-menu-icon {
+  width:32px;height:32px;border-radius:9px;background:rgba(0,0,0,0.18);
+  display:flex;align-items:center;justify-content:center;font-size:1rem;flex-shrink:0;
+}
+#addMenuOverlay {
   display:none;position:fixed;inset:0;z-index:699;
-"></div>
+  background:rgba(0,0,0,0.45);backdrop-filter:blur(3px);
+  animation:fadeIn 0.18s ease;
+}
+@keyframes fadeIn{from{opacity:0}to{opacity:1}}
+.fab.is-open { transform:rotate(45deg) scale(1.08); }
+</style>
+
+<div class="add-menu-wrap" id="addMenu">
+  <button class="add-menu-btn" style="background:linear-gradient(135deg,var(--gold),var(--gold-light));color:#000;box-shadow:0 6px 22px rgba(201,168,76,0.45);"
+    onclick="closeAddMenu();openForm(null,'offer')">
+    <span class="add-menu-icon">🏠</span>
+    <span class="add-menu-label">أضف عقار للبيع / إيجار</span>
+  </button>
+  <button class="add-menu-btn" style="background:linear-gradient(135deg,#8b5cf6,#a78bfa);color:#fff;box-shadow:0 6px 22px rgba(139,92,246,0.45);"
+    onclick="closeAddMenu();openForm(null,'request')">
+    <span class="add-menu-icon">🔍</span>
+    <span class="add-menu-label">أضف طلب عقار مطلوب</span>
+  </button>
+  <button class="add-menu-btn" style="background:linear-gradient(135deg,#1d4ed8,#3b82f6);color:#fff;box-shadow:0 6px 22px rgba(59,130,246,0.45);"
+    onclick="closeAddMenu();openWorkerForm()">
+    <span class="add-menu-icon">🔧</span>
+    <span class="add-menu-label">سجّل كصنايعي</span>
+  </button>
+</div>
+<div id="addMenuOverlay" onclick="closeAddMenu()"></div>
 
 <!-- ====== PENDING REQUESTS (ADMIN ONLY) ====== -->
 <div id="pendingSection" style="display:none;padding:0 18px 16px;">
@@ -1108,6 +1137,142 @@ select.finput option{background:var(--dark2);}
 
 <!-- TOAST -->
 <div class="toast" id="toast"><span id="toastIcon">✅</span><span id="toastMsg">تم</span></div>
+
+<!-- ====== SUCCESS MODAL (طلبك قيد المراجعة) ====== -->
+<style>
+#successModal {
+  position:fixed;inset:0;background:rgba(0,0,0,0.88);
+  backdrop-filter:blur(8px);z-index:9500;
+  display:none;align-items:center;justify-content:center;padding:20px;
+}
+#successModal.open { display:flex; }
+.success-modal-box {
+  background:var(--dark2);border-radius:24px;
+  border:1px solid rgba(201,168,76,0.2);
+  padding:32px 26px;max-width:380px;width:100%;
+  text-align:center;animation:slideUp 0.32s cubic-bezier(0.34,1.56,0.64,1);
+}
+.success-icon-wrap {
+  width:72px;height:72px;border-radius:50%;margin:0 auto 16px;
+  background:linear-gradient(135deg,rgba(37,211,102,0.15),rgba(37,211,102,0.05));
+  border:2px solid rgba(37,211,102,0.35);
+  display:flex;align-items:center;justify-content:center;
+  font-size:2.2rem;
+  animation:popIn 0.5s 0.1s cubic-bezier(0.34,1.56,0.64,1) both;
+}
+@keyframes popIn{from{transform:scale(0.4);opacity:0}to{transform:scale(1);opacity:1}}
+.success-title {
+  font-family:'Tajawal',sans-serif;font-weight:900;font-size:1.3rem;
+  color:#25D366;margin-bottom:10px;
+}
+.success-body {
+  color:var(--muted);font-size:0.88rem;line-height:1.7;margin-bottom:22px;
+}
+.success-steps {
+  background:var(--dark3);border-radius:14px;padding:16px;
+  margin-bottom:22px;text-align:right;
+}
+.success-step {
+  display:flex;align-items:flex-start;gap:10px;margin-bottom:10px;font-size:0.84rem;
+}
+.success-step:last-child { margin-bottom:0; }
+.step-num {
+  width:22px;height:22px;border-radius:50%;flex-shrink:0;
+  background:linear-gradient(135deg,var(--gold),var(--gold-light));
+  color:#000;font-size:0.72rem;font-weight:900;
+  display:flex;align-items:center;justify-content:center;margin-top:1px;
+}
+.step-text { color:var(--text);line-height:1.4; }
+.success-close-btn {
+  width:100%;padding:14px;border-radius:13px;
+  background:linear-gradient(135deg,var(--gold),var(--gold-light));
+  color:#000;font-family:'Cairo';font-weight:900;font-size:0.95rem;
+  border:none;cursor:pointer;transition:all 0.2s;
+}
+.success-close-btn:hover { transform:translateY(-2px);box-shadow:0 8px 24px rgba(201,168,76,0.35); }
+
+/* ====== PENDING DETAIL MODAL (للأدمن) ====== */
+#pendingDetailModal {
+  position:fixed;inset:0;background:rgba(0,0,0,0.9);
+  backdrop-filter:blur(8px);z-index:9000;
+  display:none;align-items:center;justify-content:center;padding:16px;
+}
+#pendingDetailModal.open { display:flex; }
+.pending-detail-box {
+  background:var(--dark2);border-radius:22px;
+  border:1px solid rgba(201,168,76,0.2);
+  width:100%;max-width:480px;max-height:90vh;overflow-y:auto;
+  animation:slideUp 0.28s ease;
+}
+.pending-detail-imgs {
+  height:220px;background:#111;overflow:hidden;position:relative;border-radius:22px 22px 0 0;
+}
+.pending-detail-img-slider {
+  display:flex;height:100%;overflow-x:auto;scroll-snap-type:x mandatory;scrollbar-width:none;
+}
+.pending-detail-img-slider::-webkit-scrollbar { display:none; }
+.pending-detail-img-slide {
+  flex:0 0 100%;height:100%;scroll-snap-align:start;object-fit:cover;
+}
+.pending-detail-no-img {
+  width:100%;height:100%;display:flex;flex-direction:column;
+  align-items:center;justify-content:center;color:var(--muted);font-size:3rem;
+}
+.pending-detail-body { padding:20px; }
+.pd-label { font-size:0.75rem;color:var(--muted);font-weight:700;margin-bottom:3px; }
+.pd-value { font-size:0.92rem;font-weight:700;margin-bottom:12px; }
+.pd-divider { height:1px;background:rgba(255,255,255,0.06);margin:12px 0; }
+.pd-actions { display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:16px; }
+.pd-approve { background:rgba(37,211,102,0.15);color:#25D366;border:1.5px solid rgba(37,211,102,0.35);
+  padding:13px;border-radius:12px;font-family:'Cairo';font-size:0.9rem;font-weight:800;cursor:pointer;transition:all 0.2s; }
+.pd-reject  { background:rgba(224,64,64,0.12);color:var(--red);border:1.5px solid rgba(224,64,64,0.25);
+  padding:13px;border-radius:12px;font-family:'Cairo';font-size:0.9rem;font-weight:800;cursor:pointer;transition:all 0.2s; }
+.pd-approve:hover { background:rgba(37,211,102,0.25); }
+.pd-reject:hover  { background:rgba(224,64,64,0.22); }
+.pd-close { background:none;border:none;color:var(--muted);font-size:1.4rem;cursor:pointer;float:left; }
+</style>
+
+<!-- Success modal -->
+<div id="successModal">
+  <div class="success-modal-box">
+    <div class="success-icon-wrap">✅</div>
+    <div class="success-title" id="successTitle">تم استلام طلبك!</div>
+    <div class="success-body" id="successBody">شكراً، طلبك وصلنا وهيتراجع من المسؤول قبل النشر.</div>
+    <div class="success-steps">
+      <div class="success-step">
+        <div class="step-num">1</div>
+        <div class="step-text">وصلنا طلبك وبنراجعه دلوقتي</div>
+      </div>
+      <div class="success-step">
+        <div class="step-num">2</div>
+        <div class="step-text">هينشر على الموقع في أقرب وقت</div>
+      </div>
+      <div class="success-step">
+        <div class="step-num">3</div>
+        <div class="step-text">لو فعّلت الإشعارات، هيجيلك تأكيد</div>
+      </div>
+    </div>
+    <button class="success-close-btn" onclick="closeSuccessModal()">👍 تمام</button>
+  </div>
+</div>
+
+<!-- Pending detail modal (admin) -->
+<div id="pendingDetailModal">
+  <div class="pending-detail-box">
+    <div class="pending-detail-imgs" id="pdImgs"></div>
+    <div class="pending-detail-body">
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:16px;">
+        <div style="font-family:'Tajawal';font-weight:900;font-size:1.1rem;" id="pdTitle">تفاصيل الطلب</div>
+        <button class="pd-close" onclick="closePendingDetail()">✕</button>
+      </div>
+      <div id="pdContent"></div>
+      <div class="pd-actions">
+        <button class="pd-approve" id="pdApproveBtn">✅ موافقة ونشر</button>
+        <button class="pd-reject"  id="pdRejectBtn">❌ رفض</button>
+      </div>
+    </div>
+  </div>
+</div>
 
 <script>
 // ===================== API CONFIG =====================
@@ -1546,13 +1711,22 @@ function onModeChange() {
 function openAddMenu() {
   const menu = document.getElementById('addMenu');
   const overlay = document.getElementById('addMenuOverlay');
-  const isOpen = menu.style.display === 'flex';
-  menu.style.display = isOpen ? 'none' : 'flex';
-  overlay.style.display = isOpen ? 'none' : 'block';
+  const fab = document.getElementById('fab');
+  const isOpen = menu.classList.contains('open');
+  if(isOpen) {
+    menu.classList.remove('open');
+    overlay.style.display = 'none';
+    fab.classList.remove('is-open');
+  } else {
+    menu.classList.add('open');
+    overlay.style.display = 'block';
+    fab.classList.add('is-open');
+  }
 }
 function closeAddMenu() {
-  document.getElementById('addMenu').style.display = 'none';
+  document.getElementById('addMenu').classList.remove('open');
   document.getElementById('addMenuOverlay').style.display = 'none';
+  document.getElementById('fab').classList.remove('is-open');
 }
 
 function openForm(id = null, mode = null) {
@@ -1724,8 +1898,11 @@ async function saveData() {
       toast('✅', 'تم تعديل الإعلان!');
     } else {
       const res = await apiCall('POST', '/properties', data);
-      const msg = isAdmin ? 'تم نشر الإعلان!' : 'تم استلام إعلانك وهيتراجع قبل النشر 👍';
-      toast('✅', msg);
+      if(isAdmin) {
+        toast('✅', 'تم نشر الإعلان!');
+      } else {
+        showSuccessModal('طلبك قيد المراجعة ✅', 'شكراً، وصلنا طلبك وهيتراجع من المسؤول قبل النشر على الموقع.');
+      }
     }
     await fetchProperties();
     closeForm();
@@ -1830,10 +2007,11 @@ async function fetchPending() {
     section.style.display = 'block';
     countEl.textContent = all.length;
     list.innerHTML = all.map(itm => `
-      <div style="
+      <div onclick="openPendingDetail('${itm.id}','${itm._type}')" style="
         border:1px solid rgba(255,255,255,0.07);border-radius:12px;
-        padding:12px;margin-bottom:10px;background:var(--card);
-      ">
+        padding:12px;margin-bottom:10px;background:var(--card);cursor:pointer;
+        transition:border-color 0.2s;
+      " onmouseover="this.style.borderColor='rgba(201,168,76,0.3)'" onmouseout="this.style.borderColor='rgba(255,255,255,0.07)'">
         <div style="display:flex;justify-content:space-between;align-items:flex-start;gap:8px;margin-bottom:10px;">
           <div style="flex:1;">
             <div style="font-weight:800;font-size:0.9rem;margin-bottom:4px;">
@@ -1845,8 +2023,9 @@ async function fetchPending() {
               ${itm.phone ? ' • ' + itm.phone : ''}
             </div>
           </div>
+          <span style="font-size:0.72rem;color:var(--gold);background:rgba(201,168,76,0.1);padding:3px 8px;border-radius:8px;flex-shrink:0;">تفاصيل ›</span>
         </div>
-        <div style="display:flex;gap:8px;">
+        <div style="display:flex;gap:8px;" onclick="event.stopPropagation()">
           <button onclick="approvePending('${itm.id}','${itm._type}','approved')" style="
             flex:1;background:rgba(37,211,102,0.15);color:#25D366;
             border:1px solid rgba(37,211,102,0.3);padding:9px;border-radius:10px;
@@ -1894,8 +2073,92 @@ function hideAdminUI() {
   closeAdminPanel();
 }
 
-// ===================== TOAST =====================
-let toastTimer;
+// ===================== SUCCESS MODAL =====================
+function showSuccessModal(title, body) {
+  document.getElementById('successTitle').textContent = title;
+  document.getElementById('successBody').textContent = body;
+  document.getElementById('successModal').classList.add('open');
+  document.body.style.overflow = 'hidden';
+}
+function closeSuccessModal() {
+  document.getElementById('successModal').classList.remove('open');
+  document.body.style.overflow = '';
+}
+document.getElementById('successModal').addEventListener('click', function(e){
+  if(e.target === this) closeSuccessModal();
+});
+
+// ===================== PENDING DETAIL MODAL =====================
+let _pdCurrent = null; // {id, type}
+
+function openPendingDetail(id, type) {
+  // Find item in pending list
+  _pdCurrent = {id, type};
+  // Fetch from server to get full data including images
+  apiCall('GET', (type === 'worker' ? '/workers/' : '/properties/') + id)
+    .then(res => {
+      const itm = res.data;
+      // Images
+      const imgs = itm.media || [];
+      const pdImgs = document.getElementById('pdImgs');
+      if(imgs.length) {
+        pdImgs.innerHTML = `<div class="pending-detail-img-slider">${
+          imgs.map(m => `<img class="pending-detail-img-slide" src="${m.src||m.url||''}" loading="lazy">`)
+          .join('')
+        }</div><div class="img-counter" style="position:absolute;bottom:10px;right:12px;">1 / ${imgs.length}</div>`;
+      } else {
+        pdImgs.innerHTML = `<div class="pending-detail-no-img">
+          ${type==='worker'?'🔧':'🏠'}
+          <span style="font-size:0.78rem;margin-top:8px;font-family:'Cairo';color:var(--muted)">لا يوجد صور</span>
+        </div>`;
+      }
+
+      document.getElementById('pdTitle').textContent = itm.title || itm.name || 'بدون عنوان';
+      const phone = itm.phone || '';
+      const waNum = phone.replace(/\D/g,'');
+      const wa = waNum.startsWith('0') ? '2'+waNum : '20'+waNum;
+
+      let rows = '';
+      if(type === 'worker') {
+        rows = `
+          <div class="pd-label">الاسم</div><div class="pd-value">${itm.name||'-'}</div>
+          <div class="pd-label">التخصص</div><div class="pd-value">${itm.specialty||'-'}</div>
+          ${itm.exp ? `<div class="pd-label">الخبرة</div><div class="pd-value">${itm.exp} سنوات</div>` : ''}
+        `;
+      } else {
+        rows = `
+          <div class="pd-label">الغرض</div><div class="pd-value">${itm.purpose||'-'} — ${itm.type||''}</div>
+          ${itm.price>0 ? `<div class="pd-label">السعر</div><div class="pd-value">${Number(itm.price).toLocaleString()} ج.م</div>` : ''}
+        `;
+      }
+      rows += `
+        <div class="pd-label">المنطقة</div><div class="pd-value">${itm.area||'-'}</div>
+        <div class="pd-label">الموبايل</div>
+        <div class="pd-value" style="display:flex;gap:8px;align-items:center;">
+          ${phone}
+          <a href="tel:${phone}" style="background:rgba(201,168,76,0.12);color:var(--gold);padding:3px 10px;border-radius:8px;font-size:0.78rem;text-decoration:none;border:1px solid rgba(201,168,76,0.25);">📞 اتصال</a>
+          <a href="https://wa.me/${wa}" target="_blank" style="background:rgba(37,211,102,0.1);color:#25D366;padding:3px 10px;border-radius:8px;font-size:0.78rem;text-decoration:none;border:1px solid rgba(37,211,102,0.2);">واتساب</a>
+        </div>
+      `;
+      if(itm.desc) rows += `<div class="pd-divider"></div><div class="pd-label">الوصف</div><div class="pd-value" style="color:var(--muted);font-size:0.85rem;line-height:1.5;font-weight:500;">${itm.desc}</div>`;
+
+      document.getElementById('pdContent').innerHTML = rows;
+      document.getElementById('pdApproveBtn').onclick = () => { approvePending(id, type, 'approved'); closePendingDetail(); };
+      document.getElementById('pdRejectBtn').onclick  = () => { approvePending(id, type, 'rejected');  closePendingDetail(); };
+
+      document.getElementById('pendingDetailModal').classList.add('open');
+      document.body.style.overflow = 'hidden';
+    })
+    .catch(() => toast('❌','تعذّر تحميل التفاصيل'));
+}
+
+function closePendingDetail() {
+  document.getElementById('pendingDetailModal').classList.remove('open');
+  document.body.style.overflow = '';
+}
+document.getElementById('pendingDetailModal').addEventListener('click', function(e){
+  if(e.target === this) closePendingDetail();
+});
 function toast(icon, msg) {
   document.getElementById('toastIcon').textContent = icon;
   document.getElementById('toastMsg').textContent  = msg;
@@ -2095,8 +2358,11 @@ async function saveWorker() {
       toast('✅', 'تم تعديل بيانات الصنايعي!');
     } else {
       await apiCall('POST', '/workers', data);
-      const msg = isAdmin ? 'تم إضافة الصنايعي!' : 'تم استلام البيانات وهيتراجع قبل النشر 👍';
-      toast('✅', msg);
+      if(isAdmin) {
+        toast('✅', 'تم إضافة الصنايعي!');
+      } else {
+        showSuccessModal('طلبك قيد المراجعة ✅', 'شكراً، بياناتك وصلتنا وهيتم مراجعتها ونشرك في أقرب وقت.');
+      }
     }
     await fetchWorkers();
     closeWorkerForm();

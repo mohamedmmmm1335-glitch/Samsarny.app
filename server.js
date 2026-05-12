@@ -53,7 +53,10 @@ async function getTokensByRole(role) {
 }
 
 async function sendNotification(tokens, title, body) {
-  if (!tokens || tokens.length === 0) return;
+  if (!tokens || tokens.length === 0) {
+    console.log('📨 FCM: no tokens to send to');
+    return;
+  }
   const messaging = admin.messaging();
   const results = await Promise.allSettled(
     tokens.map(token =>
@@ -61,7 +64,11 @@ async function sendNotification(tokens, title, body) {
     )
   );
   const ok = results.filter(r => r.status === 'fulfilled').length;
+  const failed = results.filter(r => r.status === 'rejected');
   console.log(`📨 FCM: ${ok}/${tokens.length} sent`);
+  if (failed.length > 0) {
+    failed.forEach(f => console.error('FCM error:', f.reason?.message || f.reason));
+  }
 }
 
 
@@ -265,6 +272,9 @@ const workerSvc = {
 const app = express();
 initFirebase();
 
+// Railway بيستخدم reverse proxy، لازم نعمل trust proxy
+app.set('trust proxy', 1);
+
 app.use(cors({ origin: '*', methods: ['GET','POST','PUT','DELETE'], allowedHeaders: ['Content-Type','Authorization'] }));
 app.use(express.json({ limit: '15mb' }));
 app.use(morgan('dev'));
@@ -409,6 +419,10 @@ app.post('/api/workers', submitLimit, validateWorker, async (req, res) => {
     const msg = req.isAdmin ? 'تم إضافة الصنايعي مباشرةً' : 'تم استلام البيانات وهيتراجع قبل النشر';
     if (req.isAdmin) {
       logAction('CREATE_WORKER', item.name);
+      // إشعار للعملاء لما الأدمن ينشر صنايعي جديد
+      getTokensByRole('user').then(tokens =>
+        sendNotification(tokens, '🔧 صنايعي جديد على سمسرني!', item.name + ' - ' + (item.specialty || '') + (item.area ? ' - ' + item.area : ''))
+      ).catch(()=>{});
     } else {
       // إشعار للأدمن لما العميل يسجل صنايعي
       getTokensByRole('admin').then(tokens =>
