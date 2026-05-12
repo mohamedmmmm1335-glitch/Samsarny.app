@@ -1609,6 +1609,12 @@ function clearFormFields() {
 // ===================== MEDIA =====================
 async function handleFiles(input) {
   const MAX_SIZE = 800; // px - resize to save storage
+  const maxPhotos = isAdmin ? 10 : 3;
+  if(tempMedia.length >= maxPhotos) {
+    toast('⚠️', `الحد الأقصى ${maxPhotos} صور بس`);
+    input.value = '';
+    return;
+  }
   for(const file of input.files) {
     const resized = await resizeImage(file, MAX_SIZE);
     tempMedia.push({ src: resized, uploaded: false });
