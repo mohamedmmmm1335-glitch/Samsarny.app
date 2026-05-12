@@ -32,21 +32,38 @@ function initFirebase() {
 }
 function getDb() { if (!db) initFirebase(); return db; }
 
-// ===== SESSION / AUTH MIDDLEWARE =====
-const sessions = new Set();
-function createSession() {
-  const token = crypto.randomBytes(32).toString('hex');
-  sessions.add(token);
-  return token;
+// ===== JWT AUTH =====
+const JWT_SECRET = process.env.JWT_SECRET || 'samsarny_secret';
+
+function createToken() {
+  // Simple JWT-like token: base64(header).base64(payload).signature
+  const payload = { admin: true, iat: Date.now() };
+  const data = Buffer.from(JSON.stringify(payload)).toString('base64');
+  const sig = require('crypto').createHmac('sha256', JWT_SECRET).update(data).digest('hex');
+  return data + '.' + sig;
 }
-function destroySession(token) { sessions.delete(token); }
+
+function verifyToken(token) {
+  try {
+    const [data, sig] = token.split('.');
+    const expected = require('crypto').createHmac('sha256', JWT_SECRET).update(data).digest('hex');
+    if (sig !== expected) return false;
+    const payload = JSON.parse(Buffer.from(data, 'base64').toString());
+    // Token valid for 30 days
+    if (Date.now() - payload.iat > 30 * 24 * 60 * 60 * 1000) return false;
+    return payload.admin === true;
+  } catch(e) { return false; }
+}
+
+function destroySession(token) {} // JWT is stateless, nothing to destroy
+
 function requireAdmin(req, res, next) {
   const authHeader = req.headers['authorization'];
   if (!authHeader || !authHeader.startsWith('Bearer ')) {
     return res.status(401).json({ error: 'محتاج تسجل دخول' });
   }
   const token = authHeader.split(' ')[1];
-  if (!sessions.has(token)) {
+  if (!verifyToken(token)) {
     return res.status(401).json({ error: 'التوكن غلط أو انتهت صلاحيته' });
   }
   req.isAdmin = true;
@@ -230,7 +247,7 @@ app.post('/api/auth/login', async (req, res) => {
     logAction('LOGIN_FAILED', 'wrong password');
     return res.status(401).json({ error: 'كلمة السر غلط!' });
   }
-  const token = createSession();
+  const token = createToken();
   logAction('LOGIN_SUCCESS', 'admin logged in');
   return res.json({ success: true, token, message: 'أهلاً يا مسؤول!' });
 });
