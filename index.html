@@ -762,6 +762,29 @@ select.finput option{background:var(--dark2);}
 <div id="addMenuOverlay" onclick="closeAddMenu()" style="
   display:none;position:fixed;inset:0;z-index:699;
 "></div>
+
+<!-- ====== PENDING REQUESTS (ADMIN ONLY) ====== -->
+<div id="pendingSection" style="display:none;padding:0 18px 16px;">
+  <div style="
+    background:var(--dark3);border:1px solid rgba(201,168,76,0.2);
+    border-radius:16px;padding:16px;
+  ">
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:14px;">
+      <div style="font-family:'Tajawal';font-weight:800;font-size:1.05rem;">
+        📋 طلبات الإضافة المعلقة
+      </div>
+      <span id="pendingCount" style="
+        background:var(--red);color:#fff;padding:3px 10px;
+        border-radius:20px;font-size:0.78rem;font-weight:800;
+      ">0</span>
+    </div>
+    <div id="pendingList">
+      <div style="color:var(--muted);font-size:0.85rem;text-align:center;padding:12px;">
+        مفيش طلبات معلقة
+      </div>
+    </div>
+  </div>
+</div>
 <!-- GEAR ADMIN BUTTON -->
 <button class="gear-fab" id="gearFab" onclick="toggleAdminPanel()">⚙️</button>
 <div class="admin-panel" id="adminPanel">
@@ -978,7 +1001,7 @@ select.finput option{background:var(--dark2);}
       <textarea class="finput" id="m_desc" rows="3" placeholder="تفاصيل إضافية..." style="resize:vertical"></textarea>
     </div>
 
-    <div class="featured-row">
+    <div class="featured-row" id="adminOnlyFeatured" style="display:none">
       <label class="toggle">
         <input type="checkbox" id="m_featured">
         <div class="toggle-slider"></div>
@@ -989,7 +1012,7 @@ select.finput option{background:var(--dark2);}
       </div>
     </div>
 
-    <div class="toggle-row">
+    <div class="toggle-row" id="adminOnlyVerify" style="display:none">
       <label class="toggle">
         <input type="checkbox" id="m_verify">
         <div class="toggle-slider"></div>
@@ -1050,7 +1073,7 @@ select.finput option{background:var(--dark2);}
       <textarea class="finput" id="w_desc" rows="3" placeholder="مثال: بيعمل كل أشغال النجارة من مطابخ وأبواب وأثاث..." style="resize:vertical"></textarea>
     </div>
 
-    <div class="featured-row">
+    <div class="featured-row" id="adminOnlyWFeatured" style="display:none">
       <label class="toggle">
         <input type="checkbox" id="w_featured">
         <div class="toggle-slider"></div>
@@ -1061,7 +1084,7 @@ select.finput option{background:var(--dark2);}
       </div>
     </div>
 
-    <div class="toggle-row">
+    <div class="toggle-row" id="adminOnlyWVerify" style="display:none">
       <label class="toggle">
         <input type="checkbox" id="w_verify">
         <div class="toggle-slider"></div>
@@ -1529,6 +1552,21 @@ function closeAddMenu() {
 
 function openForm(id = null, mode = null) {
   clearFormFields();
+  // إظهار/إخفاء حقول الأدمن
+  ['adminOnlyFeatured','adminOnlyVerify'].forEach(el => {
+    const e = document.getElementById(el);
+    if(e) e.style.display = isAdmin ? 'flex' : 'none';
+  });
+  // ضبط mode لو محدد
+  if(mode && !id) {
+    document.getElementById('m_mode').value = mode;
+    if(mode === 'request') {
+      document.getElementById('formTitle').textContent = '🔍 إضافة طلب عقار مطلوب';
+    } else {
+      document.getElementById('formTitle').textContent = '🏠 إضافة عقار للبيع أو الإيجار';
+    }
+    onModeChange();
+  }
   if(id && store[id]) {
     const itm = store[id];
     document.getElementById('editId').value   = id;
@@ -1561,11 +1599,6 @@ function closeForm() {
 function clearFormFields() {
   document.getElementById('editId').value = '';
   document.getElementById('formTitle').textContent = '📋 إضافة إعلان جديد';
-  if(mode === 'request') {
-    const purposeEl = document.getElementById('f_purpose');
-    if(purposeEl) purposeEl.value = 'مطلوب';
-    document.getElementById('formTitle').textContent = '🔍 إضافة طلب عقار مطلوب';
-  }
   ['m_title','m_price','m_area','m_phone','m_desc'].forEach(id => document.getElementById(id).value = '');
   document.getElementById('m_mode').value = 'offer';
   document.getElementById('m_purpose').value = 'بيع';
@@ -1756,14 +1789,97 @@ async function checkPass() {
   btn.disabled = false;
 }
 
+
+// ===================== PENDING (ADMIN) =====================
+async function fetchPending() {
+  if(!isAdmin) return;
+  try {
+    const [propRes, workerRes] = await Promise.all([
+      apiCall('GET', '/properties/admin/pending'),
+      apiCall('GET', '/workers/admin/pending'),
+    ]);
+    const props = propRes.data || [];
+    const workers = workerRes.data || [];
+    const all = [
+      ...props.map(p => ({...p, _type:'property'})),
+      ...workers.map(w => ({...w, _type:'worker'})),
+    ].sort((a,b) => (b.time||0) - (a.time||0));
+
+    const section = document.getElementById('pendingSection');
+    const countEl = document.getElementById('pendingCount');
+    const list = document.getElementById('pendingList');
+
+    if(!all.length) {
+      section.style.display = 'block';
+      countEl.textContent = '0';
+      list.innerHTML = '<div style="color:var(--muted);font-size:0.85rem;text-align:center;padding:12px;">مفيش طلبات معلقة ✅</div>';
+      return;
+    }
+
+    section.style.display = 'block';
+    countEl.textContent = all.length;
+    list.innerHTML = all.map(itm => `
+      <div style="
+        border:1px solid rgba(255,255,255,0.07);border-radius:12px;
+        padding:12px;margin-bottom:10px;background:var(--card);
+      ">
+        <div style="display:flex;justify-content:space-between;align-items:flex-start;gap:8px;margin-bottom:10px;">
+          <div style="flex:1;">
+            <div style="font-weight:800;font-size:0.9rem;margin-bottom:4px;">
+              ${itm._type==='worker' ? '🔧' : '🏠'} ${itm.title||itm.name||'بدون عنوان'}
+            </div>
+            <div style="font-size:0.75rem;color:var(--muted);">
+              ${itm._type==='worker' ? (itm.specialty||'') : (itm.purpose||'')}
+              ${itm.area ? ' • ' + itm.area : ''}
+              ${itm.phone ? ' • ' + itm.phone : ''}
+            </div>
+          </div>
+        </div>
+        <div style="display:flex;gap:8px;">
+          <button onclick="approvePending('${itm.id}','${itm._type}','approved')" style="
+            flex:1;background:rgba(37,211,102,0.15);color:#25D366;
+            border:1px solid rgba(37,211,102,0.3);padding:9px;border-radius:10px;
+            font-family:'Cairo';font-size:0.82rem;font-weight:800;cursor:pointer;
+          ">✅ موافقة</button>
+          <button onclick="approvePending('${itm.id}','${itm._type}','rejected')" style="
+            flex:1;background:rgba(224,64,64,0.1);color:var(--red);
+            border:1px solid rgba(224,64,64,0.2);padding:9px;border-radius:10px;
+            font-family:'Cairo';font-size:0.82rem;font-weight:800;cursor:pointer;
+          ">❌ رفض</button>
+        </div>
+      </div>`).join('');
+  } catch(e) {
+    console.error('fetchPending error:', e);
+  }
+}
+
+async function approvePending(id, type, status) {
+  try {
+    if(type === 'worker') {
+      await apiCall('PUT', '/admin/workers/' + id + '/approve', { status });
+      await fetchWorkers();
+    } else {
+      await apiCall('PUT', '/admin/properties/' + id + '/approve', { status });
+      await fetchProperties();
+    }
+    toast(status==='approved' ? '✅' : '❌', status==='approved' ? 'تم القبول!' : 'تم الرفض');
+    fetchPending();
+  } catch(e) {
+    toast('❌', e.message || 'حصل خطأ');
+  }
+}
+
 function showAdminUI() {
   document.getElementById('adminBadge').style.display = 'inline';
   document.getElementById('gearFab').classList.add('visible');
+  fetchPending();
+  setInterval(fetchPending, 30000);
 }
 
 function hideAdminUI() {
   document.getElementById('adminBadge').style.display = 'none';
   document.getElementById('gearFab').classList.remove('visible');
+  document.getElementById('pendingSection').style.display = 'none';
   closeAdminPanel();
 }
 
@@ -1908,6 +2024,10 @@ function renderWorkers() {
 // ===================== WORKER FORM =====================
 function openWorkerForm(id = null) {
   clearWorkerForm();
+  ['adminOnlyWFeatured','adminOnlyWVerify'].forEach(el => {
+    const e = document.getElementById(el);
+    if(e) e.style.display = isAdmin ? 'flex' : 'none';
+  });
   if(id && workerStore[id]) {
     const w = workerStore[id];
     document.getElementById('wEditId').value = id;
