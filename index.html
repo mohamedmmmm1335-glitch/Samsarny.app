@@ -2057,8 +2057,10 @@ async function fetchPending() {
 }
 
 async function approvePending(id, type, status) {
+  if(!isAdmin) { toast('❌', 'محتاج تسجل دخول أدمن'); return; }
+  // إظهار رسالة "جاري الرفع"
+  if(status === 'approved') toast('⏳', 'جاري نشر الإعلان...');
   try {
-    if(!isAdmin) { toast('❌', 'محتاج تسجل دخول أدمن'); return; }
     const endpoint = type === 'worker'
       ? '/admin/workers/' + id + '/approve'
       : '/admin/properties/' + id + '/approve';
@@ -2068,8 +2070,12 @@ async function approvePending(id, type, status) {
     } else {
       await fetchProperties();
     }
-    toast(status==='approved' ? '✅' : '❌', status==='approved' ? 'تم القبول ونُشر!' : 'تم الرفض');
     fetchPending();
+    if(status === 'approved') {
+      toast('✅', 'تم النشر بنجاح!');
+    } else {
+      toast('❌', 'تم الرفض');
+    }
   } catch(e) {
     console.error('approvePending error:', e);
     toast('❌', e.message || 'حصل خطأ في الموافقة');
