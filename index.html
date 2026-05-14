@@ -1968,14 +1968,20 @@ async function checkPass() {
 
   try {
     const res = await apiCall('POST', '/auth/login', { password: entered });
+    if(!res || !res.token) { toast('❌', 'كلمة السر غلط!'); document.getElementById('passInput').value = ''; return; }
     localStorage.setItem('adminToken', res.token);
     isAdmin = true;
-    showAdminUI();
-    renderAll();
     closeLogin();
+    showAdminUI();
+    await renderAll();
     toast('🎉', 'أهلاً يا مسؤول!');
+    window.dispatchEvent(new Event('adminLoggedIn'));
   } catch(e) {
-    toast('❌', 'كلمة السر غلط!');
+    const msg = e.message || '';
+    if(msg.includes('كلمة السر') || msg.includes('401') || msg.includes('غلط')) {
+      toast('❌', 'كلمة السر غلط!');
+    }
+    // لو الـ error مش من الـ login نفسه مش نبين error للمستخدم
     document.getElementById('passInput').value = '';
   }
 
@@ -1998,6 +2004,7 @@ async function fetchPending() {
       ...props.map(p => ({...p, _type:'property'})),
       ...workers.map(w => ({...w, _type:'worker'})),
     ].sort((a,b) => (b.time||0) - (a.time||0));
+    _pendingCache = all; // save to cache
 
     const section = document.getElementById('pendingSection');
     const countEl = document.getElementById('pendingCount');
@@ -2051,17 +2058,21 @@ async function fetchPending() {
 
 async function approvePending(id, type, status) {
   try {
+    if(!isAdmin) { toast('❌', 'محتاج تسجل دخول أدمن'); return; }
+    const endpoint = type === 'worker'
+      ? '/admin/workers/' + id + '/approve'
+      : '/admin/properties/' + id + '/approve';
+    await apiCall('PUT', endpoint, { status });
     if(type === 'worker') {
-      await apiCall('PUT', '/admin/workers/' + id + '/approve', { status });
       await fetchWorkers();
     } else {
-      await apiCall('PUT', '/admin/properties/' + id + '/approve', { status });
       await fetchProperties();
     }
     toast(status==='approved' ? '✅' : '❌', status==='approved' ? 'تم القبول ونُشر!' : 'تم الرفض');
     fetchPending();
   } catch(e) {
-    toast('❌', e.message || 'حصل خطأ');
+    console.error('approvePending error:', e);
+    toast('❌', e.message || 'حصل خطأ في الموافقة');
   }
 }
 
@@ -2096,65 +2107,67 @@ document.getElementById('successModal').addEventListener('click', function(e){
 
 // ===================== PENDING DETAIL MODAL =====================
 let _pdCurrent = null; // {id, type}
+let _pendingCache = []; // cache for pending items
 
 function openPendingDetail(id, type) {
-  // Find item in pending list
   _pdCurrent = {id, type};
-  // Fetch from server to get full data including images
-  apiCall('GET', (type === 'worker' ? '/workers/' : '/properties/') + id)
-    .then(res => {
-      const itm = res.data;
-      // Images
-      const imgs = itm.media || [];
-      const pdImgs = document.getElementById('pdImgs');
-      if(imgs.length) {
-        pdImgs.innerHTML = `<div class="pending-detail-img-slider">${
-          imgs.map(m => `<img class="pending-detail-img-slide" src="${m.src||m.url||''}" loading="lazy">`)
-          .join('')
-        }</div><div class="img-counter" style="position:absolute;bottom:10px;right:12px;">1 / ${imgs.length}</div>`;
-      } else {
-        pdImgs.innerHTML = `<div class="pending-detail-no-img">
-          ${type==='worker'?'🔧':'🏠'}
-          <span style="font-size:0.78rem;margin-top:8px;font-family:'Cairo';color:var(--muted)">لا يوجد صور</span>
-        </div>`;
-      }
 
-      document.getElementById('pdTitle').textContent = itm.title || itm.name || 'بدون عنوان';
-      const phone = itm.phone || '';
-      const waNum = phone.replace(/\D/g,'');
-      const wa = waNum.startsWith('0') ? '2'+waNum : '20'+waNum;
-
-      let rows = '';
-      if(type === 'worker') {
-        rows = `
-          <div class="pd-label">الاسم</div><div class="pd-value">${itm.name||'-'}</div>
-          <div class="pd-label">التخصص</div><div class="pd-value">${itm.specialty||'-'}</div>
-          ${itm.exp ? `<div class="pd-label">الخبرة</div><div class="pd-value">${itm.exp} سنوات</div>` : ''}
-        `;
-      } else {
-        rows = `
-          <div class="pd-label">الغرض</div><div class="pd-value">${itm.purpose||'-'} — ${itm.type||''}</div>
-          ${itm.price>0 ? `<div class="pd-label">السعر</div><div class="pd-value">${Number(itm.price).toLocaleString()} ج.م</div>` : ''}
-        `;
-      }
-      rows += `
-        <div class="pd-label">المنطقة</div><div class="pd-value">${itm.area||'-'}</div>
-        <div class="pd-label">الموبايل</div>
-        <div class="pd-value" style="display:flex;gap:8px;align-items:center;">
-          ${phone}
-          <a href="tel:${phone}" style="background:rgba(201,168,76,0.12);color:var(--gold);padding:3px 10px;border-radius:8px;font-size:0.78rem;text-decoration:none;border:1px solid rgba(201,168,76,0.25);">📞 اتصال</a>
-          <a href="https://wa.me/${wa}" target="_blank" style="background:rgba(37,211,102,0.1);color:#25D366;padding:3px 10px;border-radius:8px;font-size:0.78rem;text-decoration:none;border:1px solid rgba(37,211,102,0.2);">واتساب</a>
-        </div>
+  function renderDetail(itm) {
+    const imgs = itm.media || [];
+    const pdImgs = document.getElementById('pdImgs');
+    if(imgs.length) {
+      pdImgs.innerHTML = `<div class="pending-detail-img-slider">${
+        imgs.map(m => `<img class="pending-detail-img-slide" src="${m.src||m.url||''}" loading="lazy">`)
+        .join('')
+      }</div><div class="img-counter" style="position:absolute;bottom:10px;right:12px;">1 / ${imgs.length}</div>`;
+    } else {
+      pdImgs.innerHTML = `<div class="pending-detail-no-img">
+        ${type==='worker'?'🔧':'🏠'}
+        <span style="font-size:0.78rem;margin-top:8px;font-family:'Cairo';color:var(--muted)">لا يوجد صور</span>
+      </div>`;
+    }
+    document.getElementById('pdTitle').textContent = itm.title || itm.name || 'بدون عنوان';
+    const phone = itm.phone || '';
+    const waNum = phone.replace(/\D/g,'');
+    const wa = waNum.startsWith('0') ? '2'+waNum : '20'+waNum;
+    let rows = '';
+    if(type === 'worker') {
+      rows = `
+        <div class="pd-label">الاسم</div><div class="pd-value">${itm.name||'-'}</div>
+        <div class="pd-label">التخصص</div><div class="pd-value">${itm.specialty||'-'}</div>
+        ${itm.exp ? `<div class="pd-label">الخبرة</div><div class="pd-value">${itm.exp} سنوات</div>` : ''}
       `;
-      if(itm.desc) rows += `<div class="pd-divider"></div><div class="pd-label">الوصف</div><div class="pd-value" style="color:var(--muted);font-size:0.85rem;line-height:1.5;font-weight:500;">${itm.desc}</div>`;
+    } else {
+      rows = `
+        <div class="pd-label">الغرض</div><div class="pd-value">${itm.purpose||'-'} — ${itm.type||''}</div>
+        ${itm.price>0 ? `<div class="pd-label">السعر</div><div class="pd-value">${Number(itm.price).toLocaleString()} ج.م</div>` : ''}
+      `;
+    }
+    rows += `
+      <div class="pd-label">المنطقة</div><div class="pd-value">${itm.area||'-'}</div>
+      <div class="pd-label">الموبايل</div>
+      <div class="pd-value" style="display:flex;gap:8px;align-items:center;">
+        ${phone}
+        <a href="tel:${phone}" style="background:rgba(201,168,76,0.12);color:var(--gold);padding:3px 10px;border-radius:8px;font-size:0.78rem;text-decoration:none;border:1px solid rgba(201,168,76,0.25);">📞 اتصال</a>
+        <a href="https://wa.me/${wa}" target="_blank" style="background:rgba(37,211,102,0.1);color:#25D366;padding:3px 10px;border-radius:8px;font-size:0.78rem;text-decoration:none;border:1px solid rgba(37,211,102,0.2);">واتساب</a>
+      </div>
+    `;
+    if(itm.desc) rows += `<div class="pd-divider"></div><div class="pd-label">الوصف</div><div class="pd-value" style="color:var(--muted);font-size:0.85rem;line-height:1.5;font-weight:500;">${itm.desc}</div>`;
+    document.getElementById('pdContent').innerHTML = rows;
+    document.getElementById('pdApproveBtn').onclick = () => { approvePending(id, type, 'approved'); closePendingDetail(); };
+    document.getElementById('pdRejectBtn').onclick  = () => { approvePending(id, type, 'rejected');  closePendingDetail(); };
+    document.getElementById('pendingDetailModal').classList.add('open');
+    document.body.style.overflow = 'hidden';
+  }
 
-      document.getElementById('pdContent').innerHTML = rows;
-      document.getElementById('pdApproveBtn').onclick = () => { approvePending(id, type, 'approved'); closePendingDetail(); };
-      document.getElementById('pdRejectBtn').onclick  = () => { approvePending(id, type, 'rejected');  closePendingDetail(); };
+  // استخدم الـ cache المحلي أولاً (بيشتغل فوراً)
+  const cached = _pendingCache.find(x => x.id === id);
+  if(cached) { renderDetail(cached); return; }
 
-      document.getElementById('pendingDetailModal').classList.add('open');
-      document.body.style.overflow = 'hidden';
-    })
+  // لو مش في الـ cache، اجيب من السيرفر
+  toast('⏳', 'جاري تحميل التفاصيل...');
+  apiCall('GET', (type === 'worker' ? '/workers/' : '/properties/') + id)
+    .then(res => renderDetail(res.data))
     .catch(() => toast('❌','تعذّر تحميل التفاصيل'));
 }
 
@@ -2509,12 +2522,24 @@ setTimeout(() => {
 
 async function allowNotifications() {
   document.getElementById('notifBanner')?.remove();
-  const permission = await Notification.requestPermission();
-  if (permission === 'granted') {
-    await initFCM();
-    toast('🔔', 'تم تفعيل الإشعارات!');
-  } else {
-    toast('⚠️', 'لم يتم تفعيل الإشعارات');
+  try {
+    // طلب الإذن مباشرة
+    const permission = await Notification.requestPermission();
+    if (permission === 'granted') {
+      await initFCM();
+      toast('🔔', 'تم تفعيل الإشعارات!');
+    } else if(permission === 'denied') {
+      toast('⚠️', 'الإشعارات محظورة - فعّلها من إعدادات المتصفح');
+    } else {
+      toast('⚠️', 'لم يتم تفعيل الإشعارات');
+    }
+  } catch(e) {
+    console.error('Notification permission error:', e);
+    // على بعض المتصفحات requestPermission بيرجع string مش promise
+    if(Notification.permission === 'granted') {
+      await initFCM();
+      toast('🔔', 'تم تفعيل الإشعارات!');
+    }
   }
 }
 
