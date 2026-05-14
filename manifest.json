@@ -1,0 +1,27 @@
+{
+  "name": "سمسرني - عقارات وصنايعية قرية باها",
+  "short_name": "سمسرني",
+  "description": "موقع عقارات وصنايعية قرية باها",
+  "start_url": "/Samsarny.app/",
+  "scope": "/Samsarny.app/",
+  "display": "standalone",
+  "background_color": "#0d0d0d",
+  "theme_color": "#c9a84c",
+  "orientation": "portrait",
+  "lang": "ar",
+  "dir": "rtl",
+  "icons": [
+    {
+      "src": "logo.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "logo.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    }
+  ]
+}
