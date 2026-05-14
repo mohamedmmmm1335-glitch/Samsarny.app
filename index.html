@@ -1792,25 +1792,50 @@ function clearFormFields() {
   document.getElementById('m_verify').checked = false;
   document.getElementById('m_featured').checked = false;
   tempMedia = [];
+  updateUploadZone();
   drawPreview();
   onModeChange();
 }
 
 // ===================== MEDIA =====================
 async function handleFiles(input) {
-  const MAX_SIZE = 800; // px - resize to save storage
+  const MAX_SIZE = 800;
   const maxPhotos = isAdmin ? 10 : 3;
   if(tempMedia.length >= maxPhotos) {
     toast('⚠️', `الحد الأقصى ${maxPhotos} صور بس`);
     input.value = '';
+    updateUploadZone();
     return;
   }
   for(const file of input.files) {
+    if(tempMedia.length >= maxPhotos) {
+      toast('⚠️', `وصلت للحد الأقصى ${maxPhotos} صور`);
+      break;
+    }
     const resized = await resizeImage(file, MAX_SIZE);
     tempMedia.push({ src: resized, uploaded: false });
   }
   input.value = '';
   drawPreview();
+  updateUploadZone();
+}
+
+function updateUploadZone() {
+  const maxPhotos = isAdmin ? 10 : 3;
+  const zone = document.querySelector('.upload-zone');
+  const inp  = document.getElementById('fileInp');
+  if(!zone || !inp) return;
+  if(tempMedia.length >= maxPhotos) {
+    zone.style.opacity = '0.4';
+    zone.style.pointerEvents = 'none';
+    zone.title = `وصلت للحد الأقصى ${maxPhotos} صور`;
+    inp.disabled = true;
+  } else {
+    zone.style.opacity = '1';
+    zone.style.pointerEvents = 'auto';
+    zone.title = '';
+    inp.disabled = false;
+  }
 }
 
 function resizeImage(file, maxPx) {
@@ -1847,6 +1872,7 @@ function drawPreview() {
 function removeMedia(i) {
   tempMedia.splice(i, 1);
   drawPreview();
+  updateUploadZone();
 }
 
 // Upload images to Cloudinary
@@ -1889,13 +1915,28 @@ function dataURLtoBlob(dataurl) {
 }
 
 // ===================== SAVE =====================
+const CLIENT_BAD_WORDS = ['سب', 'شتيمة', 'كلب', 'حمار'];
+function clientCheckBadWords(text) {
+  if(!text) return false;
+  return CLIENT_BAD_WORDS.some(w => String(text).includes(w));
+}
+
 async function saveData() {
   const title = document.getElementById('m_title').value.trim();
   const phone = document.getElementById('m_phone').value.trim();
   const area  = document.getElementById('m_area').value.trim();
+  const desc  = document.getElementById('m_desc').value.trim();
 
   if(!title || !phone) {
     toast('⚠️', 'الرجاء كتابة العنوان ورقم الموبايل على الأقل');
+    return;
+  }
+  if(clientCheckBadWords(title)) {
+    toast('❌', 'العنوان يحتوي على كلمات غير مسموح بها');
+    return;
+  }
+  if(clientCheckBadWords(desc)) {
+    toast('❌', 'الوصف يحتوي على كلمات غير مسموح بها');
     return;
   }
 
