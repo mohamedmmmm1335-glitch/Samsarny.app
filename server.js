@@ -479,6 +479,13 @@ app.put('/api/admin/properties/:id/approve', requireAdmin, async (req, res) => {
     const item = await propSvc.update(req.params.id, { approvalStatus: status }, true);
     if (!item) return res.status(404).json({ error: 'الإعلان مش موجود' });
     logAction(`PROPERTY_${status.toUpperCase()}`, req.params.id);
+    // إشعار للعملاء لما الأدمن يوافق على عقار
+    if(status === 'approved') {
+      try {
+        const tokens = await getTokensByRole('user');
+        await sendNotification(tokens, '🏠 عقار جديد على سمسرني!', item.title + (item.area ? ' - ' + item.area : ''));
+      } catch(ne) { console.error('notify error:', ne.message); }
+    }
     return res.json({ success: true, data: item, message: status === 'approved' ? '✅ تم قبول الإعلان' : '❌ تم رفض الإعلان' });
   } catch(e) { return res.status(500).json({ error: 'خطأ' }); }
 });
@@ -490,6 +497,13 @@ app.put('/api/admin/workers/:id/approve', requireAdmin, async (req, res) => {
     const item = await workerSvc.update(req.params.id, { approvalStatus: status }, true);
     if (!item) return res.status(404).json({ error: 'الصنايعي مش موجود' });
     logAction(`WORKER_${status.toUpperCase()}`, req.params.id);
+    // إشعار للعملاء لما الأدمن يوافق على صنايعي
+    if(status === 'approved') {
+      try {
+        const tokens = await getTokensByRole('user');
+        await sendNotification(tokens, '🔧 صنايعي جديد على سمسرني!', item.name + (item.specialty ? ' - ' + item.specialty : '') + (item.area ? ' - ' + item.area : ''));
+      } catch(ne) { console.error('notify error:', ne.message); }
+    }
     return res.json({ success: true, data: item, message: status === 'approved' ? '✅ تم قبول الصنايعي' : '❌ تم رفض الصنايعي' });
   } catch(e) { return res.status(500).json({ error: 'خطأ' }); }
 });
