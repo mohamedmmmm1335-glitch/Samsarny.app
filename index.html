@@ -285,7 +285,7 @@ body.light header{background:rgba(255,255,255,0.96);}
 .card-meta{display:flex;gap:12px;color:var(--muted);font-size:0.8rem;margin-bottom:12px;flex-wrap:wrap;}
 .card-meta span{display:flex;align-items:center;gap:4px;}
 
-.card-actions{display:grid;grid-template-columns:1fr 1fr 44px;gap:8px;}
+.card-actions{display:grid;grid-template-columns:1fr 1fr 44px 44px;gap:8px;}
 .act-btn{
   padding:11px;border-radius:12px;
   font-family:'Cairo';font-weight:800;font-size:0.85rem;
@@ -297,6 +297,24 @@ body.light header{background:rgba(255,255,255,0.96);}
 .btn-wa{background:var(--green);color:#fff;}
 .btn-share{background:var(--dark3);color:var(--text);border:1px solid rgba(255,255,255,0.1);}
 
+
+/* ====== FAVORITES ====== */
+.btn-fav{
+  background:var(--dark3);border:1px solid rgba(255,255,255,0.1);
+  color:var(--muted);border-radius:12px;padding:11px;
+  font-size:1.1rem;display:flex;align-items:center;justify-content:center;
+  cursor:pointer;transition:all 0.2s;min-width:44px;
+}
+.btn-fav.active{color:#e74c3c;border-color:rgba(231,76,60,0.4);background:rgba(231,76,60,0.1);}
+.btn-fav:hover{transform:scale(1.15);}
+
+.fav-badge{
+  position:absolute;top:-6px;right:-6px;
+  background:#e74c3c;color:#fff;border-radius:50%;
+  width:18px;height:18px;font-size:0.65rem;font-weight:800;
+  display:flex;align-items:center;justify-content:center;
+  font-family:'Cairo';
+}
 /* Ad banner */
 .ad-card{
   background:linear-gradient(135deg,rgba(201,168,76,0.08),rgba(201,168,76,0.03));
@@ -642,7 +660,7 @@ select.finput option{background:var(--dark2);}
 .ap-add-worker{background:var(--purple-dim);color:var(--purple-light);}
 
 /* ====== FIX CARD ACTIONS - bigger share ====== */
-.card-actions{display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;}
+.card-actions{display:grid;grid-template-columns:1fr 1fr 44px 44px;gap:8px;}
 .btn-share{background:var(--dark3);color:var(--text);border:1px solid rgba(255,255,255,0.1);}
 
 /* ====== WORKER FORM MODAL ====== */
@@ -733,6 +751,7 @@ select.finput option{background:var(--dark2);}
     <button class="pill" onclick="setFilter('mode','worker',this);setTimeout(()=>{const w=document.getElementById('workersSection');if(w)w.scrollIntoView({behavior:'smooth',block:'start'});},200)">صنايعية</button>
     <button class="pill" onclick="setFilter('mode','request',this);setTimeout(()=>{const b=document.getElementById('requestsBanner');if(b)b.scrollIntoView({behavior:'smooth',block:'start'});},200)">مطلوب</button>
     <button class="pill" onclick="setFilter('status','available',this)">متاح فقط</button>
+    <button class="pill" id="favPill" onclick="showFavs(this)" style="position:relative;">❤️ المفضلة<span class="fav-badge" id="favCount" style="display:none">0</span></button>
   </div>
 </section>
 
@@ -1596,7 +1615,8 @@ function buildCard(itm, idx) {
       <div class="card-actions">
         <a href="tel:${itm.phone}" class="act-btn btn-call">📞 اتصال</a>
         <a href="https://wa.me/${waPhone}?text=مرحباً، رأيت إعلانك على سمسرني عن: ${encodeURIComponent(itm.title||'')}" target="_blank" class="act-btn btn-wa">واتساب</a>
-        <button class="act-btn btn-share" onclick="shareItem('${itm.id}')" title="مشاركة">📤 مشاركة</button>
+        <button class="act-btn btn-share" onclick="shareItem('${itm.id}')" title="مشاركة">📤</button>
+        <button class="act-btn btn-fav ${isFav(itm.id)?'active':''}" onclick="toggleFav('${itm.id}')" title="المفضلة" id="fav-${itm.id}">❤️</button>
       </div>
       ${isAdmin ? `<div style="margin-top:8px;display:flex;gap:8px;">
         <button class="act-btn" style="flex:1;background:rgba(201,168,76,0.1);color:var(--gold);border:1px solid rgba(201,168,76,0.3);font-size:0.78rem;padding:8px;" onclick="openForm('${itm.id}')">⚙️ تعديل</button>
@@ -2264,6 +2284,67 @@ function closePendingDetail() {
 document.getElementById('pendingDetailModal').addEventListener('click', function(e){
   if(e.target === this) closePendingDetail();
 });
+
+// ===================== FAVORITES =====================
+function getFavs() {
+  try { return JSON.parse(localStorage.getItem('samsarny_favs') || '[]'); }
+  catch(e) { return []; }
+}
+function isFav(id) { return getFavs().includes(id); }
+function toggleFav(id) {
+  let favs = getFavs();
+  const btn = document.getElementById('fav-' + id);
+  if(favs.includes(id)) {
+    favs = favs.filter(f => f !== id);
+    if(btn) { btn.classList.remove('active'); }
+    toast('🤍', 'تم الإزالة من المفضلة');
+  } else {
+    favs.push(id);
+    if(btn) { btn.classList.add('active'); }
+    toast('❤️', 'تم الإضافة للمفضلة!');
+  }
+  localStorage.setItem('samsarny_favs', JSON.stringify(favs));
+  updateFavCount();
+}
+function updateFavCount() {
+  const favs = getFavs();
+  const badge = document.getElementById('favCount');
+  if(!badge) return;
+  if(favs.length > 0) {
+    badge.textContent = favs.length;
+    badge.style.display = 'flex';
+  } else {
+    badge.style.display = 'none';
+  }
+}
+let showingFavs = false;
+function showFavs(btn) {
+  showingFavs = !showingFavs;
+  if(showingFavs) {
+    btn.classList.add('active');
+    const favs = getFavs();
+    if(favs.length === 0) {
+      toast('💔', 'مفيش إعلانات في المفضلة');
+      showingFavs = false;
+      btn.classList.remove('active');
+      return;
+    }
+    // filter store to show only favs
+    const grid = document.getElementById('mainGrid');
+    const allCards = [...grid.children];
+    allCards.forEach(card => {
+      const id = card.dataset.id;
+      card.style.display = id && favs.includes(id) ? '' : 'none';
+    });
+    toast('❤️', `${favs.length} إعلان في المفضلة`);
+  } else {
+    btn.classList.remove('active');
+    const grid = document.getElementById('mainGrid');
+    const allCards = [...grid.children];
+    allCards.forEach(card => card.style.display = '');
+    toast('🏠', 'عرض كل الإعلانات');
+  }
+}
 let toastTimer;
 function toast(icon, msg) {
   document.getElementById('toastIcon').textContent = icon;
