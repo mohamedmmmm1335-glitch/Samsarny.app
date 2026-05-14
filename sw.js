@@ -26,7 +26,7 @@ messaging.onBackgroundMessage((payload) => {
     vibrate: [200, 100, 200],
     tag: 'samsarny-notification',
     renotify: true,
-    data: { url: '/' }
+    data: { url: 'https://mohamedmmmm1335-glitch.github.io/Samsarny.app/' }
   });
 });
 
