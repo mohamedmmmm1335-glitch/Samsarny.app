@@ -1849,9 +1849,33 @@ function removeMedia(i) {
   drawPreview();
 }
 
-// Upload images - base64 مباشرة في DB (بدون Storage)
+// Upload images to Cloudinary
 async function uploadMediaToStorage(id) {
-  return tempMedia.map(m => ({ src: m.src || m.url || '' }));
+  const results = [];
+  for(let i = 0; i < tempMedia.length; i++) {
+    const m = tempMedia[i];
+    // لو الصورة اتحملت قبل كده، مش نعيد رفعها
+    if(m.url && !m.url.startsWith('data:')) {
+      results.push({ src: m.url });
+      continue;
+    }
+    const src = m.src || m.url || '';
+    if(!src) continue;
+    try {
+      toast('⏳', `جاري رفع الصورة ${i+1} من ${tempMedia.length}...`);
+      const res = await apiCall('POST', '/upload', { image: src });
+      if(res && res.url) {
+        results.push({ src: res.url });
+      } else {
+        // fallback - احتفظ بالـ base64 لو فشل الرفع
+        results.push({ src });
+      }
+    } catch(e) {
+      console.error('Upload error:', e);
+      results.push({ src }); // fallback
+    }
+  }
+  return results;
 }
 
 function dataURLtoBlob(dataurl) {
@@ -2178,6 +2202,7 @@ function closePendingDetail() {
 document.getElementById('pendingDetailModal').addEventListener('click', function(e){
   if(e.target === this) closePendingDetail();
 });
+let toastTimer;
 function toast(icon, msg) {
   document.getElementById('toastIcon').textContent = icon;
   document.getElementById('toastMsg').textContent  = msg;

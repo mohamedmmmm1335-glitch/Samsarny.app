@@ -508,6 +508,78 @@ app.put('/api/admin/workers/:id/approve', requireAdmin, async (req, res) => {
   } catch(e) { return res.status(500).json({ error: 'خطأ' }); }
 });
 
+
+// ===== CLOUDINARY UPLOAD =====
+app.post('/api/upload', async (req, res) => {
+  try {
+    const { image } = req.body;
+    if(!image) return res.status(400).json({ error: 'صورة مطلوبة' });
+
+    const cloudName = process.env.CLOUDINARY_CLOUD_NAME;
+    const apiKey    = process.env.CLOUDINARY_API_KEY;
+    const apiSecret = process.env.CLOUDINARY_API_SECRET;
+
+    if(!cloudName || !apiKey || !apiSecret)
+      return res.status(500).json({ error: 'Cloudinary غير مضبوط' });
+
+    const timestamp = Math.round(Date.now() / 1000);
+    const folder    = 'samsarny';
+    const strToSign = `folder=${folder}&timestamp=${timestamp}${apiSecret}`;
+    const signature = require('crypto').createHash('sha1').update(strToSign).digest('hex');
+
+    const imageData = image.includes(',') ? image.split(',')[1] : image;
+    const fileStr   = 'data:image/jpeg;base64,' + imageData;
+
+    const boundary = 'FormBoundary' + Date.now();
+    let body = '';
+    const fields = [
+      ['file',      fileStr],
+      ['timestamp', String(timestamp)],
+      ['api_key',   apiKey],
+      ['signature', signature],
+      ['folder',    folder],
+    ];
+    fields.forEach(([name, value]) => {
+      body += `--${boundary}\r\n`;
+      body += `Content-Disposition: form-data; name="${name}"\r\n\r\n`;
+      body += `${value}\r\n`;
+    });
+    body += `--${boundary}--\r\n`;
+
+    const bodyBuf = Buffer.from(body, 'utf8');
+    const https   = require('https');
+
+    const data = await new Promise((resolve, reject) => {
+      const options = {
+        hostname: 'api.cloudinary.com',
+        path:     `/v1_1/${cloudName}/image/upload`,
+        method:   'POST',
+        headers: {
+          'Content-Type':   `multipart/form-data; boundary=${boundary}`,
+          'Content-Length': bodyBuf.length,
+        },
+      };
+      const request = https.request(options, (response) => {
+        let raw = '';
+        response.on('data', chunk => raw += chunk);
+        response.on('end', () => {
+          try { resolve(JSON.parse(raw)); }
+          catch(e) { reject(new Error('Cloudinary parse error: ' + raw)); }
+        });
+      });
+      request.on('error', reject);
+      request.write(bodyBuf);
+      request.end();
+    });
+
+    if(data.error) return res.status(400).json({ error: data.error.message });
+    return res.json({ success: true, url: data.secure_url, public_id: data.public_id });
+  } catch(e) {
+    console.error('Cloudinary upload error:', e.message);
+    return res.status(500).json({ error: 'فشل رفع الصورة: ' + e.message });
+  }
+});
+
 // ===== HEALTH =====
 app.get('/health', (req, res) => res.json({ status: 'ok', time: new Date().toISOString() }));
 
