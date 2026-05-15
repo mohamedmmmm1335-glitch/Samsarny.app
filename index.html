@@ -1414,14 +1414,20 @@ function renderAll() {
   // Render requests section
   renderRequests(requests);
 
-  // Filter
-  items = items.filter(itm => {
-    if(filterKey === 'all') return true;
-    if(filterKey === 'purpose') return itm.purpose === filterVal && itm.mode !== 'request';
-    if(filterKey === 'mode') return itm.mode === filterVal && itm.mode !== 'request';
-    if(filterKey === 'status') return (itm.status || 'available') === filterVal && itm.mode !== 'request';
-    return true;
-  });
+  // Filter favs
+  if(showingFavs) {
+    const favs = getFavs();
+    items = items.filter(itm => favs.includes(itm.id));
+  } else {
+    // Normal filter
+    items = items.filter(itm => {
+      if(filterKey === 'all') return true;
+      if(filterKey === 'purpose') return itm.purpose === filterVal && itm.mode !== 'request';
+      if(filterKey === 'mode') return itm.mode === filterVal && itm.mode !== 'request';
+      if(filterKey === 'status') return (itm.status || 'available') === filterVal && itm.mode !== 'request';
+      return true;
+    });
+  }
 
   if(q) {
     items = items.filter(itm =>
@@ -1705,6 +1711,8 @@ function lbZoom(factor) {
 
 // ===================== FILTER =====================
 function setFilter(key, val, btn) {
+  showingFavs = false;
+  document.getElementById('favPill')?.classList.remove('active');
   filterKey = key;
   filterVal = val;
   document.querySelectorAll('.pill').forEach(p => p.classList.remove('active'));
@@ -2322,29 +2330,21 @@ let showingFavs = false;
 function showFavs(btn) {
   showingFavs = !showingFavs;
   if(showingFavs) {
-    btn.classList.add('active');
     const favs = getFavs();
     if(favs.length === 0) {
       toast('💔', 'مفيش إعلانات في المفضلة');
       showingFavs = false;
-      btn.classList.remove('active');
       return;
     }
-    // filter store to show only favs
-    const grid = document.getElementById('mainGrid');
-    const allCards = [...grid.children];
-    allCards.forEach(card => {
-      const id = card.dataset.id;
-      card.style.display = id && favs.includes(id) ? '' : 'none';
-    });
+    // deactivate all other pills
+    document.querySelectorAll('.pill').forEach(p => p.classList.remove('active'));
+    btn.classList.add('active');
     toast('❤️', `${favs.length} إعلان في المفضلة`);
   } else {
     btn.classList.remove('active');
-    const grid = document.getElementById('mainGrid');
-    const allCards = [...grid.children];
-    allCards.forEach(card => card.style.display = '');
     toast('🏠', 'عرض كل الإعلانات');
   }
+  renderAll();
 }
 let toastTimer;
 function toast(icon, msg) {
