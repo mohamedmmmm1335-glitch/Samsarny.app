@@ -1578,6 +1578,7 @@ function buildCard(itm, idx) {
   const div = document.createElement('div');
   div.className = 'card' + (itm.featured ? ' is-featured' : '');
   div.style.animationDelay = delay + 's';
+  div.dataset.id = itm.id;
 
   // increment views once per user per listing (API call)
   const viewKey = 'viewed_' + itm.id;
